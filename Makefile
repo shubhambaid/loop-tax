@@ -19,8 +19,9 @@ remote-inventory: ## record remote hardware/software into results/env
 remote-build: ## build pinned llama.cpp (Metal) on the remote
 	$(R) run build -- bash scripts/build_llama.sh
 
-remote-download: ## download the reference GGUF + imatrix on the remote
+remote-download: ## download reference GGUF + imatrix, then varloop checkpoint and BF16 source
 	$(R) run dl_ref -- bash scripts/download_models.sh inkling-imatrix inkling-nvfp4
+	$(R) run dl_more -- bash scripts/download_models.sh after:dl_ref varloop-hf inkling-bf16
 
 remote-ls: ## list remote tmux sessions
 	$(R) ls

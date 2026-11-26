@@ -18,9 +18,31 @@ fetch() {  # repo revision file
 INK=ggml-org/Inkling-2-Mini-GGUF;              INK_REV=0bdc580634ceac4c4d921f452777bf44228de9af
 VAR=ggml-org/TML-d24-varloop-research-GGUF;    VAR_REV=7af7f5e17b57395455bd8a37d8cfefa98824ca6e
 
+VAR_HF=thinkingmachines/TML-d24-varloop-research; VAR_HF_REV=91a57fe2b779bbd12c0f74d1f518cbd5b84e8d0d
+VAR_HF_FILES="config.json generation_config.json hf_quant_config.json chat_template.jinja model.safetensors.index.json
+  processor_config.json special_tokens_map.json tokenizer.json tokenizer_config.json tiktoken/tokenizer.model
+  model-00001-of-00001.safetensors"
+
+fetch_dir() {  # repo revision subdir files...
+  local repo=$1 rev=$2 sub=$3; shift 3
+  for f in "$@"; do
+    mkdir -p "$DEST/$sub/$(dirname "$f")"
+    echo "$(date -u +%FT%TZ) fetching $repo@$rev $f"
+    curl -fsSL --retry 20 --retry-delay 10 -C - "${TOKEN_ARGS[@]}" -o "$DEST/$sub/$f" "https://huggingface.co/$repo/resolve/$rev/$f"
+  done
+  echo "$(date -u +%FT%TZ) done $sub ($(du -sh "$DEST/$sub" | cut -f1))"
+}
+
+wait_for() {  # wait until no other download session is running
+  while tmux has-session -t "$1" 2>/dev/null; do sleep 60; done
+}
+
 for what in "$@"; do
   case "$what" in
     inkling-nvfp4)   fetch $INK $INK_REV Inkling-2-Mini-NVFP4.gguf ;;
+    after:*)         wait_for "${what#after:}" ;;
+    varloop-hf)      fetch_dir $VAR_HF $VAR_HF_REV TML-d24-varloop-research-hf $VAR_HF_FILES ;;
+    inkling-bf16)    fetch $INK $INK_REV Inkling-2-Mini-BF16.gguf ;;
     inkling-q8)      fetch $INK $INK_REV Inkling-2-Mini-Q8_0.gguf ;;
     inkling-iq4nl)   fetch $INK $INK_REV Inkling-2-Mini-IQ4_NL.gguf ;;
     inkling-imatrix) fetch $INK $INK_REV imatrix.gguf ;;
