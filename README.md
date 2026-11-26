@@ -17,9 +17,15 @@ If that holds, a bit spent on a looped weight is worth more than a bit spent on 
 | Stage | Status |
 |---|---|
 | Toy simulation (random weights) | Done, see below |
-| Per-layer KL sensitivity scan on Inkling 2 Mini | Planned |
-| Loop-aware mixed-precision GGUF vs uniform community quants | Planned |
-| Bits vs loop passes on the variable-loop checkpoint | Planned |
+| Setup: pinned llama.cpp, reference GGUF, eval set, GGUF layout check | Done (`docs/ARCHITECTURE.md`, `results/layout/`) |
+| Phase 1: uniform baselines vs NVFP4 reference | Done (`results/phase1-baselines/`); community GGUFs in progress |
+| Phase 2: per-block KL sensitivity scan on Inkling 2 Mini | Running; weight-error normalisation queued |
+| Headline: same block, 1-5 loop passes, on the variable-loop checkpoint | Queued |
+| Phase 3: loop-aware mixed precision vs uniform at matched size | Configured, not run |
+| Phase 4: bits vs loop passes | Queued with the headline experiment |
+
+Results so far are screening numbers on about 16k scored tokens per run. Nothing is a finding until rerun on a larger
+held-out slice. The running log is `notebook/LAB_NOTEBOOK.md`.
 
 ## Toy results
 

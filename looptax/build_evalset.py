@@ -32,6 +32,12 @@ CPYTHON_FILES = [
 FLORES = ("mteb/flores", "69edd3336d102dd184dd531b57defac6c9c60c8f", "devtest.parquet")
 FLORES_LANGS = ["deu_Latn", "fra_Latn", "spa_Latn", "rus_Cyrl", "zho_Hans", "jpn_Jpan", "hin_Deva", "arb_Arab"]
 FLORES_SENTENCES = 240          # first N devtest sentences per language
+
+# Held-out slice, disjoint from the screening texts, for confirming candidates before any claim (--holdout):
+# wikitext from character 300000 on (the screening runs read well under 100k characters), other CPython files,
+# FLORES devtest sentences 240-1011.
+HOLDOUT_WIKITEXT_FROM_CHAR = 300_000
+HOLDOUT_CPYTHON_FILES = ["Lib/difflib.py", "Lib/argparse.py", "Lib/enum.py", "Lib/inspect.py", "Lib/typing.py"]
 FLORES_PARAGRAPH = 12           # sentences per paragraph before switching language
 
 
@@ -45,47 +51,54 @@ def hf_url(repo: str, rev: str, path: str) -> str:
     return f"https://huggingface.co/datasets/{repo}/resolve/{rev}/{path}"
 
 
-def build_wikitext() -> tuple[str, dict]:
+def build_wikitext(holdout: bool = False) -> tuple[str, dict]:
     import pyarrow.parquet as pq
     repo, rev, path = WIKITEXT
     table = pq.read_table(io.BytesIO(_get(hf_url(repo, rev, path))))
     # same convention as llama.cpp's scripts/get-wikitext-2.sh: the raw lines joined as-is
     text = "".join(table.column("text").to_pylist())
-    return text, {"source": f"hf://datasets/{repo}", "revision": rev, "file": path}
+    meta = {"source": f"hf://datasets/{repo}", "revision": rev, "file": path}
+    if holdout:
+        text = text[HOLDOUT_WIKITEXT_FROM_CHAR:]
+        meta["from_char"] = HOLDOUT_WIKITEXT_FROM_CHAR
+    return text, meta
 
 
-def build_code() -> tuple[str, dict]:
+def build_code(holdout: bool = False) -> tuple[str, dict]:
     parts = []
-    for f in CPYTHON_FILES:
+    files = HOLDOUT_CPYTHON_FILES if holdout else CPYTHON_FILES
+    for f in files:
         src = _get(f"https://raw.githubusercontent.com/python/cpython/{CPYTHON_TAG}/{f}").decode("utf-8")
         parts.append(f"# file: {f}\n{src}\n")
-    return "\n".join(parts), {"source": "https://github.com/python/cpython", "revision": CPYTHON_TAG, "files": CPYTHON_FILES}
+    return "\n".join(parts), {"source": "https://github.com/python/cpython", "revision": CPYTHON_TAG, "files": files}
 
 
-def build_multilingual() -> tuple[str, dict]:
+def build_multilingual(holdout: bool = False) -> tuple[str, dict]:
     import pyarrow.parquet as pq
     repo, rev, path = FLORES
     table = pq.read_table(io.BytesIO(_get(hf_url(repo, rev, path))))
-    by_lang = {lang: table.column(lang).to_pylist()[:FLORES_SENTENCES] for lang in FLORES_LANGS}
+    lo, hi = (FLORES_SENTENCES, table.num_rows) if holdout else (0, FLORES_SENTENCES)
+    by_lang = {lang: table.column(lang).to_pylist()[lo:hi] for lang in FLORES_LANGS}
     paras = []
-    for start in range(0, FLORES_SENTENCES, FLORES_PARAGRAPH):
+    for start in range(0, hi - lo, FLORES_PARAGRAPH):
         for lang in FLORES_LANGS:
             paras.append(" ".join(by_lang[lang][start:start + FLORES_PARAGRAPH]))
     return "\n\n".join(paras) + "\n", {
         "source": f"hf://datasets/{repo}", "revision": rev, "file": path, "split": "devtest", "languages": FLORES_LANGS,
-        "sentences_per_language": FLORES_SENTENCES, "sentences_per_paragraph": FLORES_PARAGRAPH,
+        "sentences": [lo, hi], "sentences_per_paragraph": FLORES_PARAGRAPH,
         "layout": "paragraphs cycle through the languages in order"}
 
 
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="data/eval")
+    ap.add_argument("--holdout", action="store_true", help="build the disjoint held-out slice instead")
     a = ap.parse_args(argv)
     out = pathlib.Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
     manifest = {}
     for name, fn in (("wikitext", build_wikitext), ("code", build_code), ("multilingual", build_multilingual)):
-        text, meta = fn()
+        text, meta = fn(a.holdout)
         data = text.encode("utf-8")
         (out / f"{name}.txt").write_bytes(data)
         meta.update({"bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()})
