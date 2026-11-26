@@ -1,0 +1,47 @@
+{
+ "wikitext": {
+  "source": "hf://datasets/Salesforce/wikitext",
+  "revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+  "file": "wikitext-2-raw-v1/test-00000-of-00001.parquet",
+  "from_char": 300000,
+  "bytes": 987222,
+  "sha256": "8f898316effabb859ee9e30a1ac3ab7e6ac545e7632383f98064d31993074ace"
+ },
+ "code": {
+  "source": "https://github.com/python/cpython",
+  "revision": "v3.13.0",
+  "files": [
+   "Lib/difflib.py",
+   "Lib/argparse.py",
+   "Lib/enum.py",
+   "Lib/inspect.py",
+   "Lib/typing.py"
+  ],
+  "bytes": 529442,
+  "sha256": "b7ec06f2df8bfbb2168cd2513535ee3791ab420bee91d360f6f132a588fedfe4"
+ },
+ "multilingual": {
+  "source": "hf://datasets/mteb/flores",
+  "revision": "69edd3336d102dd184dd531b57defac6c9c60c8f",
+  "file": "devtest.parquet",
+  "split": "devtest",
+  "languages": [
+   "deu_Latn",
+   "fra_Latn",
+   "spa_Latn",
+   "rus_Cyrl",
+   "zho_Hans",
+   "jpn_Jpan",
+   "hin_Deva",
+   "arb_Arab"
+  ],
+  "sentences": [
+   240,
+   1012
+  ],
+  "sentences_per_paragraph": 12,
+  "layout": "paragraphs cycle through the languages in order",
+  "bytes": 1206018,
+  "sha256": "141caf1bfa7cd43f62f408bca22bf3d3a7057f27734d87e86060a17e6609056d"
+ }
+}
