@@ -1,0 +1,28 @@
+{
+ "experiment": "phase4-passes",
+ "variant": "varloop-nvfp4r",
+ "role": "reference",
+ "passes": 4,
+ "model_file": "TML-d24-varloop-research-NVFP4R.gguf",
+ "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+ "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+ "llama_cpp_build": "build-lt (pinned commit + scripts/perplexity-chunk-sums.patch)",
+ "machine": "Shubhams-Mac-mini.local",
+ "timestamp": "2026-11-26T14:35:12+00:00",
+ "domains": {
+  "wikitext": {
+   "ppl": 5.5974,
+   "ppl_err": 0.14282,
+   "chunks": 8,
+   "n_ctx": 2048,
+   "seconds": 98.5
+  },
+  "code": {
+   "ppl": 2.3776,
+   "ppl_err": 0.06593,
+   "chunks": 4,
+   "n_ctx": 2048,
+   "seconds": 50.3
+  }
+ }
+}

@@ -185,3 +185,32 @@ so compare within a family, not across.
 **Next.** Extended the per-family runs (experts only, attention only) to all 24 blocks (32 more runs, about 2 h, queued
 after the headline): the Phase 3 sensitivity-guided recipe varies only gate/up experts, so it should be guided by
 experts-only sensitivity, not by whole-block KL that is partly attention.
+
+## 2026-11-26 night: BF16 check failure, early headline numbers
+
+**BF16 reference failed silently, fixed.** With llama.cpp's automatic placement (`--fit`), and with `-ngl 4`, the BF16
+GGUF (52 GB) ran Metal out of memory ("Insufficient Memory", "failed to decode") and llama-perplexity still exited 0.
+The runner recorded six empty results. Fixes: the runner now rejects any run whose output lacks the expected metrics
+(`require()` in `looptax/run.py`), skips an existing valid reference, and sizes its disk guard from the weight count.
+The empty BF16 results and stub logit files were deleted, and all earlier results were re-checked (every Phase 1,
+Phase 2, refcheck and Phase 4 file has its metrics; Phase 4 files have per-chunk sums). The BF16 reference now runs
+CPU only (`--device none`): one 2048-token chunk takes about 9.5 minutes (PPL 5.0328 on the first wikitext chunk vs
+5.0385 for the NVFP4 file), so 16 chunks take about 2.5 hours. Partial offload (`-ngl 8 --no-op-offload`) was slower.
+The overnight queue runs the headline and grid first (GPU), then the BF16 check, then the Phase 2 extension.
+
+**Varloop reference distance.** NVFP4R vs our Q8_0 conversion at 3 passes: KL 0.0116 (wikitext), 0.0105 (code), top-1
+agreement 95.4% / 97.3%. About as far as a Q4_K_M. Every headline variant is compared with NVFP4R itself, so this does
+not enter the headline numbers, but it is a limitation of "full precision" in the headline wording.
+
+**Reference perplexity vs passes (NVFP4R, wikitext, 8 chunks):** 1: 6.018, 2: 5.786, 3: 5.606, 4: 5.597, 5: 5.592,
+6: 5.606 (extrapolated). Gains stop after 3 passes.
+
+**Early headline (screening, 4 of 10 blocks).** KL vs the reference at the same N, fit on N = 1-5:
+block 6 (loop) alpha -0.06 [-0.13, 0.01]; block 9 (loop) 0.19 [0.12, 0.26]; block 3 (prelude) 0.00 [-0.08, 0.10];
+block 20 (coda) 0.04 [-0.03, 0.12]. KL hardly changes with the number of passes, for loop blocks as for the controls;
+all blocks show a bump at N = 2. Block 9 is already more sensitive than blocks 3 and 20 at N = 1, where it runs once.
+Checked that the pass override reaches the quantized runs: their perplexity tracks the reference at each N
+(block 9: 6.04 at N = 1, 5.62 at N = 3). If this holds, the loop tax hypothesis (error compounding with reuse) is
+not supported for this model; the extra sensitivity of middle blocks comes from position, not reuse. Not a finding
+until the remaining blocks are in and the held-out rerun (`configs/phase4_holdout.yaml`: blocks 9, 17, 20, 3 at
+N = 1, 3, 5, 24 chunks of disjoint text) agrees.
