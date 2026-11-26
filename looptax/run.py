@@ -239,6 +239,10 @@ def run_variant(cfg: dict, v: dict, dry: bool):
     print(f"done {v['id']}: " + ", ".join(f"{d} KLD {m.get('kld_mean')}" for d, m in rec["domains"].items()), flush=True)
     if made and not v.get("keep", cfg.get("keep_variants", False)):
         model.unlink()
+    elif not made and v.get("delete_after") and model.resolve().is_relative_to(rp("models").resolve()):
+        # downloaded comparison files (community GGUFs) are removed once measured, to free disk
+        model.unlink()
+        print(f"deleted {model.name} after measuring it", flush=True)
 
 
 def main(argv=None):

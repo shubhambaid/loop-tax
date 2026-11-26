@@ -10,6 +10,6 @@ eval:
 llama: {ngl: 99}
 bench: {pp: 512, tg: 128, reps: 3}
 variants:
-  - {id: ggml-org-iq4_nl, file: models/Inkling-2-Mini-IQ4_NL.gguf, repo: ggml-org/Inkling-2-Mini-GGUF, revision: 0bdc580634ceac4c4d921f452777bf44228de9af}
-  - {id: unsloth-ud-q4_k_m, file: models/Inkling-2-Mini-UD-Q4_K_M.gguf, repo: unsloth/Inkling-2-Mini-GGUF, revision: 8078d149286eec7193795413b9e0643da6d11fa1}
-  - {id: bartowski-q4_k_m, file: models/Inkling-2-Mini-Q4_K_M.gguf, repo: bartowski/Inkling-2-Mini-GGUF, revision: ad66863fd3b7f3236c0b7a0862412c9e00f78a6e}
+  - {id: ggml-org-iq4_nl, file: models/Inkling-2-Mini-IQ4_NL.gguf, repo: ggml-org/Inkling-2-Mini-GGUF, revision: 0bdc580634ceac4c4d921f452777bf44228de9af, delete_after: true}
+  - {id: unsloth-ud-q4_k_m, file: models/Inkling-2-Mini-UD-Q4_K_M.gguf, repo: unsloth/Inkling-2-Mini-GGUF, revision: 8078d149286eec7193795413b9e0643da6d11fa1, delete_after: true}
+  - {id: bartowski-q4_k_m, file: models/Inkling-2-Mini-Q4_K_M.gguf, repo: bartowski/Inkling-2-Mini-GGUF, revision: ad66863fd3b7f3236c0b7a0862412c9e00f78a6e, delete_after: true}
