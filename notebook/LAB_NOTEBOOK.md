@@ -82,3 +82,36 @@ real accuracy, and every loop-aware recipe must also be compared against the NVF
 **Speed (llama-bench, Metal, all layers on GPU).** pp512 / tg128 tok/s: NVFP4 259 / 29.0, IQ4_NL 260 / 30.8,
 IQ4_XS 257 / 30.7, Q4_K_M 254 / 30.0, Q3_K_M 245 / 27.0, Q5_K_M 243 / 25.6. Q6_K and Q8_0 do not fit in GPU memory;
 they were evaluated with partial CPU offload and not benchmarked.
+
+## 2026-11-26: Design review (Shubham) and changes
+
+**Position confound.** All 12 looped blocks sit in the middle of the network, so a per-block scan cannot tell "loops"
+from "middle layers matter more". Fix: the headline experiment now holds position and weights fixed and changes only
+the reuse count. On TML-d24-varloop-research, one block is quantized and the model is run with 1-5 loop passes; each
+run is compared with the unquantized reference at the same pass count (`configs/phase4_passes.yaml`, `looptax/run_passes.py`).
+Perturbed blocks: 6, 9, 12, 17 (loop) at Q2_K, block 9 also at Q4_0. Controls: blocks 3 (prelude) and 20 (coda),
+which run once whatever the pass count. If their KL also rises with passes, the rise is not caused by reuse.
+Prediction to test: if the error adds up coherently across passes, its amplitude grows like N and KL (quadratic in
+small logit changes) like N^2; if it adds up like independent noise, amplitude grows like sqrt(N) and KL like N.
+
+**Varloop reference.** Every routed expert in all 24 blocks at NVFP4 (requantized from our Q8_0 conversion with the
+ggml-org varloop imatrix), everything else Q8_0 (`scripts/make_varloop_ref.sh`). So all blocks start from the same
+precision and the reference fits in GPU memory. Its own distance from the Q8_0 conversion is measured at 3 passes
+(`configs/varloop_refcheck.yaml`) before the Q8_0 is deleted for disk space.
+
+**Blocks start from different precisions on Inkling.** In the Inkling NVFP4 reference, experts of blocks 0-19 are
+NVFP4 (about 4.5 bpw) and blocks 20-23 are Q8_0, so "drop block 20 to Q2_K" removes far more information than "drop
+block 9" (0.51 GB vs 0.18 GB smaller file), yet scores lower KL. Raw KL per block is not a fair comparison. Fix:
+`looptax/weight_error.py` measures, for every scan variant, the bits removed and the relative squared weight error per
+tensor family, by dequantizing both files. Sensitivity will be reported as KL per bit removed and per unit of weight
+error as well as raw KL. First check, block 9 at Q2_K: attention rel. error 7.7% (0.020 GB removed), gate_up 7.7%
+(0.159 GB), down experts (Q4_0 fallback) 0.7% with no bits removed.
+
+**"Q2_K block" is really attention + gate_up.** Because of the 1152-column fallback, the down experts land at Q4_0 in
+every scan run, about the same storage as NVFP4. The scan therefore mostly measures attention plus the gate_up
+experts. The per-family runs (experts only, attention only) on 8 blocks are in the scan, and the headline experiment
+adds a Q4_0 perturbation, a block-32 type that hits all three families with no fallback.
+
+**Sample size.** 16 chunks (about 16k scored tokens) per run is screening only. Built a disjoint held-out slice
+(`configs/evalset_holdout_manifest.json`: wikitext from character 300000, five other CPython files, FLORES devtest
+sentences 240-1011). Candidates are rerun on it before any claim goes on the site.
