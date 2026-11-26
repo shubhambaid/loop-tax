@@ -3,7 +3,7 @@
 Three domains, each a plain-text file fed to llama-perplexity:
   wikitext      wikitext-2-raw-v1 test split (Salesforce/wikitext, pinned revision)
   code          Python and C sources from CPython at a pinned tag
-  multilingual  FLORES+ devtest sentences, 8 languages interleaved in paragraphs (gated dataset, needs an HF token)
+  multilingual  FLORES-200 devtest sentences (ungated mteb/flores mirror), 8 languages interleaved in paragraphs
 
 Writes data/eval/<domain>.txt and data/eval/manifest.json (sources, revisions, sha256, sizes).
 The texts are not committed (licenses vary); the manifest is, so any copy can be checked.
@@ -17,7 +17,6 @@ import argparse
 import hashlib
 import io
 import json
-import os
 import pathlib
 import urllib.request
 
@@ -29,23 +28,15 @@ CPYTHON_FILES = [
     "Lib/functools.py", "Lib/dataclasses.py", "Lib/graphlib.py", "Lib/statistics.py", "Lib/fractions.py",
     "Objects/listsort.txt", "Objects/listobject.c", "Modules/_heapqmodule.c",
 ]
-FLORES = ("openlanguagedata/flores_plus", "286d1e920e5ad8cf3a5bbbb5baac111d13d082de")
-FLORES_LANGS = ["deu_Latn", "fra_Latn", "spa_Latn", "rus_Cyrl", "cmn_Hans", "jpn_Jpan", "hin_Deva", "arb_Arab"]
+# openlanguagedata/flores_plus is gated; mteb/flores is an ungated parquet copy of FLORES-200 (CC-BY-SA-4.0)
+FLORES = ("mteb/flores", "69edd3336d102dd184dd531b57defac6c9c60c8f", "devtest.parquet")
+FLORES_LANGS = ["deu_Latn", "fra_Latn", "spa_Latn", "rus_Cyrl", "zho_Hans", "jpn_Jpan", "hin_Deva", "arb_Arab"]
 FLORES_SENTENCES = 240          # first N devtest sentences per language
 FLORES_PARAGRAPH = 12           # sentences per paragraph before switching language
 
 
-def _token() -> str | None:
-    if os.environ.get("HF_TOKEN"):
-        return os.environ["HF_TOKEN"]
-    p = pathlib.Path.home() / ".cache/huggingface/token"
-    return p.read_text().strip() if p.exists() else None
-
-
-def _get(url: str, auth: bool = False) -> bytes:
+def _get(url: str) -> bytes:
     req = urllib.request.Request(url, headers={"User-Agent": "looptax-evalset"})
-    if auth and _token():
-        req.add_header("Authorization", f"Bearer {_token()}")
     with urllib.request.urlopen(req, timeout=120) as r:
         return r.read()
 
@@ -72,17 +63,16 @@ def build_code() -> tuple[str, dict]:
 
 
 def build_multilingual() -> tuple[str, dict]:
-    repo, rev = FLORES
-    by_lang = {}
-    for lang in FLORES_LANGS:
-        rows = [json.loads(line) for line in _get(hf_url(repo, rev, f"devtest/{lang}.jsonl"), auth=True).decode().splitlines() if line]
-        by_lang[lang] = [r["text"] for r in rows[:FLORES_SENTENCES]]
+    import pyarrow.parquet as pq
+    repo, rev, path = FLORES
+    table = pq.read_table(io.BytesIO(_get(hf_url(repo, rev, path))))
+    by_lang = {lang: table.column(lang).to_pylist()[:FLORES_SENTENCES] for lang in FLORES_LANGS}
     paras = []
     for start in range(0, FLORES_SENTENCES, FLORES_PARAGRAPH):
         for lang in FLORES_LANGS:
             paras.append(" ".join(by_lang[lang][start:start + FLORES_PARAGRAPH]))
     return "\n\n".join(paras) + "\n", {
-        "source": f"hf://datasets/{repo}", "revision": rev, "split": "devtest", "languages": FLORES_LANGS,
+        "source": f"hf://datasets/{repo}", "revision": rev, "file": path, "split": "devtest", "languages": FLORES_LANGS,
         "sentences_per_language": FLORES_SENTENCES, "sentences_per_paragraph": FLORES_PARAGRAPH,
         "layout": "paragraphs cycle through the languages in order"}
 
