@@ -141,3 +141,19 @@ models and datasets; token files kept). 154 GB free afterwards.
 **BF16 check (priority).** `configs/bf16check.yaml`: against the BF16 GGUF on the same eval set, measure the ggml-org
 NVFP4 file, ggml-org IQ4_NL, our Q4_K_M and IQ4_NL made from BF16 and from the NVFP4 file, and Q8_0 from BF16. The
 GPU queue (`scripts/gpu_queue.sh`) runs it as soon as the BF16 download has finished, ahead of the headline variants.
+
+## 2026-11-26: Varloop conversion check
+
+`scripts/convert_varloop.sh` converted thinkingmachines/TML-d24-varloop-research@91a57fe to Q8_0 (27,820,098,944 bytes,
+sha256 `7735ed54...a3b6`). Compared with ggml-org's own `TML-d24-varloop-research-Q8_0.gguf` (27,820,099,264 bytes) via
+the header: all 704 tensors have the same names, types and shapes; every tokenizer array (200,058 tokens, 424,413
+merges, token types, special ids, pre-tokenizer `inkling2`) is identical. Metadata differs only in `general.name`,
+`general.basename`, default sampling keys and the chat template (320 bytes). The converter's transformers warning
+about the tokenizer regex therefore did not change the GGUF tokenizer. The NVFP4R reference built from it:
+15,589,508,704 bytes, sha256 `09e8d57f...d891d`. The safetensors were deleted after conversion.
+
+Queue bug, fixed: `scripts/gpu_queue.sh` assigned a shell variable named `TMUX`, which overrode tmux's own socket
+variable, so its "wait for the scan" checks failed and at 16:14 it tried to start the BF16 check on a partial
+download and the varloop steps before their files existed. Every attempt failed at model load and wrote no result
+files; partial logit directories were deleted. The queue now also requires the BF16 file to match the HF size and
+sha256 before use.
