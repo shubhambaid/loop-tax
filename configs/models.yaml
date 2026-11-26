@@ -1,0 +1,29 @@
+# Pinned model sources. Revisions are Hugging Face commit shas, checked 2026-11-26.
+llama_cpp:
+  repo: https://github.com/ggml-org/llama.cpp
+  commit: 07ba74babd586c6b5f558d196e3cf7cc1eea26f4   # build 12772, first builds with inkling2_loop are from 2026-11-20
+  backend: metal
+
+models:
+  inkling2-mini:
+    upstream: thinkingmachines/Inkling-2-Mini
+    upstream_revision: c9d028302cd0f035fdf8e7e91f089a4ce94d2195
+    gguf_repo: ggml-org/Inkling-2-Mini-GGUF
+    gguf_revision: 0bdc580634ceac4c4d921f452777bf44228de9af
+    files:
+      nvfp4: Inkling-2-Mini-NVFP4.gguf     # 17.63 GB, original NVFP4 experts in blk 0-19, everything else Q8_0, loop ctrl F32
+      q8_0: Inkling-2-Mini-Q8_0.gguf       # 27.82 GB
+      bf16: Inkling-2-Mini-BF16.gguf       # 52.23 GB, NVFP4/MXFP8 experts upcast
+      iq4_nl: Inkling-2-Mini-IQ4_NL.gguf   # 17.63 GB, ggml-org imatrix
+      imatrix: imatrix.gguf                # computed by ggml-org from BF16 on bartowski v6 calibration data
+
+  varloop:
+    upstream: thinkingmachines/TML-d24-varloop-research
+    gguf_repo: ggml-org/TML-d24-varloop-research-GGUF
+    gguf_revision: 7af7f5e17b57395455bd8a37d8cfefa98824ca6e
+    pass_override: "--override-kv inkling2_loop.loop.count=int:N"   # N in 1..6, fixed at load time
+    files:
+      q8_0: TML-d24-varloop-research-Q8_0.gguf
+      bf16: TML-d24-varloop-research-BF16.gguf
+      iq4_nl: TML-d24-varloop-research-IQ4_NL.gguf
+      imatrix: imatrix-TML-d24-varloop-research.gguf
