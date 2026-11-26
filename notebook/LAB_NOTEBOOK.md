@@ -37,3 +37,48 @@ the released checkpoint. ggml-org measured it at KL 0.0029 vs BF16, the same as 
 **Started.** Download of the NVFP4 reference and ggml-org `imatrix.gguf` on goosemini (tmux `dl_ref`).
 
 **Open.** Metal memory limit, eval set, whether to also pull BF16 as the quantization source, varloop reference.
+
+## 2026-11-26: Phase 0 wrap-up and Phase 1, uniform baselines
+
+**Decisions (Shubham, 2026-11-26).** Reference is the ggml-org NVFP4 GGUF. Metal wired limit raised to 21504 MB on
+goosemini. Download BF16 too, as a second quantization source. Varloop: convert from the original safetensors.
+Eval set as proposed. No GSM8K. ggml-org imatrix for all variants. GitHub repo `shubhambaid/loop-tax`, private for now.
+
+**Reference checks.** `Inkling-2-Mini-NVFP4.gguf` sha256 `d4fcaf47...bd37` matches the Hugging Face LFS etag.
+Loads fully on Metal (10.8 GB resident; the rest is mmapped). 259 tok/s prefill (pp512), 29 tok/s decode (tg128).
+
+**Eval set.** `configs/evalset_manifest.json`. Context 2048, llama-perplexity scores the second half of each chunk.
+wikitext-2 test: 8 chunks (8192 scored tokens). Code: CPython v3.13.0 sources, 4 chunks; at this length only the first
+Python files are reached, so this domain is effectively Python stdlib code. Multilingual: FLORES-200 devtest from the
+ungated `mteb/flores` copy (FLORES+ is gated and the token had not accepted its terms), 8 languages in rotating
+paragraphs, 4 chunks. Reference logits: 6.5 GB on goosemini (`kld/ref-nvfp4/`).
+
+**Pipeline control.** `identity` variant (re-quantize the reference with every tensor pinned to its own type) gives
+KL = 0.000000 and 100% top-1 agreement on all three domains. llama-quantize copies a tensor byte for byte when the
+target type equals the current one, so scan variants differ from the reference only where we ask.
+
+**Phase 1 results** (`results/phase1-baselines/summary.csv`, chart `assets/phase1_kl_vs_size.png`). Source = NVFP4 GGUF,
+requantized, ggml-org imatrix. Mean KL averaged over the three domains:
+Q3_K_M 13.7 GB 0.0233, IQ4_XS 14.4 GB 0.0150, IQ4_NL 14.9 GB 0.0148, Q4_K_M 17.5 GB 0.0117 (0.0129 without imatrix),
+Q5_K_M 19.9 GB 0.0061, Q6_K 23.5 GB 0.0037, Q8_0 27.8 GB 0.0021.
+
+**Surprise 1: the down-projection experts cannot use K-quants.** `ffn_down_exps` has 1152 columns (the expert width),
+not a multiple of 256, so llama.cpp falls back: Q2_K/Q3_K to Q4_0, Q4_K to Q5_0, Q5_K to Q5_1, Q6_K to Q8_0,
+IQ4_XS to IQ4_NL. A third of all weights therefore never goes below about 4.5 bits per weight with stock types, and
+the "K" recipes are larger than their names suggest (Q4_K_M is 5.36 bpw and 17.5 GB, same size as the NVFP4 file,
+because its "more bits" layers push some down experts to Q6_K, which falls back to Q8_0). IQ4_XS and IQ4_NL end up
+nearly identical for the same reason.
+
+**Surprise 2 (tentative): Q4_K_M looks worse than the native NVFP4 file at the same size.** At 17.5 GB, Q4_K_M sits at
+KL 0.0117 from the NVFP4 reference, while ggml-org measured the NVFP4 file at KL 0.0029 from BF16 (their number, ctx
+512, different text). Comparing those two numbers is not valid: our KL is measured against NVFP4 itself, so NVFP4 scores
+0 here by construction. To check it properly, re-measure NVFP4 and Q4_K_M against a BF16 reference on our eval set
+once BF16 is downloaded. If it holds, re-quantizing weights trained on an FP4 grid onto a different 4-bit grid costs
+real accuracy, and every loop-aware recipe must also be compared against the NVFP4 file.
+
+**Note on llama.cpp's "more bits" heuristic.** Q4_K_M/Q5_K_M upgrade `ffn_down` for layers chosen by physical index
+(`i < n/8 || i >= 7n/8 || (i - n/8) % 3 == 2`). It does not know that blocks 6-17 run three times.
+
+**Speed (llama-bench, Metal, all layers on GPU).** pp512 / tg128 tok/s: NVFP4 259 / 29.0, IQ4_NL 260 / 30.8,
+IQ4_XS 257 / 30.7, Q4_K_M 254 / 30.0, Q3_K_M 245 / 27.0, Q5_K_M 243 / 25.6. Q6_K and Q8_0 do not fit in GPU memory;
+they were evaluated with partial CPU offload and not benchmarked.

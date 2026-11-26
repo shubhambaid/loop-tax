@@ -1,5 +1,122 @@
 [
  {
+  "file": "phase1-baselines/iq4_nl.json",
+  "experiment": "phase1-baselines",
+  "variant": "iq4_nl",
+  "git_commit": "b0e3d4be26172c4670577fbfd54134e792c8821a",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T09:02:23+00:00"
+ },
+ {
+  "file": "phase1-baselines/iq4_xs.json",
+  "experiment": "phase1-baselines",
+  "variant": "iq4_xs",
+  "git_commit": "b0e3d4be26172c4670577fbfd54134e792c8821a",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T08:58:03+00:00"
+ },
+ {
+  "file": "phase1-baselines/q3_k_m.json",
+  "experiment": "phase1-baselines",
+  "variant": "q3_k_m",
+  "git_commit": "b0e3d4be26172c4670577fbfd54134e792c8821a",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T08:53:35+00:00"
+ },
+ {
+  "file": "phase1-baselines/q4_k_m-noimatrix.json",
+  "experiment": "phase1-baselines",
+  "variant": "q4_k_m-noimatrix",
+  "git_commit": "b0e3d4be26172c4670577fbfd54134e792c8821a",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T09:11:37+00:00"
+ },
+ {
+  "file": "phase1-baselines/q4_k_m.json",
+  "experiment": "phase1-baselines",
+  "variant": "q4_k_m",
+  "git_commit": "b0e3d4be26172c4670577fbfd54134e792c8821a",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T09:07:17+00:00"
+ },
+ {
+  "file": "phase1-baselines/q5_k_m.json",
+  "experiment": "phase1-baselines",
+  "variant": "q5_k_m",
+  "git_commit": "b0e3d4be26172c4670577fbfd54134e792c8821a",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T09:16:58+00:00"
+ },
+ {
+  "file": "phase1-baselines/q6_k.json",
+  "experiment": "phase1-baselines",
+  "variant": "q6_k",
+  "git_commit": "b0e3d4be26172c4670577fbfd54134e792c8821a",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T09:21:07+00:00"
+ },
+ {
+  "file": "phase1-baselines/q8_0.json",
+  "experiment": "phase1-baselines",
+  "variant": "q8_0",
+  "git_commit": "b0e3d4be26172c4670577fbfd54134e792c8821a",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T09:36:16+00:00"
+ },
+ {
+  "file": "phase1-baselines/ref-nvfp4.json",
+  "experiment": "phase1-baselines",
+  "variant": "ref-nvfp4",
+  "git_commit": "b0e3d4be26172c4670577fbfd54134e792c8821a",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T08:46:29+00:00"
+ },
+ {
+  "file": "phase2-scan/block03-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "block03-q2_k",
+  "git_commit": "e3cb8d7701173d007cf17d471bc7d232c44063fa",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T10:09:39+00:00"
+ },
+ {
+  "file": "phase2-scan/block09-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "block09-q2_k",
+  "git_commit": "e3cb8d7701173d007cf17d471bc7d232c44063fa",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T10:12:42+00:00"
+ },
+ {
+  "file": "phase2-scan/block20-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "block20-q2_k",
+  "git_commit": "e3cb8d7701173d007cf17d471bc7d232c44063fa",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T10:15:44+00:00"
+ },
+ {
+  "file": "phase2-scan/identity.json",
+  "experiment": "phase2-scan",
+  "variant": "identity",
+  "git_commit": "b0e3d4be26172c4670577fbfd54134e792c8821a",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T08:49:46+00:00"
+ },
+ {
   "file": "env/remote_inventory.json",
   "experiment": "env"
  },

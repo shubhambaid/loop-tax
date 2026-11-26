@@ -13,6 +13,7 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
+import matplotlib.ticker  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 RESULTS = ROOT / "results"
@@ -20,6 +21,8 @@ ASSETS = ROOT / "assets"
 
 # reference palette (dataviz skill, light mode): categorical slots in fixed order, text inks
 SERIES = ["#257de0", "#f47230", "#00b894"]
+LABEL_LEFT = {"iq4_xs"}
+LABEL_BELOW = {"q4_k_m"}
 TEXT, TEXT2, GRID, SURFACE = "#191919", "#666666", "#e6e6e6", "#ffffff"
 
 
@@ -29,7 +32,7 @@ def style(ax, title: str, xlabel: str, ylabel: str):
         ax.spines[s].set_visible(False)
     for s in ("left", "bottom"):
         ax.spines[s].set_color(GRID)
-    ax.tick_params(colors=TEXT2, labelsize=9)
+    ax.tick_params(which="both", colors=TEXT2, labelsize=9)
     ax.grid(True, color=GRID, linewidth=0.8)
     ax.set_axisbelow(True)
     ax.set_title(title, loc="left", color=TEXT, fontsize=12, fontweight="bold")
@@ -58,9 +61,16 @@ def phase1():
         ax.errorbar(xs, ys, yerr=es, fmt="o", ms=7, color=color, mec=SURFACE, mew=2, ecolor=color, elinewidth=1,
                     capsize=0, label=label, zorder=3)
         for x, y, r in zip(xs, ys, rs):
-            ax.annotate(r["variant"], (x, y), xytext=(6, 4), textcoords="offset points", fontsize=8, color=TEXT)
+            left = r["variant"] in LABEL_LEFT
+            ax.annotate(r["variant"], (x, y), xytext=(-6 if left else 6, -11 if r["variant"] in LABEL_BELOW else 4), textcoords="offset points", fontsize=8,
+                        color=TEXT, ha="right" if left else "left")
+    ax.axvline(17.628, color=TEXT2, lw=1, ls=(0, (4, 3)), zorder=1)
+    ax.annotate("NVFP4 reference, 17.6 GB\n(KL = 0 by definition)", (17.628, 1), xycoords=("data", "axes fraction"),
+                xytext=(4, -4), textcoords="offset points", va="top", fontsize=8, color=TEXT2)
     ax.set_yscale("log")
-    ax.legend(frameon=False, fontsize=9, labelcolor=TEXT)
+    ax.yaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(lambda v, _: f"{v:g}"))
+    ax.yaxis.set_minor_formatter(matplotlib.ticker.FuncFormatter(lambda v, _: f"{v:g}" if f"{v:.0e}"[0] in "25" else ""))
+    ax.legend(frameon=False, fontsize=9, labelcolor=TEXT, loc="lower left")
     ax.text(0, -0.16, "Reference: ggml-org Inkling-2-Mini-NVFP4.gguf (17.6 GB). Error bars: standard error of the mean "
             "over scored tokens.", transform=ax.transAxes, fontsize=7.5, color=TEXT2)
     fig.tight_layout()
