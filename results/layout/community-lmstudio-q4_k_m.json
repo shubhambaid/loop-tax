@@ -854,6 +854,6 @@
   "token_embd.weight": "Q4_K",
   "token_embd_norm.weight": "F32"
  },
- "checked_at": "2026-11-26T07:35:16+00:00",
- "git_commit": "1dba1e711e6f51c38b97c9966ac710f64984f1bd"
+ "checked_at": "2026-11-26T07:36:33+00:00",
+ "git_commit": "1e5997ce78226f6757e52208af24520b2d2341b5"
 }
