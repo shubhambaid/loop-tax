@@ -135,13 +135,45 @@ const repo = "https://github.com/shubhambaid/loop-tax";
     the reference. {p2Done ? "" : "The scan is running; the chart fills in when all 48 runs are in."}
   </p>
   <Chart name="phase2" wide title="KL increase when one block is quantized"
-    caption="Looped blocks highlighted. Down experts fall back to Q4_0 in every run."
+    caption="Looped blocks highlighted. Screening run, about 16k scored tokens per bar."
     rows={p2} columns={[["block", "block"], ["qtype", "type"], ["kld_mean_avg", "mean KL", 5], ["kld_mean_avg_err", "std err", 5]]} />
+  <p>
+    Two caveats shape how to read this. First, "Q2_K" does not reach every weight in the block: the down experts are 1152
+    wide and fall back to Q4_0, about the same storage as NVFP4, so the scan mostly measures attention plus the gate/up
+    experts. Separate runs perturb only the experts or only attention. Second, blocks do not start from the same place:
+    in the reference, experts of blocks 0-19 are NVFP4 while blocks 20-23 are Q8_0, so quantizing block 20 removes far
+    more bits. The chart below divides KL by the bits actually removed.
+  </p>
+  <Chart name="phase2norm" wide title="KL per gigabit removed"
+    caption="Bits removed come from the tensor types of each variant; weight error is measured by dequantizing both files."
+    rows={p2.filter((r: any) => r.kl_per_gbit_removed != null)} columns={[["block", "block"], ["qtype", "type"], ["kl_per_gbit_removed", "KL per Gbit", 4], ["rel_err", "rel. weight error", 4]]} />
+  <p>
+    A per-block scan cannot separate "this block loops" from "this block sits in the middle of the network", because all
+    looped blocks are in the middle. Part 3 removes that confound.
+  </p>
 
-  <h2>Part 3: loop-aware mixed precision</h2>
+  <h2>Part 3: the direct test, same block, more passes</h2>
+  <p>
+    TML-d24-varloop-research has the same architecture but accepts any number of loop passes. We quantize one block,
+    keep everything else identical, run the model with 1 to 6 passes, and compare each run with the unquantized model
+    at the same number of passes. Weights and position stay fixed; only the reuse count changes. The checkpoint was
+    trained with 1-5 passes, so N = 6 is shown hollow as an extrapolation and left out of the fit.
+  </p>
+  <p>
+    Blocks fall into three groups. Loop blocks are reused on every pass. Prelude blocks run once, but every pass restarts
+    from the prelude output, so their error is injected into all N passes. Coda blocks run once after the loop: they are
+    the control. If KL grows like N, the repeated errors add like independent noise; like N squared, they add
+    coherently, which is the loop tax.
+  </p>
+  <Chart name="headlineKL" wide title="KL from quantizing one block, by number of loop passes" caption="Log-log axes. Each line is one perturbed block." />
+  <Chart name="alpha" wide title="Fitted exponent alpha per block"
+    caption="KL(N) = c N^alpha, least squares on log-log over N = 1-5; 95% intervals from a paired bootstrap over evaluation chunks. Dashed lines at 0, 1 and 2."
+    rows={(site as any).alpha} columns={[["variant", "variant"], ["category", "category"], ["alpha", "alpha", 2]]} />
+
+  <h2>Part 4: loop-aware mixed precision</h2>
   <div class="pending">Not run yet.</div>
 
-  <h2>Part 4: bits vs loop passes</h2>
+  <h2>Part 5: bits vs loop passes</h2>
   <div class="pending">Not run yet.</div>
 
   <h2>What this means if you quantize looped models</h2>

@@ -53,6 +53,44 @@ const renderers = {
       marks: [Plot.barY(r2, { x: "block", y: "kld_mean_avg", fill: "role", rx: 2, tip: true }),
               Plot.ruleY([0], { stroke: css("--border") })] });
   },
+  headlineKL(el) {
+    const rows = (site.experiments["phase4-passes"] || []).filter((r) => r.role === "variant" && r.block != null && r.kld_mean_avg != null);
+    if (!rows.length) return null;
+    const cat = (b) => (b < 6 ? "prelude (injected into every pass)" : b <= 17 ? "loop (reused every pass)" : "coda (runs once, control)");
+    const r2 = rows.map((r) => ({ ...r, category: cat(r.block), extrapolated: r.passes > 5 }));
+    return Plot.plot({ ...base(el),
+      x: { label: "loop passes N", type: "log", ticks: [1, 2, 3, 4, 5, 6], tickFormat: "d" },
+      y: { label: "KL vs reference at the same N", type: "log", grid: true },
+      color: { domain: ["loop (reused every pass)", "prelude (injected into every pass)", "coda (runs once, control)"],
+               range: [css("--loop"), css("--series-4"), css("--edge")], legend: true },
+      facet: { data: r2, x: "qtype", label: null },
+      marks: [Plot.line(r2.filter((r) => !r.extrapolated), { x: "passes", y: "kld_mean_avg", stroke: "category", z: "variant", strokeWidth: 2 }),
+              Plot.dot(r2.filter((r) => !r.extrapolated), { x: "passes", y: "kld_mean_avg", fill: "category", r: 4, stroke: css("--surface"), strokeWidth: 2, channels: { variant: "variant" }, tip: true }),
+              Plot.dot(r2.filter((r) => r.extrapolated), { x: "passes", y: "kld_mean_avg", stroke: "category", r: 4, strokeWidth: 1.5, channels: { variant: "variant", note: () => "extrapolation: N = 6 was never trained" }, tip: true })] });
+  },
+  alpha(el) {
+    const rows = site.alpha || [];
+    if (!rows.length) return null;
+    const label = { loop: "loop (reused every pass)", prelude: "prelude (injected into every pass)", coda: "coda (runs once, control)" };
+    const r2 = rows.map((r) => ({ ...r, cat: label[r.category] ?? r.category, lo: r.alpha_ci95[0], hi: r.alpha_ci95[1] }));
+    return Plot.plot({ ...base(el), marginLeft: 120, height: 40 + 28 * r2.length,
+      x: { label: "alpha in KL ~ N^alpha (fit on N = 1-5, 95% bootstrap CI)", grid: true },
+      y: { label: null, domain: r2.map((r) => r.variant) },
+      color: { domain: Object.values(label), range: [css("--loop"), css("--series-4"), css("--edge")], legend: true },
+      marks: [Plot.ruleX([0, 1, 2], { stroke: css("--border"), strokeDasharray: "3,3" }),
+              Plot.ruleY(r2, { y: "variant", x1: "lo", x2: "hi", stroke: "cat", strokeWidth: 2 }),
+              Plot.dot(r2, { y: "variant", x: "alpha", fill: "cat", r: 5, stroke: css("--surface"), strokeWidth: 2, channels: { "95% CI": (d) => `${d.lo.toFixed(2)} to ${d.hi.toFixed(2)}` }, tip: true })] });
+  },
+  phase2norm(el) {
+    const rows = (site.experiments["phase2-scan"] || []).filter((r) => r.family === "block" && r.kl_per_gbit_removed != null);
+    if (!rows.length) return null;
+    const r2 = rows.map((r) => ({ ...r, role: r.block >= 6 && r.block <= 17 ? "looped (runs 3x)" : "runs once" }));
+    return Plot.plot({ ...base(el),
+      x: { label: "physical block", type: "band" }, y: { label: "mean KL per Gbit removed", grid: true },
+      color: { domain: ["runs once", "looped (runs 3x)"], range: [css("--edge"), css("--loop")], legend: true },
+      facet: { data: r2, y: "qtype", label: null },
+      marks: [Plot.barY(r2, { x: "block", y: "kl_per_gbit_removed", fill: "role", rx: 2, tip: true }), Plot.ruleY([0], { stroke: css("--border") })] });
+  },
 };
 
 function renderAll() {
