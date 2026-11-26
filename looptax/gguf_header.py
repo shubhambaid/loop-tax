@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import collections
 import json
+import os
 import re
 import struct
 import sys
@@ -64,9 +65,22 @@ class _Reader:
         raise ValueError(f"unknown GGUF value type {vtype}")
 
 
-def parse(path: str) -> dict:
-    with open(path, "rb") as f:
-        buf = f.read()
+def parse(path: str, prefix_mb: int = 64) -> dict:
+    """Parse the header, reading only as many leading bytes as needed (doubling from prefix_mb)."""
+    size = os.path.getsize(path)
+    n = prefix_mb << 20
+    while True:
+        with open(path, "rb") as f:
+            buf = f.read(n)
+        try:
+            return _parse_buf(buf)
+        except EOFError:
+            if n >= size:
+                raise
+            n *= 2
+
+
+def _parse_buf(buf: bytes) -> dict:
     r = _Reader(buf)
     if buf[:4] != b"GGUF":
         raise ValueError("not a GGUF file")
@@ -87,11 +101,30 @@ def parse(path: str) -> dict:
         ttype = r.take("<I")
         offset = r.take("<Q")
         tensors.append({"name": name, "dims": dims, "type": GGML_TYPES.get(ttype, str(ttype)), "offset": offset})
-    # tensor byte sizes from consecutive offsets (last one unknown from header alone)
-    order = sorted(range(len(tensors)), key=lambda i: tensors[i]["offset"])
-    for a, b in zip(order, order[1:]):
-        tensors[a]["nbytes"] = tensors[b]["offset"] - tensors[a]["offset"]
-    return {"version": version, "n_tensors": n_tensors, "kv": kv, "tensors": tensors}
+    align = kv.get("general.alignment", 32)
+    data_offset = (r.pos + align - 1) // align * align
+    return {"version": version, "n_tensors": n_tensors, "kv": kv, "tensors": tensors, "data_offset": data_offset}
+
+
+def weight_stats(path: str) -> dict:
+    """Exact byte size of every tensor (needs the full file for the last tensor) and bits per weight."""
+    info = parse(path)
+    size = os.path.getsize(path)
+    ts = sorted(info["tensors"], key=lambda t: t["offset"])
+    for a, b in zip(ts, ts[1:]):
+        a["nbytes"] = b["offset"] - a["offset"]
+    ts[-1]["nbytes"] = size - info["data_offset"] - ts[-1]["offset"]
+    n_el = sum(_numel(t) for t in ts)
+    n_bytes = sum(t["nbytes"] for t in ts)
+    return {"file_bytes": size, "tensor_bytes": n_bytes, "n_weights": n_el, "bpw": 8 * n_bytes / n_el,
+            "tensors": {t["name"]: {"type": t["type"], "nbytes": t["nbytes"], "numel": _numel(t)} for t in ts}}
+
+
+def _numel(t: dict) -> int:
+    n = 1
+    for d in t["dims"]:
+        n *= d
+    return n
 
 
 def layer_summary(info: dict) -> dict:

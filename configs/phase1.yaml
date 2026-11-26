@@ -1,0 +1,28 @@
+# Phase 1: uniform baselines vs the reference.
+# Source for our quants: ggml-org NVFP4 GGUF (experts of blk 0-19 bit-identical to the release, the rest Q8_0),
+# requantized with --allow-requantize. A BF16-sourced rerun of the same recipes is configs/phase1_bf16.yaml.
+experiment: phase1-baselines
+reference:
+  id: ref-nvfp4
+  model: models/Inkling-2-Mini-NVFP4.gguf
+source: models/Inkling-2-Mini-NVFP4.gguf
+imatrix: models/imatrix.gguf          # ggml-org, computed from BF16 on bartowski v6 calibration data
+imatrix_default: true
+eval:
+  dir: data/eval
+  ctx: 2048
+  domains: {wikitext: 8, code: 4, multilingual: 4}   # chunks of 2048 tokens; the second half of each chunk is scored
+llama: {ngl: 99}
+bench: {pp: 512, tg: 128, reps: 3}
+keep_variants: false
+
+variants:
+  - {id: q3_k_m, ftype: Q3_K_M}
+  - {id: iq4_xs, ftype: IQ4_XS}
+  - {id: iq4_nl, ftype: IQ4_NL}
+  - {id: q4_k_m, ftype: Q4_K_M}
+  - {id: q4_k_m-noimatrix, ftype: Q4_K_M, imatrix: false}
+  - {id: q5_k_m, ftype: Q5_K_M}
+  # larger than the GPU memory budget: layer placement left to --fit, speed not comparable, so no bench
+  - {id: q6_k, ftype: Q6_K, llama: {ngl: null}, bench: false}
+  - {id: q8_0, ftype: Q8_0, llama: {ngl: null}, bench: false}

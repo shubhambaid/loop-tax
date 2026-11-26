@@ -14,8 +14,12 @@ ENV='export PATH=/opt/homebrew/bin:$HOME/.local/bin:$PATH; export LOOPTAX_ROOT=$
 sync_code() {
   rsync -az --delete \
     --exclude .git --exclude results/ --exclude site/node_modules --exclude site/dist \
-    --exclude '*.gguf' --exclude .venv --exclude __pycache__ --exclude loop-tax.bundle \
+    --exclude '*.gguf' --exclude .venv --exclude __pycache__ --exclude loop-tax.bundle --exclude REVISION \
     "$HERE/" "$REMOTE:$ROOT/repo/"
+  # results are produced against this commit; uncommitted changes are flagged
+  local rev; rev="$(git -C "$HERE" rev-parse HEAD)"
+  git -C "$HERE" diff --quiet HEAD -- looptax configs scripts || rev="$rev-dirty"
+  ssh "$REMOTE" "echo $rev > $ROOT/repo/REVISION"
 }
 
 cmd="${1:-}"; shift || true
