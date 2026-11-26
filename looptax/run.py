@@ -48,12 +48,15 @@ def git(*args, cwd=REPO) -> str:
     return r.stdout.strip()
 
 
+# the remote copy of the repo is an rsync without .git; remote.sh writes the commit into REVISION.
+# Read once at start-up so a later sync cannot relabel results produced by the code already running.
+_REV_FILE = REPO / "REVISION"
+GIT_COMMIT = _REV_FILE.read_text().strip() if _REV_FILE.exists() else git("rev-parse", "HEAD")
+
+
 def provenance() -> dict:
-    # the remote copy of the repo is an rsync without .git; remote.sh writes the commit into REVISION
-    rev_file = REPO / "REVISION"
-    commit = rev_file.read_text().strip() if rev_file.exists() else git("rev-parse", "HEAD")
     return {
-        "git_commit": commit,
+        "git_commit": GIT_COMMIT,
         "llama_cpp_commit": git("rev-parse", "HEAD", cwd=ROOT / "llama.cpp"),
         "machine": socket.gethostname(),
         "timestamp": now(),
@@ -191,9 +194,11 @@ def build_variant(cfg: dict, v: dict, log: pathlib.Path, dry: bool) -> tuple[pat
     cmd += [rp(v.get("source", cfg["source"])), out, v["ftype"], str(cfg.get("quant_threads", os.cpu_count()))]
     if not out.exists() or dry:
         out.parent.mkdir(parents=True, exist_ok=True)
-        need = rp(v.get("source", cfg["source"])).stat().st_size * 1.7 + (8 << 30) if not dry else 0
+        # output size relative to the NVFP4 source: Q8_0 everywhere is ~1.6x, Q6_K ~1.25x, others and scans <= 1.05x
+        ratio = 1.05 if v.get("pure") else {"Q8_0": 1.65, "Q6_K": 1.3, "Q5_K_M": 1.15}.get(v["ftype"], 1.05)
+        need = rp(v.get("source", cfg["source"])).stat().st_size * ratio + (5 << 30) if not dry else 0
         free = shutil.disk_usage(out.parent).free
-        if free < need:   # worst case Q8_0 from an NVFP4 source is ~1.6x the source, plus margin
+        if free < need:
             raise RuntimeError(f"not enough disk for {out.name}: {free / 1e9:.1f} GB free, want {need / 1e9:.1f} GB")
         tmp_out = out.with_suffix(".partial.gguf")
         cmd_tmp = [*cmd[:-3], tmp_out, *cmd[-2:]]

@@ -46,6 +46,9 @@ for what in "$@"; do
     inkling-q8)      fetch $INK $INK_REV Inkling-2-Mini-Q8_0.gguf ;;
     inkling-iq4nl)   fetch $INK $INK_REV Inkling-2-Mini-IQ4_NL.gguf ;;
     inkling-imatrix) fetch $INK $INK_REV imatrix.gguf ;;
+    community-ggml-iq4nl)     fetch $INK $INK_REV Inkling-2-Mini-IQ4_NL.gguf ;;
+    community-unsloth-q4km)   fetch unsloth/Inkling-2-Mini-GGUF 8078d149286eec7193795413b9e0643da6d11fa1 Inkling-2-Mini-UD-Q4_K_M.gguf ;;
+    community-bartowski-q4km) fetch bartowski/Inkling-2-Mini-GGUF ad66863fd3b7f3236c0b7a0862412c9e00f78a6e Inkling-2-Mini-Q4_K_M.gguf ;;
     varloop-q8)      fetch $VAR $VAR_REV TML-d24-varloop-research-Q8_0.gguf ;;
     varloop-iq4nl)   fetch $VAR $VAR_REV TML-d24-varloop-research-IQ4_NL.gguf ;;
     varloop-imatrix) fetch $VAR $VAR_REV imatrix-TML-d24-varloop-research.gguf ;;
