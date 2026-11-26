@@ -1,0 +1,218 @@
+[
+ {
+  "loop_bits": 3,
+  "edge_bits": 3,
+  "avg_bits": 3.0,
+  "err": 0.55219637498662
+ },
+ {
+  "loop_bits": 3,
+  "edge_bits": 4,
+  "avg_bits": 3.5,
+  "err": 0.5069619879182992
+ },
+ {
+  "loop_bits": 3,
+  "edge_bits": 5,
+  "avg_bits": 4.0,
+  "err": 0.49871249056378275
+ },
+ {
+  "loop_bits": 3,
+  "edge_bits": 6,
+  "avg_bits": 4.5,
+  "err": 0.4969446506345565
+ },
+ {
+  "loop_bits": 3,
+  "edge_bits": 7,
+  "avg_bits": 5.0,
+  "err": 0.4966477823591083
+ },
+ {
+  "loop_bits": 3,
+  "edge_bits": 8,
+  "avg_bits": 5.5,
+  "err": 0.49648545410871503
+ },
+ {
+  "loop_bits": 4,
+  "edge_bits": 3,
+  "avg_bits": 3.5,
+  "err": 0.3332145412303201
+ },
+ {
+  "loop_bits": 4,
+  "edge_bits": 4,
+  "avg_bits": 4.0,
+  "err": 0.2406836206644763
+ },
+ {
+  "loop_bits": 4,
+  "edge_bits": 5,
+  "avg_bits": 4.5,
+  "err": 0.2213406422101694
+ },
+ {
+  "loop_bits": 4,
+  "edge_bits": 6,
+  "avg_bits": 5.0,
+  "err": 0.21661208088122952
+ },
+ {
+  "loop_bits": 4,
+  "edge_bits": 7,
+  "avg_bits": 5.5,
+  "err": 0.21519336951826204
+ },
+ {
+  "loop_bits": 4,
+  "edge_bits": 8,
+  "avg_bits": 6.0,
+  "err": 0.2150969754776635
+ },
+ {
+  "loop_bits": 5,
+  "edge_bits": 3,
+  "avg_bits": 4.0,
+  "err": 0.27601466063531654
+ },
+ {
+  "loop_bits": 5,
+  "edge_bits": 4,
+  "avg_bits": 4.5,
+  "err": 0.14778590484953408
+ },
+ {
+  "loop_bits": 5,
+  "edge_bits": 5,
+  "avg_bits": 5.0,
+  "err": 0.1128531673763693
+ },
+ {
+  "loop_bits": 5,
+  "edge_bits": 6,
+  "avg_bits": 5.5,
+  "err": 0.1032285525950396
+ },
+ {
+  "loop_bits": 5,
+  "edge_bits": 7,
+  "avg_bits": 6.0,
+  "err": 0.10128841030262106
+ },
+ {
+  "loop_bits": 5,
+  "edge_bits": 8,
+  "avg_bits": 6.5,
+  "err": 0.10063323518001308
+ },
+ {
+  "loop_bits": 6,
+  "edge_bits": 3,
+  "avg_bits": 4.5,
+  "err": 0.2624920645413143
+ },
+ {
+  "loop_bits": 6,
+  "edge_bits": 4,
+  "avg_bits": 5.0,
+  "err": 0.11966760266276107
+ },
+ {
+  "loop_bits": 6,
+  "edge_bits": 5,
+  "avg_bits": 5.5,
+  "err": 0.07051005700808174
+ },
+ {
+  "loop_bits": 6,
+  "edge_bits": 6,
+  "avg_bits": 6.0,
+  "err": 0.05433301489254118
+ },
+ {
+  "loop_bits": 6,
+  "edge_bits": 7,
+  "avg_bits": 6.5,
+  "err": 0.04989113854771425
+ },
+ {
+  "loop_bits": 6,
+  "edge_bits": 8,
+  "avg_bits": 7.0,
+  "err": 0.04875412974725556
+ },
+ {
+  "loop_bits": 7,
+  "edge_bits": 3,
+  "avg_bits": 5.0,
+  "err": 0.2591200538605341
+ },
+ {
+  "loop_bits": 7,
+  "edge_bits": 4,
+  "avg_bits": 5.5,
+  "err": 0.11227669052624645
+ },
+ {
+  "loop_bits": 7,
+  "edge_bits": 5,
+  "avg_bits": 6.0,
+  "err": 0.05666626362661633
+ },
+ {
+  "loop_bits": 7,
+  "edge_bits": 6,
+  "avg_bits": 6.5,
+  "err": 0.034633346382555316
+ },
+ {
+  "loop_bits": 7,
+  "edge_bits": 7,
+  "avg_bits": 7.0,
+  "err": 0.02682726693952685
+ },
+ {
+  "loop_bits": 7,
+  "edge_bits": 8,
+  "avg_bits": 7.5,
+  "err": 0.02479444071486509
+ },
+ {
+  "loop_bits": 8,
+  "edge_bits": 3,
+  "avg_bits": 5.5,
+  "err": 0.2584575486933611
+ },
+ {
+  "loop_bits": 8,
+  "edge_bits": 4,
+  "avg_bits": 6.0,
+  "err": 0.11048156539131529
+ },
+ {
+  "loop_bits": 8,
+  "edge_bits": 5,
+  "avg_bits": 6.5,
+  "err": 0.05271763418653512
+ },
+ {
+  "loop_bits": 8,
+  "edge_bits": 6,
+  "avg_bits": 7.0,
+  "err": 0.02741319445748112
+ },
+ {
+  "loop_bits": 8,
+  "edge_bits": 7,
+  "avg_bits": 7.5,
+  "err": 0.016839840078233633
+ },
+ {
+  "loop_bits": 8,
+  "edge_bits": 8,
+  "avg_bits": 8.0,
+  "err": 0.013191230260804715
+ }
+]
