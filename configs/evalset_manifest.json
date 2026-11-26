@@ -1,0 +1,51 @@
+{
+ "wikitext": {
+  "source": "hf://datasets/Salesforce/wikitext",
+  "revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+  "file": "wikitext-2-raw-v1/test-00000-of-00001.parquet",
+  "bytes": 1287656,
+  "sha256": "bbf94c53a05abe9ee670d3b6343608095822c85e26de37c70b24fc571964574a"
+ },
+ "code": {
+  "source": "https://github.com/python/cpython",
+  "revision": "v3.13.0",
+  "files": [
+   "Lib/heapq.py",
+   "Lib/bisect.py",
+   "Lib/textwrap.py",
+   "Lib/json/decoder.py",
+   "Lib/json/encoder.py",
+   "Lib/functools.py",
+   "Lib/dataclasses.py",
+   "Lib/graphlib.py",
+   "Lib/statistics.py",
+   "Lib/fractions.py",
+   "Objects/listsort.txt",
+   "Objects/listobject.c",
+   "Modules/_heapqmodule.c"
+  ],
+  "bytes": 478647,
+  "sha256": "2c68807e9b9440dac2ca5119f1e0837bd6cfe65bb85a8bdfd3c8ab8a5734fb2d"
+ },
+ "multilingual": {
+  "source": "hf://datasets/mteb/flores",
+  "revision": "69edd3336d102dd184dd531b57defac6c9c60c8f",
+  "file": "devtest.parquet",
+  "split": "devtest",
+  "languages": [
+   "deu_Latn",
+   "fra_Latn",
+   "spa_Latn",
+   "rus_Cyrl",
+   "zho_Hans",
+   "jpn_Jpan",
+   "hin_Deva",
+   "arb_Arab"
+  ],
+  "sentences_per_language": 240,
+  "sentences_per_paragraph": 12,
+  "layout": "paragraphs cycle through the languages in order",
+  "bytes": 379530,
+  "sha256": "650e74675ed718282023cdbd5c64ea552dff8ad7f827577eacc7c008b4b75266"
+ }
+}
