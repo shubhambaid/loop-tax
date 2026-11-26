@@ -115,3 +115,29 @@ adds a Q4_0 perturbation, a block-32 type that hits all three families with no f
 **Sample size.** 16 chunks (about 16k scored tokens) per run is screening only. Built a disjoint held-out slice
 (`configs/evalset_holdout_manifest.json`: wikitext from character 300000, five other CPython files, FLORES devtest
 sentences 240-1011). Candidates are rerun on it before any claim goes on the site.
+
+## 2026-11-26: Second review (Shubham), headline design fixes
+
+**Block 3 is not a no-reuse control.** Every pass restarts from the prelude output, so an error in a prelude block is
+injected into all N passes. Headline blocks are now reported in three categories: loop (6, 9, 12, 17), prelude,
+"injected into every pass" (3), and coda (20, 22), the clean control that runs once, after the loop. Added block 22
+(Q2_K) and block 20 (Q4_0) so the control category has two blocks and both perturbation types.
+
+**Fit and uncertainty.** `looptax/alpha_fit.py` fits KL(N) = c N^alpha per perturbed block by least squares on
+log KL vs log N, with a paired bootstrap over evaluation chunks (same resampled chunks at every N, 5000 resamples,
+percentile 95% interval). Per-chunk values come from a one-line logging patch to llama-perplexity
+(`scripts/perplexity-chunk-sums.patch`, exact running sums per chunk) built at the pinned commit into a separate
+`build-lt/` directory; the KL computation is unchanged and results record which build produced them. Checked on
+synthetic data with known exponents: recovers alpha = 2.00 [1.98, 2.02] and -0.01 [-0.03, 0.02].
+
+**Trained pass counts.** Model card (thinkingmachines/TML-d24-varloop-research@91a57fe): midtraining with 1-5 passes
+sampled 1:2:6:2:1, post-training with 3 passes only, "may behave unpredictably at pass counts other than 3". Fits use
+N = 1-5. N = 6 (llama.cpp allows up to 6) is run for the headline blocks, marked as extrapolation in the result files,
+and excluded from the fit.
+
+**Disk.** With Shubham's OK, deleted the Hugging Face hub and datasets caches on goosemini (117 GB of unrelated
+models and datasets; token files kept). 154 GB free afterwards.
+
+**BF16 check (priority).** `configs/bf16check.yaml`: against the BF16 GGUF on the same eval set, measure the ggml-org
+NVFP4 file, ggml-org IQ4_NL, our Q4_K_M and IQ4_NL made from BF16 and from the NVFP4 file, and Q8_0 from BF16. The
+GPU queue (`scripts/gpu_queue.sh`) runs it as soon as the BF16 download has finished, ahead of the headline variants.
