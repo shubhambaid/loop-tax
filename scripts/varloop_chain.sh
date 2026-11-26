@@ -3,6 +3,7 @@
 set -uo pipefail
 ROOT="${LOOPTAX_ROOT:-$HOME/looptax}"; PY="$ROOT/venv/bin/python"
 cd "$ROOT/repo"
+export LOOPTAX_LLAMA_BUILD=build-lt   # pinned commit + per-chunk sums patch (bootstrap CIs)
 bash scripts/make_varloop_ref.sh || exit 1
 # distance of the NVFP4R reference from the Q8_0 conversion (3 passes), then drop the Q8_0 files to free disk
 $PY -m looptax.run configs/varloop_refcheck.yaml --make-base && $PY -m looptax.run configs/varloop_refcheck.yaml || exit 1

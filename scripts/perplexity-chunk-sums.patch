@@ -1,0 +1,14 @@
+diff --git a/tools/perplexity/perplexity.cpp b/tools/perplexity/perplexity.cpp
+index 601361acd..679c30bc0 100644
+--- a/tools/perplexity/perplexity.cpp
++++ b/tools/perplexity/perplexity.cpp
+@@ -1877,6 +1877,9 @@ static void kl_divergence(llama_context * ctx, const common_params & params) {
+             LOG("    %6.3lf ± %6.3lf %%", 100.0*p_top_val, 100.0*p_top_unc);
+ 
+             LOG("\n");
++            // looptax: exact running sums so per-chunk statistics can be recovered (bootstrap over chunks)
++            LOG("looptax_chunk %d %.12e %.12e %.12e %.12e %lld %lld\n", i + seq + 1, kld.sum_kld, kld.sum_kld2,
++                kld.sum_nll, kld.sum_nll_base, (long long) kld.count, (long long) kld.n_same_top);
+         }
+ 
+         logits.clear();

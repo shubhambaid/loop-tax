@@ -4,11 +4,17 @@ Reference R: every routed expert at NVFP4, everything else Q8_0 (scripts/make_va
 the same precision and R fits in GPU memory. Every variant differs from R only where stated, and is compared with R
 run at the SAME number of passes ("same"), and for the grid also with R at 3 passes ("vs3").
 
-Headline (reuse count, position fixed): one block perturbed, passes 1..5.
-  loop blocks 6, 9, 12, 17 at Q2_K   (gate_up + attention at Q2_K, down experts fall back to Q4_0)
-  controls  3 (prelude), 20 (coda)   (run once whatever the pass count)
-  block 9 and block 3 at Q4_0        (block-32 type: hits attention, gate_up and down alike, no fallback)
-Grid (bits x passes): gate_up at Q2_K / Q3_K / IQ4_XS in every block, plus R itself (effect of passes alone).
+Headline (reuse count, position fixed): one block perturbed, passes 1..6.
+  loop     blocks 6, 9, 12, 17 at Q2_K, block 9 at Q4_0   (weights reused on every pass)
+  prelude  block 3 at Q2_K and Q4_0                       (runs once, but every pass restarts from the prelude
+                                                            output, so its error is injected into all N passes)
+  coda     blocks 20, 22 at Q2_K, block 20 at Q4_0        (runs once, after the loop: the clean no-reuse control)
+  Q2_K: gate_up + attention at Q2_K, down experts fall back to Q4_0. Q4_0 is a block-32 type that hits attention,
+  gate_up and down alike, with no fallback.
+Passes: the checkpoint was trained with 1-5 passes (midtraining, sampled 1:2:6:2:1) and post-trained with 3 (model card,
+thinkingmachines/TML-d24-varloop-research@91a57fe). N = 6 is outside that range: run for the headline, marked as
+extrapolation and excluded from fits.
+Grid (bits x passes, N = 1..5): gate_up at Q2_K / Q3_K / IQ4_XS in every block, plus R itself (effect of passes alone).
 
     python -m looptax.make_phase4_config --out configs/phase4_passes.yaml
 """
@@ -23,7 +29,14 @@ from . import recipes as R
 
 REF = "models/TML-d24-varloop-research-NVFP4R.gguf"
 KEEP = r"^blk\.[0-9]+\.ffn_(gate_up|down)_exps\.weight$=nvfp4"   # R's expert type, for every non-target tensor
-HEADLINE = [(6, "Q2_K"), (9, "Q2_K"), (12, "Q2_K"), (17, "Q2_K"), (3, "Q2_K"), (20, "Q2_K"), (9, "Q4_0"), (3, "Q4_0")]
+HEADLINE = [(9, "Q2_K"), (20, "Q2_K"), (3, "Q2_K"), (6, "Q2_K"), (12, "Q2_K"), (17, "Q2_K"), (22, "Q2_K"),
+            (9, "Q4_0"), (20, "Q4_0"), (3, "Q4_0")]
+TRAINED_PASSES = [1, 2, 3, 4, 5]
+EXTRAPOLATED_PASSES = [6]
+
+
+def category(b: int) -> str:
+    return "loop" if 6 <= b <= 17 else "prelude" if b < 6 else "coda"
 GRID = ["Q2_K", "Q3_K", "IQ4_XS"]
 
 
@@ -34,21 +47,24 @@ def main(argv=None):
     table = R.load_table()
     vs = []
     for b, t in HEADLINE:
-        vs.append({"id": f"block{b:02d}-{t.lower()}", "kind": "headline", "block": b, "qtype": t, "ftype": "Q8_0",
-                   "pure": True, "overrides": [rf"^blk\.{b}\..*weight$={t.lower()}", KEEP], "vs3": False})
+        vs.append({"id": f"block{b:02d}-{t.lower()}", "kind": "headline", "category": category(b), "block": b, "qtype": t,
+                   "ftype": "Q8_0", "pure": True, "overrides": [rf"^blk\.{b}\..*weight$={t.lower()}", KEEP], "vs3": False,
+                   "passes": TRAINED_PASSES + EXTRAPOLATED_PASSES})
     for t in GRID:
         rec = R.make({"gate_up": t, "down": "NVFP4", "attn": "keep"})
-        vs.append({"id": f"uniform-{t.lower()}", "kind": "grid", "gate_up": t, "ftype": "Q8_0", "pure": True,
+        vs.append({"id": f"uniform-{t.lower()}", "kind": "grid", "gate_up": t, "passes": TRAINED_PASSES, "ftype": "Q8_0", "pure": True,
                    "overrides": [rf"^blk\.[0-9]+\.ffn_gate_up_exps\.weight$={t.lower()}", KEEP],
                    "est_gb_inkling_table": round(R.size_bytes(rec, table) / 1e9, 3)})
-    vs.append({"id": "reference", "kind": "grid", "file": REF, "gate_up": "NVFP4"})
+    vs.append({"id": "reference", "kind": "grid", "file": REF, "gate_up": "NVFP4", "passes": TRAINED_PASSES})
     cfg = {
         "experiment": "phase4-passes",
         "reference": {"id": "varloop-nvfp4r", "model": REF},
         "source": REF,
         "imatrix": "models/imatrix-TML-d24-varloop-research.gguf",   # ggml-org, computed with 3 passes
         "imatrix_default": True,
-        "passes": [1, 2, 3, 4, 5],
+        "passes": TRAINED_PASSES + EXTRAPOLATED_PASSES,
+        "trained_passes": TRAINED_PASSES,
+        "extrapolated_passes": EXTRAPOLATED_PASSES,
         "eval": {"dir": "data/eval", "ctx": 2048, "domains": {"wikitext": 8, "code": 4}},
         "speed": {"pp": 512, "tg": 128, "ctx": 1024},
         "keep_variants": False,

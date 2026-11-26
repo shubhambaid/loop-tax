@@ -84,7 +84,7 @@ def speed(cfg, model, n, spec, log, dry):
 
 def run_variant(cfg, v, dry):
     out_dir = R.REPO / "results" / cfg["experiment"]
-    todo = [n for n in cfg["passes"] if not (out_dir / f"{v['id']}-p{n}.json").exists()]
+    todo = [n for n in v.get("passes", cfg["passes"]) if not (out_dir / f"{v['id']}-p{n}.json").exists()]
     if not todo:
         print(f"skip {v['id']}")
         return
@@ -94,6 +94,7 @@ def run_variant(cfg, v, dry):
     weights = None if dry else R.summarize_weights(model)
     for n in todo:
         rec = {"experiment": cfg["experiment"], "variant": v["id"], "role": "variant", "passes": n,
+               "extrapolated": n in cfg.get("extrapolated_passes", []),
                "spec": {k: v[k] for k in v if k != "overrides"}, "reference": cfg["reference"]["id"],
                "eval": cfg["eval"], "model_file": model.name, "quantize_command": qcmd, **R.provenance(),
                "domains": {}, "domains_vs3": {}}

@@ -31,7 +31,10 @@ from .gguf_header import weight_stats
 
 ROOT = pathlib.Path(os.environ.get("LOOPTAX_ROOT", pathlib.Path.home() / "looptax"))
 REPO = pathlib.Path(__file__).resolve().parent.parent
-BIN = ROOT / "llama.cpp" / "build" / "bin"
+# build/ is llama.cpp at the pinned commit; build-lt/ is the same commit plus scripts/perplexity-chunk-sums.patch
+# (one extra log line with exact per-chunk running sums, used for bootstrap CIs). Chosen per job via LOOPTAX_LLAMA_BUILD.
+LLAMA_BUILD = os.environ.get("LOOPTAX_LLAMA_BUILD", "build")
+BIN = ROOT / "llama.cpp" / LLAMA_BUILD / "bin"
 
 
 def rp(p: str | os.PathLike) -> pathlib.Path:
@@ -58,6 +61,7 @@ def provenance() -> dict:
     return {
         "git_commit": GIT_COMMIT,
         "llama_cpp_commit": git("rev-parse", "HEAD", cwd=ROOT / "llama.cpp"),
+        "llama_cpp_build": LLAMA_BUILD + (" (pinned commit + scripts/perplexity-chunk-sums.patch)" if LLAMA_BUILD == "build-lt" else ""),
         "machine": socket.gethostname(),
         "timestamp": now(),
     }
@@ -109,6 +113,9 @@ def parse_kl(out: str) -> dict:
     m = re.search(r"Final estimate: PPL = " + _NUM + r" \+/- " + _NUM, out)
     if m:
         res["ppl"], res["ppl_err"] = float(m.group(1)), float(m.group(2))
+    rows = re.findall(r"looptax_chunk (\d+) (\S+) (\S+) (\S+) (\S+) (\d+) (\d+)", out)
+    if rows:   # cumulative sums after each chunk: kld, kld^2, nll, nll_base, token count, same-top count
+        res["chunk_sums"] = [[int(r[0]), float(r[1]), float(r[2]), float(r[3]), float(r[4]), int(r[5]), int(r[6])] for r in rows]
     chunks = re.findall(r"calculating perplexity over (\d+) chunks, n_ctx=(\d+)", out)
     if chunks:
         res["chunks"], res["n_ctx"] = int(chunks[-1][0]), int(chunks[-1][1])

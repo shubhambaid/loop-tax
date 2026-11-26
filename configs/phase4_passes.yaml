@@ -12,6 +12,15 @@ passes:
 - 3
 - 4
 - 5
+- 6
+trained_passes: &id001
+- 1
+- 2
+- 3
+- 4
+- 5
+extrapolated_passes:
+- 6
 eval:
   dir: data/eval
   ctx: 2048
@@ -24,18 +33,9 @@ speed:
   ctx: 1024
 keep_variants: false
 variants:
-- id: block06-q2_k
-  kind: headline
-  block: 6
-  qtype: Q2_K
-  ftype: Q8_0
-  pure: true
-  overrides:
-  - ^blk\.6\..*weight$=q2_k
-  - ^blk\.[0-9]+\.ffn_(gate_up|down)_exps\.weight$=nvfp4
-  vs3: false
 - id: block09-q2_k
   kind: headline
+  category: loop
   block: 9
   qtype: Q2_K
   ftype: Q8_0
@@ -44,38 +44,16 @@ variants:
   - ^blk\.9\..*weight$=q2_k
   - ^blk\.[0-9]+\.ffn_(gate_up|down)_exps\.weight$=nvfp4
   vs3: false
-- id: block12-q2_k
-  kind: headline
-  block: 12
-  qtype: Q2_K
-  ftype: Q8_0
-  pure: true
-  overrides:
-  - ^blk\.12\..*weight$=q2_k
-  - ^blk\.[0-9]+\.ffn_(gate_up|down)_exps\.weight$=nvfp4
-  vs3: false
-- id: block17-q2_k
-  kind: headline
-  block: 17
-  qtype: Q2_K
-  ftype: Q8_0
-  pure: true
-  overrides:
-  - ^blk\.17\..*weight$=q2_k
-  - ^blk\.[0-9]+\.ffn_(gate_up|down)_exps\.weight$=nvfp4
-  vs3: false
-- id: block03-q2_k
-  kind: headline
-  block: 3
-  qtype: Q2_K
-  ftype: Q8_0
-  pure: true
-  overrides:
-  - ^blk\.3\..*weight$=q2_k
-  - ^blk\.[0-9]+\.ffn_(gate_up|down)_exps\.weight$=nvfp4
-  vs3: false
+  passes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
 - id: block20-q2_k
   kind: headline
+  category: coda
   block: 20
   qtype: Q2_K
   ftype: Q8_0
@@ -84,8 +62,106 @@ variants:
   - ^blk\.20\..*weight$=q2_k
   - ^blk\.[0-9]+\.ffn_(gate_up|down)_exps\.weight$=nvfp4
   vs3: false
+  passes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+- id: block03-q2_k
+  kind: headline
+  category: prelude
+  block: 3
+  qtype: Q2_K
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.3\..*weight$=q2_k
+  - ^blk\.[0-9]+\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  vs3: false
+  passes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+- id: block06-q2_k
+  kind: headline
+  category: loop
+  block: 6
+  qtype: Q2_K
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.6\..*weight$=q2_k
+  - ^blk\.[0-9]+\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  vs3: false
+  passes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+- id: block12-q2_k
+  kind: headline
+  category: loop
+  block: 12
+  qtype: Q2_K
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.12\..*weight$=q2_k
+  - ^blk\.[0-9]+\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  vs3: false
+  passes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+- id: block17-q2_k
+  kind: headline
+  category: loop
+  block: 17
+  qtype: Q2_K
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.17\..*weight$=q2_k
+  - ^blk\.[0-9]+\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  vs3: false
+  passes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+- id: block22-q2_k
+  kind: headline
+  category: coda
+  block: 22
+  qtype: Q2_K
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.22\..*weight$=q2_k
+  - ^blk\.[0-9]+\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  vs3: false
+  passes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
 - id: block09-q4_0
   kind: headline
+  category: loop
   block: 9
   qtype: Q4_0
   ftype: Q8_0
@@ -94,8 +170,34 @@ variants:
   - ^blk\.9\..*weight$=q4_0
   - ^blk\.[0-9]+\.ffn_(gate_up|down)_exps\.weight$=nvfp4
   vs3: false
+  passes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+- id: block20-q4_0
+  kind: headline
+  category: coda
+  block: 20
+  qtype: Q4_0
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.20\..*weight$=q4_0
+  - ^blk\.[0-9]+\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  vs3: false
+  passes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
 - id: block03-q4_0
   kind: headline
+  category: prelude
   block: 3
   qtype: Q4_0
   ftype: Q8_0
@@ -104,9 +206,17 @@ variants:
   - ^blk\.3\..*weight$=q4_0
   - ^blk\.[0-9]+\.ffn_(gate_up|down)_exps\.weight$=nvfp4
   vs3: false
+  passes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
 - id: uniform-q2_k
   kind: grid
   gate_up: Q2_K
+  passes: *id001
   ftype: Q8_0
   pure: true
   overrides:
@@ -116,6 +226,7 @@ variants:
 - id: uniform-q3_k
   kind: grid
   gate_up: Q3_K
+  passes: *id001
   ftype: Q8_0
   pure: true
   overrides:
@@ -125,6 +236,7 @@ variants:
 - id: uniform-iq4_xs
   kind: grid
   gate_up: IQ4_XS
+  passes: *id001
   ftype: Q8_0
   pure: true
   overrides:
@@ -135,3 +247,4 @@ variants:
   kind: grid
   file: models/TML-d24-varloop-research-NVFP4R.gguf
   gate_up: NVFP4
+  passes: *id001
