@@ -2,16 +2,19 @@
 # GPU work queue on goosemini, after the Phase 2 scan. The BF16 check has priority: it runs as soon as the BF16
 # download has finished, checked between units of work. Every step is resumable.
 set -uo pipefail
-ROOT="${LOOPTAX_ROOT:-$HOME/looptax}"; PY="$ROOT/venv/bin/python"; TMUX=/opt/homebrew/bin/tmux
+ROOT="${LOOPTAX_ROOT:-$HOME/looptax}"; PY="$ROOT/venv/bin/python"; TM=/opt/homebrew/bin/tmux   # not $TMUX: tmux uses that env var for its socket
 cd "$ROOT/repo"
-while $TMUX has-session -t scan 2>/dev/null; do sleep 60; done
-while $TMUX has-session -t prep_varloop 2>/dev/null; do sleep 60; done
+while $TM has-session -t scan 2>/dev/null; do sleep 60; done
+while $TM has-session -t prep_varloop 2>/dev/null; do sleep 60; done
 
-bf16_ready() { [[ -f "$ROOT/models/Inkling-2-Mini-BF16.gguf" ]] && ! $TMUX has-session -t dl_bf16 2>/dev/null; }
+BF16="$ROOT/models/Inkling-2-Mini-BF16.gguf"; BF16_BYTES=52226509504   # size and sha256 from the HF LFS pointer
+BF16_SHA=7074c9762e6769a608c7b23960a7fd2444880b1174a3910149749f6d01389aec
+bf16_ready() { [[ -f "$BF16" && $(stat -f %z "$BF16") -eq $BF16_BYTES ]] && ! $TM has-session -t dl_bf16 2>/dev/null; }
 bf16_done=0
 maybe_bf16() {
   if (( ! bf16_done )) && bf16_ready; then
     echo "== BF16 check $(date)"
+    [[ "$(shasum -a 256 "$BF16" | cut -d" " -f1)" == "$BF16_SHA" ]] || { echo "BF16 sha256 mismatch"; bf16_done=1; return; }
     LOOPTAX_LLAMA_BUILD=build-lt $PY -m looptax.run configs/bf16check.yaml --make-base && \
       LOOPTAX_LLAMA_BUILD=build-lt $PY -m looptax.run configs/bf16check.yaml && bf16_done=1
   fi
@@ -36,6 +39,6 @@ done
 # if BF16 arrived late, wait for it
 while (( ! bf16_done )); do maybe_bf16; (( bf16_done )) || sleep 120; done
 # community comparison that was deprioritised behind BF16
-while $TMUX has-session -t dl_unsloth 2>/dev/null; do sleep 60; done
+while $TM has-session -t dl_unsloth 2>/dev/null; do sleep 60; done
 $PY -m looptax.run configs/phase1_community.yaml --only unsloth-ud-q4_k_m
 echo "== queue finished $(date)"
