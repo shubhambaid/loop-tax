@@ -1,0 +1,34 @@
+[
+ {
+  "file": "env/remote_inventory.json",
+  "experiment": "env"
+ },
+ {
+  "file": "layout/community-atomicchat-q4_k_m.json",
+  "experiment": "layout"
+ },
+ {
+  "file": "layout/community-bartowski-q4_k_m.json",
+  "experiment": "layout"
+ },
+ {
+  "file": "layout/community-lmstudio-q4_k_m.json",
+  "experiment": "layout"
+ },
+ {
+  "file": "layout/community-unsloth-ud-q4_k_m.json",
+  "experiment": "layout"
+ },
+ {
+  "file": "layout/inkling2-mini-bf16.json",
+  "experiment": "layout"
+ },
+ {
+  "file": "layout/inkling2-mini-nvfp4.json",
+  "experiment": "layout"
+ },
+ {
+  "file": "layout/varloop-q8_0.json",
+  "experiment": "layout"
+ }
+]

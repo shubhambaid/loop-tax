@@ -19,6 +19,7 @@ import os
 import pathlib
 import re
 import shlex
+import shutil
 import socket
 import subprocess
 import sys
@@ -190,6 +191,10 @@ def build_variant(cfg: dict, v: dict, log: pathlib.Path, dry: bool) -> tuple[pat
     cmd += [rp(v.get("source", cfg["source"])), out, v["ftype"], str(cfg.get("quant_threads", os.cpu_count()))]
     if not out.exists() or dry:
         out.parent.mkdir(parents=True, exist_ok=True)
+        need = rp(v.get("source", cfg["source"])).stat().st_size * 1.7 + (8 << 30) if not dry else 0
+        free = shutil.disk_usage(out.parent).free
+        if free < need:   # worst case Q8_0 from an NVFP4 source is ~1.6x the source, plus margin
+            raise RuntimeError(f"not enough disk for {out.name}: {free / 1e9:.1f} GB free, want {need / 1e9:.1f} GB")
         tmp_out = out.with_suffix(".partial.gguf")
         cmd_tmp = [*cmd[:-3], tmp_out, *cmd[-2:]]
         sh(cmd_tmp, log, dry)
