@@ -1,0 +1,13 @@
+# How far is the varloop NVFP4R reference from our Q8_0 conversion of the release (3 passes)?
+experiment: varloop-refcheck
+reference:
+  id: varloop-q8_0
+  model: models/TML-d24-varloop-research-Q8_0-local.gguf
+  llama: {ngl: null}
+eval:
+  dir: data/eval
+  ctx: 2048
+  domains: {wikitext: 8, code: 4}
+llama: {ngl: 99}
+variants:
+  - {id: nvfp4r, file: models/TML-d24-varloop-research-NVFP4R.gguf, bench: false}

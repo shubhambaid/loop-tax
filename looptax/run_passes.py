@@ -99,14 +99,14 @@ def run_variant(cfg, v, dry):
                "domains": {}, "domains_vs3": {}}
         for domain in cfg["eval"]["domains"]:
             for key, bn in (("domains", n), ("domains_vs3", 3)):
-                if key == "domains_vs3" and n == 3:
+                if key == "domains_vs3" and (n == 3 or not v.get("vs3", True)):
                     continue
                 cmd = [R.BIN / "llama-perplexity", "-m", model, "--kl-divergence-base", base(cfg, domain, bn),
                        "--kl-divergence", "-c", str(cfg["eval"]["ctx"]), "--override-kv", KV.format(n), *ngl(v)]
                 t1 = time.time()
                 out = R.sh(cmd, log, dry)
                 rec[key][domain] = {**R.parse_kl(out), "seconds": round(time.time() - t1, 1)}
-        if n == 3:
+        if n == 3 and v.get("vs3", True):
             rec["domains_vs3"] = rec["domains"]
         if dry:
             continue
