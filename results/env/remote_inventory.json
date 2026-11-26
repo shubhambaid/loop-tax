@@ -1,0 +1,20 @@
+{
+  "hostname": "Shubhams-Mac-mini.local",
+  "os": "macOS 27.2 (Darwin 27.2.0)",
+  "cpu": "Apple M4 Pro",
+  "cpu_cores": 12,
+  "gpu": "Apple M4 Pro; 16; Metal 4; ",
+  "memory_bytes": 25769803776,
+  "iogpu_wired_limit_mb": 0,
+  "disk_free": "103Gi",
+  "python": "Python 3.15.2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "llama_cpp_version": "version: 1.1.0-dev (build 12772, commit 07ba74bab)",
+  "llama_cpp_backend": "Metal (GGML_METAL=ON), built from source with cmake Release",
+  "brew_llama_cpp": "version: 1.0.0 (build 12359, commit b1b770d90) (no inkling2_loop support, unused)",
+  "mlx": "not installed for system python3",
+  "torch": "not installed for system python3",
+  "uv": "uv 0.12.21 (7af826859 2026-09-29 aarch64-apple-darwin)",
+  "tmux": "tmux 3.8",
+  "timestamp": "2026-11-26T07:33:45Z"
+}
