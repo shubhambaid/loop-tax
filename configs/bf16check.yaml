@@ -1,13 +1,14 @@
 # BF16 reference check (Shubham's priority 3): is the native NVFP4 file really closer to the original weights than
 # Q4_K_M / IQ4_NL of the same size? Everything is measured against the BF16 GGUF (NVFP4/MXFP8 experts upcast, i.e. the
-# released values) on the same eval set. BF16 does not fit in GPU memory; llama.cpp --fit places layers.
+# released values) on the same eval set. BF16 does not fit in GPU memory. With --fit or partial offload, Metal ran out
+# of memory (llama-perplexity still exited 0); --device none (CPU only, about 9.5 min per 2048-token chunk) works.
 # Our quants are made from BF16 here (the proper source) and also from the NVFP4 file (as in Phase 1), which measures
 # the effect of the quantization source.
 experiment: bf16check
 reference:
   id: ref-bf16
   model: models/Inkling-2-Mini-BF16.gguf
-  llama: {ngl: null}
+  llama: {ngl: null, extra: ["--device", "none"]}
 source: models/Inkling-2-Mini-BF16.gguf
 imatrix: models/imatrix.gguf
 imatrix_default: true

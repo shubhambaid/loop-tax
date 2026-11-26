@@ -122,6 +122,14 @@ def parse_kl(out: str) -> dict:
     return res
 
 
+def require(metrics: dict, keys: tuple[str, ...], what: str, log: pathlib.Path) -> dict:
+    """llama-perplexity can exit 0 after a failed decode (e.g. Metal out of memory); treat missing metrics as failure."""
+    missing = [k for k in keys if k not in metrics]
+    if missing:
+        raise RuntimeError(f"{what}: no {', '.join(missing)} in llama-perplexity output (failed run?), see {log}")
+    return metrics
+
+
 def gpu_args(cfg: dict, v: dict) -> list[str]:
     llama = {**cfg.get("llama", {}), **v.get("llama", {})}
     # ngl: null leaves layer placement to llama.cpp's --fit (for variants larger than GPU memory)
@@ -141,6 +149,10 @@ def base_path(cfg: dict, domain: str) -> pathlib.Path:
 def make_base(cfg: dict, dry: bool):
     ref = cfg["reference"]
     out_dir = REPO / "results" / cfg["experiment"]
+    done = out_dir / f"{ref['id']}.json"
+    if done.exists() and all(base_path(cfg, d).exists() for d in cfg["eval"]["domains"]):
+        print(f"skip reference {ref['id']} (result and logits exist)")
+        return
     log = rp("logs") / f"{cfg['experiment']}-reference.log"
     rec = {"experiment": cfg["experiment"], "variant": ref["id"], "role": "reference", "config": cfg,
            "model_file": str(rp(ref["model"]).name), **provenance(), "domains": {}}
@@ -151,7 +163,8 @@ def make_base(cfg: dict, dry: bool):
                "-c", str(cfg["eval"]["ctx"]), "--chunks", str(chunks), "--kl-divergence-base", bp, *gpu_args(cfg, ref)]
         t0 = time.time()
         out = sh(cmd, log, dry)
-        rec["domains"][domain] = {**parse_kl(out), "seconds": round(time.time() - t0, 1),
+        m = parse_kl(out) if dry else require(parse_kl(out), ("ppl",), f"reference {domain}", log)
+        rec["domains"][domain] = {**m, "seconds": round(time.time() - t0, 1),
                                   "base_file_bytes": bp.stat().st_size if bp.exists() else None}
     if cfg.get("bench") and not dry:
         rec["bench"] = bench(cfg, ref, rp(ref["model"]), log, dry)
@@ -174,6 +187,17 @@ def bench(cfg: dict, v: dict, model: pathlib.Path, log: pathlib.Path, dry: bool)
     rows = json.loads(m.group(0)) if m else []
     keep = ("n_prompt", "n_gen", "avg_ts", "stddev_ts", "n_gpu_layers", "flash_attn", "n_threads", "backends", "gpu_info", "build_commit")
     return [{k: r.get(k) for k in keep} for r in rows]
+
+
+def weight_stats_n(path: pathlib.Path) -> int:
+    from .gguf_header import parse
+    n = 0
+    for t in parse(str(path))["tensors"]:
+        k = 1
+        for d in t["dims"]:
+            k *= d
+        n += k
+    return n
 
 
 def summarize_weights(path: pathlib.Path) -> dict:
@@ -201,9 +225,10 @@ def build_variant(cfg: dict, v: dict, log: pathlib.Path, dry: bool) -> tuple[pat
     cmd += [rp(v.get("source", cfg["source"])), out, v["ftype"], str(cfg.get("quant_threads", os.cpu_count()))]
     if not out.exists() or dry:
         out.parent.mkdir(parents=True, exist_ok=True)
-        # output size relative to the NVFP4 source: Q8_0 everywhere is ~1.6x, Q6_K ~1.25x, others and scans <= 1.05x
-        ratio = 1.05 if v.get("pure") else {"Q8_0": 1.65, "Q6_K": 1.3, "Q5_K_M": 1.15}.get(v["ftype"], 1.05)
-        need = rp(v.get("source", cfg["source"])).stat().st_size * ratio + (5 << 30) if not dry else 0
+        # upper bound on the output: every weight at the target type's bits (fallbacks only go up to Q8_0's 8.5 bpw)
+        src = rp(v.get("source", cfg["source"]))
+        bpw = {"Q8_0": 8.5, "Q6_K": 8.5, "Q5_K_M": 6.5}.get(v["ftype"], 6.0) if not v.get("pure") else 6.0
+        need = weight_stats_n(src) * bpw / 8 + (5 << 30) if not dry else 0
         free = shutil.disk_usage(out.parent).free
         if free < need:
             raise RuntimeError(f"not enough disk for {out.name}: {free / 1e9:.1f} GB free, want {need / 1e9:.1f} GB")
@@ -234,7 +259,8 @@ def run_variant(cfg: dict, v: dict, dry: bool):
                "-c", str(cfg["eval"]["ctx"]), *gpu_args(cfg, v)]
         t1 = time.time()
         out = sh(cmd, log, dry)
-        rec["domains"][domain] = {**parse_kl(out), "seconds": round(time.time() - t1, 1)}
+        m = parse_kl(out) if dry else require(parse_kl(out), ("kld_mean", "same_top_p_pct"), f"{v['id']} {domain}", log)
+        rec["domains"][domain] = {**m, "seconds": round(time.time() - t1, 1)}
     if dry:
         return
     rec["weights"] = summarize_weights(model)

@@ -54,7 +54,8 @@ def make_base(cfg, dry):
                    "--override-kv", KV.format(n), *ngl(ref)]
             t0 = time.time()
             out = R.sh(cmd, log, dry)
-            rec["domains"][domain] = {**R.parse_kl(out), "seconds": round(time.time() - t0, 1)}
+            m = R.parse_kl(out) if dry else R.require(R.parse_kl(out), ("ppl",), f"reference p{n} {domain}", log)
+            rec["domains"][domain] = {**m, "seconds": round(time.time() - t0, 1)}
         if not dry:
             out_dir.mkdir(parents=True, exist_ok=True)
             res.write_text(json.dumps(rec, indent=1) + "\n")
@@ -106,7 +107,8 @@ def run_variant(cfg, v, dry):
                        "--kl-divergence", "-c", str(cfg["eval"]["ctx"]), "--override-kv", KV.format(n), *ngl(v)]
                 t1 = time.time()
                 out = R.sh(cmd, log, dry)
-                rec[key][domain] = {**R.parse_kl(out), "seconds": round(time.time() - t1, 1)}
+                m = R.parse_kl(out) if dry else R.require(R.parse_kl(out), ("kld_mean", "chunk_sums"), f"{v['id']} p{n} {domain}", log)
+                rec[key][domain] = {**m, "seconds": round(time.time() - t1, 1)}
         if n == 3 and v.get("vs3", True):
             rec["domains_vs3"] = rec["domains"]
         if dry:
