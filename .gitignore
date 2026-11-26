@@ -12,3 +12,6 @@ site/node_modules/
 site/dist/
 loop-tax.bundle
 .DS_Store
+site/src/data/site.json
+site/public/data/
+site/.astro/

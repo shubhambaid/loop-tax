@@ -1,0 +1,21 @@
+---
+// A figure with an interactive chart (drawn client-side by src/scripts/charts.js) and a table view of the same data.
+interface Props { name: string; title: string; caption?: string; rows?: Record<string, unknown>[]; columns?: [string, string, number?][]; wide?: boolean; toy?: boolean }
+const { name, title, caption, rows = [], columns = [], wide = false, toy = false } = Astro.props;
+const fmt = (v: unknown, digits?: number) =>
+  v === null || v === undefined || v === "" ? "" : typeof v === "number" && digits !== undefined ? v.toFixed(digits) : String(v);
+---
+<figure class={wide ? "wide" : ""}>
+  {toy && <div class="toy-label">toy simulation, random weights, not Inkling 2 Mini</div>}
+  <div class="chart" data-chart={name} role="img" aria-label={title}></div>
+  <figcaption><strong>{title}.</strong> {caption}</figcaption>
+  {rows.length > 0 && (
+    <details>
+      <summary>Show the data as a table</summary>
+      <table>
+        <thead><tr>{columns.map(([, label]) => <th>{label}</th>)}</tr></thead>
+        <tbody>{rows.map((r) => <tr>{columns.map(([key, , d]) => <td>{fmt(r[key], d)}</td>)}</tr>)}</tbody>
+      </table>
+    </details>
+  )}
+</figure>

@@ -19,7 +19,8 @@ def row(rec: dict) -> dict:
     r = {"experiment": rec["experiment"], "variant": rec["variant"], "role": rec.get("role"),
          "file_gb": w.get("file_gb"), "bpw": w.get("bpw")}
     spec = rec.get("spec", {})
-    for k in ("ftype", "block", "family", "qtype"):
+    r["passes"] = rec.get("passes")
+    for k in ("ftype", "block", "family", "qtype", "gate_up", "est_gb"):
         r[k] = spec.get(k)
     r["imatrix"] = bool(spec.get("imatrix", True)) if spec else None
     kl, kl_err, n = 0.0, 0.0, 0
@@ -32,6 +33,15 @@ def row(rec: dict) -> dict:
             kl += m["kld_mean"]
             kl_err += m.get("kld_mean_err", 0) ** 2
             n += 1
+    for d in DOMAINS:
+        m = rec.get("domains_vs3", {}).get(d, {})
+        for k in ("kld_mean", "kld_mean_err", "same_top_p_pct", "ppl_q"):
+            if k in m:
+                r[f"{d}_vs3_{k}"] = m[k]
+    sp = rec.get("speed") or {}
+    for k in ("pp_tps", "tg_tps"):
+        if k in sp:
+            r[k] = sp[k]
     if n:
         r["kld_mean_avg"] = kl / n          # unweighted average over domains
         r["kld_mean_avg_err"] = kl_err ** 0.5 / n

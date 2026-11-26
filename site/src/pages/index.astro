@@ -1,0 +1,187 @@
+---
+// LoopTax results page. Every number below is read from src/data/site.json, which scripts/build-data.mjs builds from
+// the repo's results/, toy/ and configs/ at build time.
+import "../styles/global.css";
+import Chart from "../components/Chart.astro";
+import site from "../data/site.json";
+
+const L = site.layout;
+const loopStart = L.loop["loop.start"], loopEnd = L.loop["loop.end"], passes = L.loop["loop.count"];
+const nLoop = loopEnd - loopStart;
+const pct = (x: number, d = 1) => `${(100 * x).toFixed(d)}%`;
+const gb = (n: number) => `${(n / 1e9).toFixed(1)}B`;
+
+// toy numbers
+const depth = site.toy.depth;
+const toyLooped = depth.looped_mean.at(-1), toyDistinct = depth.distinct_mean.at(-1);
+const grid = site.toy.grid as { loop_bits: number; edge_bits: number; avg_bits: number; err: number }[];
+const g54 = grid.find((g) => g.loop_bits === 5 && g.edge_bits === 4);
+const g45 = grid.find((g) => g.loop_bits === 4 && g.edge_bits === 5);
+
+// phase 1
+const p1 = ((site.experiments as any)["phase1-baselines"] ?? []).filter((r: any) => r.role === "variant")
+  .sort((a: any, b: any) => a.file_gb - b.file_gb);
+const ref = ((site.experiments as any)["phase1-baselines"] ?? []).find((r: any) => r.role === "reference");
+const p2 = ((site.experiments as any)["phase2-scan"] ?? []).filter((r: any) => r.family === "block");
+const p2Done = p2.length >= 48;
+
+// architecture diagram geometry
+const blocks = Array.from({ length: L.block_count }, (_, i) => i);
+const bw = 26, gap = 4, x0 = 10;
+const bx = (i: number) => x0 + i * (bw + gap);
+const repo = "https://github.com/shubhambaid/loop-tax";
+---
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LoopTax: quantization error in looped transformers</title>
+  <meta name="description" content="Does quantization error compound when a transformer runs the same layers several times? Measured on Inkling 2 Mini." />
+  <meta property="og:title" content="LoopTax: weights that run in a loop pay their quantization error more than once?" />
+  <meta property="og:description" content="Per-layer quantization sensitivity, loop-aware mixed precision and bits vs loop passes on Inkling 2 Mini." />
+  <meta property="og:image" content="https://looptax.alethic-labs.com/og.png" />
+  <meta property="og:url" content="https://looptax.alethic-labs.com/" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <script is:inline>
+    const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t;
+  </script>
+</head>
+<body>
+<button class="theme-toggle" id="theme-toggle" aria-label="Toggle light or dark theme">theme</button>
+<main>
+  <div class="kicker">Alethic Labs research note</div>
+  <h1>LoopTax: does a looped transformer pay its quantization error more than once?</h1>
+  <p class="lede">
+    Inkling 2 Mini stores {L.block_count} decoder layers but runs {L.visits} per token: blocks {loopStart}-{loopEnd - 1} share
+    weights and run {passes} times. We measured whether those shared weights are more sensitive to quantization, and whether
+    spending bits on them beats uniform recipes.
+  </p>
+  <div class="pending">Headline result: written once Phases 2-4 are complete. Status of each part is shown below.</div>
+
+  <h2>The architecture</h2>
+  <p>
+    Blocks 0-{loopStart - 1} (the prelude) run once. Blocks {loopStart}-{loopEnd - 1} (the loop core) run {passes} times; every
+    pass starts again from the prelude output and receives a gated message from the previous pass, and every visit keeps its
+    own KV cache. Only the last pass continues into blocks {loopEnd}-{L.block_count - 1} (the coda).
+    {`The loop core holds ${gb(L.params_loop_blocks)} parameters and the prelude plus coda ${gb(L.params_edge_blocks)}; routed experts are ${pct(L.params_by_family.experts / L.params_total)} of all weights.`}
+  </p>
+  <figure class="wide">
+    <svg viewBox={`0 0 ${bx(L.block_count) + 10} 120`} role="img" aria-label={`${L.block_count} stored blocks, blocks ${loopStart} to ${loopEnd - 1} run ${passes} times`} style="width:100%;height:auto">
+      {blocks.map((i) => {
+        const inLoop = i >= loopStart && i < loopEnd;
+        return (
+          <g>
+            <rect x={bx(i)} y="40" width={bw} height="44" rx="4" fill={inLoop ? "var(--loop)" : "var(--edge)"} opacity={inLoop ? 0.9 : 0.75} />
+            <text x={bx(i) + bw / 2} y="100" text-anchor="middle" font-size="9" fill="var(--text-2)">{i}</text>
+          </g>
+        );
+      })}
+      <path d={`M ${bx(loopEnd) - gap - 2} 36 C ${bx(loopEnd)} 6, ${bx(loopStart) - 2} 6, ${bx(loopStart) + 2} 36`} fill="none" stroke="var(--text)" stroke-width="1.5" marker-end="url(#arrow)" />
+      <text x={(bx(loopStart) + bx(loopEnd)) / 2} y="14" text-anchor="middle" font-size="11" fill="var(--text)">x{passes} passes, shared weights</text>
+      <text x={bx(0)} y="116" font-size="10" fill="var(--text-2)">prelude (runs once)</text>
+      <text x={bx(loopEnd)} y="116" font-size="10" fill="var(--text-2)">coda (runs once)</text>
+      <defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--text)" /></marker></defs>
+    </svg>
+    <figcaption><strong>{L.block_count} stored blocks, {L.visits} layer visits per token.</strong> Checked from the GGUF tensor table: one physical copy of each block, loop controller tensors only in blocks {loopStart}-{loopEnd - 1}.</figcaption>
+  </figure>
+
+  <h2>The intuition</h2>
+  <p>
+    Quantizing a weight matrix adds a small error <code>e</code>. In an ordinary stack every layer has its own error, so the
+    errors are roughly independent and partly cancel. In a loop the same <code>W + e</code> is applied on every pass: it is a
+    bug in a function that gets called {passes} times. If the passes push the error in the same direction, it adds up
+    coherently instead of averaging out. That is the hypothesis. It might be wrong: the passes are gated, and each one
+    restarts from the prelude output.
+  </p>
+
+  <h2>Part 0: a toy simulation</h2>
+  <p>
+    Random residual MLP blocks, round-to-nearest quantization, hidden-state error against full precision. At equal depth and
+    {`4-bit weights the looped stack ends at ${pct(toyLooped)} error vs ${pct(toyDistinct)} for distinct blocks. In an Inkling-shaped toy at 4.5 average bits, 5-bit loop with 4-bit edges gives ${pct(g54!.err)} vs ${pct(g45!.err)} the other way round.`} These are random weights: they show the mechanism can exist, not that it exists in Inkling 2 Mini.
+  </p>
+  <Chart name="toyDepth" toy title="Error vs layer visits, distinct vs looped blocks"
+    caption="20 seeds, 4-bit round-to-nearest. The curves are identical until the loop restarts."
+    rows={depth.distinct_mean.map((v: number, i: number) => ({ depth: i + 1, distinct: 100 * v, looped: 100 * depth.looped_mean[i] }))}
+    columns={[["depth", "layer visits"], ["distinct", "distinct blocks (%)", 2], ["looped", "looped blocks (%)", 2]]} />
+  <Chart name="toyGrid" toy title="Final error by loop bits and edge bits (Inkling-shaped toy)"
+    caption="Cells show final hidden-state error in percent; 10 seeds."
+    rows={grid.map((g) => ({ ...g, errp: 100 * g.err }))}
+    columns={[["loop_bits", "loop bits"], ["edge_bits", "edge bits"], ["avg_bits", "average bits", 1], ["errp", "error (%)", 1]]} />
+
+  <h2>Part 1: baselines on the real model</h2>
+  <p>
+    Reference: ggml-org's NVFP4 GGUF of Inkling 2 Mini. Its experts are the released NVFP4 weights bit for bit; everything
+    else is Q8_0. We re-quantized it with llama.cpp's standard recipes and measured KL divergence of the next-token
+    distribution against the reference on wikitext-2, Python code and an 8-language FLORES sample (context 2048).
+  </p>
+  {ref && <div class="stat-row">
+    <div class="stat"><div class="v">{ref.file_gb.toFixed(1)} GB</div><div class="l">reference size</div></div>
+    <div class="stat"><div class="v">{ref.wikitext_ppl?.toFixed(2)}</div><div class="l">reference wikitext perplexity</div></div>
+    <div class="stat"><div class="v">{ref.pp_tps?.toFixed(0)} / {ref.tg_tps?.toFixed(1)}</div><div class="l">tok/s prefill / decode, M4 Pro</div></div>
+  </div>}
+  <Chart name="phase1" wide title="Uniform quants: quality vs size"
+    caption="Mean KL divergence averaged over three domains, log scale. Hover for details."
+    rows={p1} columns={[["variant", "variant"], ["file_gb", "size (GB)", 2], ["bpw", "bits/weight", 2], ["kld_mean_avg", "mean KL", 4],
+      ["wikitext_same_top_p_pct", "top-1 agree (%)", 1], ["pp_tps", "prefill tok/s", 0], ["tg_tps", "decode tok/s", 1]]} />
+  <p>
+    One practical finding: the down-projection experts are 1152 wide, which is not a multiple of 256, so llama.cpp cannot
+    store them in K-quant types and silently falls back (Q2_K and Q3_K become Q4_0, Q4_K becomes Q5_0, Q6_K becomes Q8_0).
+    A third of the weights never goes below about 4.5 bits per weight with stock types.
+  </p>
+
+  <h2>Part 2: which layers are sensitive?</h2>
+  <p>
+    Keep everything at reference precision except one physical block, drop that block to 2 or 3 bits, and measure KL against
+    the reference. {p2Done ? "" : "The scan is running; the chart fills in when all 48 runs are in."}
+  </p>
+  <Chart name="phase2" wide title="KL increase when one block is quantized"
+    caption="Looped blocks highlighted. Down experts fall back to Q4_0 in every run."
+    rows={p2} columns={[["block", "block"], ["qtype", "type"], ["kld_mean_avg", "mean KL", 5], ["kld_mean_avg_err", "std err", 5]]} />
+
+  <h2>Part 3: loop-aware mixed precision</h2>
+  <div class="pending">Not run yet.</div>
+
+  <h2>Part 4: bits vs loop passes</h2>
+  <div class="pending">Not run yet.</div>
+
+  <h2>What this means if you quantize looped models</h2>
+  <div class="pending">Written once the results are in.</div>
+
+  <h2>Limitations</h2>
+  <ul>
+    <li>One model, one machine (Apple M4 Pro, 24 GB), one llama.cpp build ({site.env.llama_cpp_commit.slice(0, 7)}).</li>
+    <li>The reference is the NVFP4 GGUF, not BF16: 24 GB of memory cannot hold BF16 on the GPU.</li>
+    <li>KL on {Object.keys(site.evalset).length} text domains at context 2048; no downstream task evaluation.</li>
+    <li>The toy simulation uses random weights and plain residual iteration; the real loop is gated and restarts each pass.</li>
+  </ul>
+
+  <h2>Reproduce it</h2>
+  <p>Hardware: {site.env.cpu}, {(site.env.memory_bytes / 2 ** 30).toFixed(0)} GB unified memory, {site.env.os}. llama.cpp {site.env.llama_cpp_version}.</p>
+  <pre><code>git clone {repo}
+cd loop-tax
+make remote-build remote-download         # llama.cpp at the pinned commit, reference GGUF
+python -m looptax.run configs/phase1.yaml --make-base
+python -m looptax.run configs/phase1.yaml
+python -m looptax.run configs/phase2_scan.yaml</code></pre>
+  <p>Raw results: <a href="data/results/manifest.json">manifest.json</a>, plus one JSON per run and a summary CSV per experiment under <code>data/results/</code>.</p>
+
+  <footer>
+    By Shubham Baid, Alethic Labs. Code: <a href={repo}>github.com/shubhambaid/loop-tax</a>.
+    Built from repo commit {site.generatedFrom}.
+  </footer>
+</main>
+<script>
+  import "../scripts/charts.js";
+  const btn = document.getElementById("theme-toggle")!;
+  btn.addEventListener("click", () => {
+    const dark = document.documentElement.dataset.theme
+      ? document.documentElement.dataset.theme === "dark"
+      : matchMedia("(prefers-color-scheme: dark)").matches;
+    const next = dark ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem("theme", next);
+    document.dispatchEvent(new Event("themechange"));
+  });
+</script>
+</body>
+</html>
