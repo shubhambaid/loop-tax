@@ -157,3 +157,31 @@ variable, so its "wait for the scan" checks failed and at 16:14 it tried to star
 download and the varloop steps before their files existed. Every attempt failed at model load and wrote no result
 files; partial logit directories were deleted. The queue now also requires the BF16 file to match the HF size and
 sha256 before use.
+
+## 2026-11-26: Phase 2 scan, screening results
+
+All 48 single-block runs (Q2_K and Q3_K) plus per-family runs on blocks 2, 5, 8, 11, 14, 17, 20, 23 finished at 19:35
+(`results/phase2-scan/`, weight error in `results/phase2-scan-weight-error/`, chart `assets/phase2_scan_normalised.png`).
+Screening only: 16 chunks per run.
+
+**Same-sized shock everywhere.** The relative squared weight error of the perturbed block is nearly the same for every
+block: 0.042-0.043 at Q2_K and 0.0136-0.0147 at Q3_K, including blocks 20-23 that start from Q8_0. Their bits removed
+differ a lot (0.18 GB vs 0.69 GB at Q2_K), so per-bit normalisation and per-weight-error normalisation disagree for
+those blocks; weight error is the fairer yardstick for sensitivity, bits removed is what matters for recipes.
+
+**KL per unit of weight error.** Mean over blocks, loop (6-17) vs the 12 run-once blocks: Q2_K 0.222 vs 0.122 (1.82x),
+Q3_K 0.344 vs 0.210 (1.64x). But the run-once group mixes two very different populations. Prelude blocks 0-5 sit at
+0.12-0.15 (Q2_K) and 0.30-0.34 (Q3_K); coda blocks 19-22 at 0.08-0.10 at both widths. At Q3_K, loop blocks 13-15
+(0.25-0.27) are below the prelude. So "loop vs not loop" is mostly "loop and prelude vs coda", which is exactly what the
+position confound predicts, and the prelude also feeds every pass. Only the headline experiment can separate these.
+
+**Where the loop excess sits.** Peaks at blocks 11, 12, 16, 17 at both widths. 11 and 17 are global-attention layers
+(the full-attention layer of each six-block group is 5, 11, 17, 23). Per-family runs at Q2_K: attention-only KL is
+0.0051-0.0054 in prelude blocks 2 and 5, 0.0060-0.0063 in loop blocks 8 and 14, but 0.0118 and 0.0104 in loop blocks
+11 and 17; coda 20 and 23: 0.0014 and 0.0035. Experts-only KL is similar in prelude and loop blocks (0.0036-0.0048) and
+lower in the coda (0.0023-0.0025). Attention and experts runs remove very different numbers of bits (0.16 vs 1.27 GB),
+so compare within a family, not across.
+
+**Next.** Extended the per-family runs (experts only, attention only) to all 24 blocks (32 more runs, about 2 h, queued
+after the headline): the Phase 3 sensitivity-guided recipe varies only gate/up experts, so it should be guided by
+experts-only sensitivity, not by whole-block KL that is partly attention.

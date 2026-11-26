@@ -79,6 +79,36 @@ def phase1():
     print(out)
 
 
+def phase2():
+    import json
+    import glob
+    rows = [r for r in read("phase2-scan") if r["role"] == "variant" and r["family"] == "block"]
+    werr = {}
+    for f in glob.glob(str(RESULTS / "phase2-scan-weight-error" / "*.json")):
+        d = json.load(open(f))
+        werr[d["variant"]] = d["weight_error"]["block_total"]["rel_err"]
+    fig, axes = plt.subplots(2, 1, figsize=(9, 6.4), dpi=150, sharex=True)
+    for ax, qt in zip(axes, ("Q2_K", "Q3_K")):
+        rs = sorted((r for r in rows if r["qtype"] == qt), key=lambda r: int(float(r["block"])))
+        bs = [int(float(r["block"])) for r in rs]
+        ys = [float(r["kld_mean_avg"]) / werr[r["variant"]] for r in rs]
+        es = [float(r["kld_mean_avg_err"]) / werr[r["variant"]] for r in rs]
+        cols = [SERIES[1] if 6 <= b <= 17 else SERIES[0] for b in bs]
+        style(ax, f"{qt} on one block (down experts fall back to Q4_0)", "", "KL / relative weight error")
+        ax.bar(bs, ys, color=cols, width=0.8, yerr=es, ecolor=TEXT2, error_kw={"elinewidth": 0.8})
+        ax.grid(axis="x", visible=False)
+    axes[-1].set_xlabel("physical block (orange: loop core 6-17, runs 3x)", color=TEXT2)
+    axes[-1].set_xticks(range(24))
+    fig.suptitle("Per-block sensitivity of Inkling 2 Mini, normalised by weight error", x=0.02, ha="left",
+                 color=TEXT, fontsize=12, fontweight="bold")
+    fig.text(0.02, 0.005, "Mean KL over 3 domains (16 chunks) vs NVFP4 reference, divided by the block's relative squared "
+             "weight error. Screening run; bars: standard error over tokens.", fontsize=7.5, color=TEXT2)
+    fig.tight_layout(rect=(0, 0.02, 1, 0.97))
+    out = ASSETS / "phase2_scan_normalised.png"
+    fig.savefig(out, facecolor=SURFACE)
+    print(out)
+
+
 if __name__ == "__main__":
     for name in sys.argv[1:] or ["phase1"]:
         globals()[name]()

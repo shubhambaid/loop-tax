@@ -1,0 +1,108 @@
+{
+ "experiment": "phase2-scan-weight-error",
+ "variant": "block18-q3_k",
+ "block": 18,
+ "family": "block",
+ "qtype": "Q3_K",
+ "quantize_command": [
+  "/Users/goosemini/looptax/llama.cpp/build/bin/llama-quantize",
+  "--allow-requantize",
+  "--imatrix",
+  "/Users/goosemini/looptax/models/imatrix.gguf",
+  "--pure",
+  "--tensor-type",
+  "^blk\\.18\\..*weight$=q3_k",
+  "--tensor-type",
+  "^blk\\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\\.ffn_(gate_up|down)_exps\\.weight$=nvfp4",
+  "/Users/goosemini/looptax/models/Inkling-2-Mini-NVFP4.gguf",
+  "/Users/goosemini/looptax/work/phase2-scan-werr-block18-q3_k.gguf",
+  "Q8_0",
+  "12"
+ ],
+ "git_commit": "27338d78e787fe153eb73d4027641240f122804a",
+ "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+ "llama_cpp_build": "build",
+ "machine": "Shubhams-Mac-mini.local",
+ "timestamp": "2026-11-26T11:47:30+00:00",
+ "weight_error": {
+  "attn": {
+   "rel_err": 0.023212796721410387,
+   "bits_ref": 228584448,
+   "bits_var": 92442240,
+   "bits_removed": 136142208,
+   "numel": 26892288,
+   "tensors": [
+    {
+     "name": "blk.18.attn_gate.weight",
+     "ref_type": "Q8_0",
+     "var_type": "Q3_K"
+    },
+    {
+     "name": "blk.18.attn_k.weight",
+     "ref_type": "Q8_0",
+     "var_type": "Q3_K"
+    },
+    {
+     "name": "blk.18.attn_output.weight",
+     "ref_type": "Q8_0",
+     "var_type": "Q3_K"
+    },
+    {
+     "name": "blk.18.attn_q.weight",
+     "ref_type": "Q8_0",
+     "var_type": "Q3_K"
+    },
+    {
+     "name": "blk.18.attn_rel.weight",
+     "ref_type": "Q8_0",
+     "var_type": "Q3_K"
+    },
+    {
+     "name": "blk.18.attn_sink_proj.weight",
+     "ref_type": "Q8_0",
+     "var_type": "Q3_K"
+    },
+    {
+     "name": "blk.18.attn_v.weight",
+     "ref_type": "Q8_0",
+     "var_type": "Q3_K"
+    }
+   ]
+  },
+  "down": {
+   "rel_err": 0.007003714080299426,
+   "bits_ref": 1528823808,
+   "bits_var": 1528823808,
+   "bits_removed": 0,
+   "numel": 339738624,
+   "tensors": [
+    {
+     "name": "blk.18.ffn_down_exps.weight",
+     "ref_type": "NVFP4",
+     "var_type": "Q4_0"
+    }
+   ]
+  },
+  "gate_up": {
+   "rel_err": 0.019899414019225202,
+   "bits_ref": 3057647616,
+   "bits_var": 2335703040,
+   "bits_removed": 721944576,
+   "numel": 679477248,
+   "tensors": [
+    {
+     "name": "blk.18.ffn_gate_up_exps.weight",
+     "ref_type": "NVFP4",
+     "var_type": "Q3_K"
+    }
+   ]
+  },
+  "block_total": {
+   "rel_err": 0.013630110888345854,
+   "bits_ref": 4815055872,
+   "bits_var": 3956969088,
+   "bits_removed": 858086784,
+   "numel": 1046108160
+  }
+ }
+}

@@ -38,6 +38,8 @@ for v in $($PY -c "import yaml; print(' '.join(v['id'] for v in yaml.safe_load(o
 done
 # if BF16 arrived late, wait for it
 while (( ! bf16_done )); do maybe_bf16; (( bf16_done )) || sleep 120; done
+# Phase 2 extension: experts-only and attention-only runs for every block (guides the Phase 3 recipe)
+$PY -m looptax.run configs/phase2_scan.yaml
 # community comparison that was deprioritised behind BF16
 while $TM has-session -t dl_unsloth 2>/dev/null; do sleep 60; done
 $PY -m looptax.run configs/phase1_community.yaml --only unsloth-ud-q4_k_m

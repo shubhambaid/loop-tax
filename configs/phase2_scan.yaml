@@ -507,6 +507,26 @@ variants:
   block: 23
   family: block
   qtype: Q3_K
+- id: experts00-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.0\.ffn_(gate_up|down)_exps\..*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 0
+  family: experts
+  qtype: Q2_K
+- id: experts01-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.1\.ffn_(gate_up|down)_exps\..*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 1
+  family: experts
+  qtype: Q2_K
 - id: experts02-q2_k
   ftype: Q8_0
   pure: true
@@ -515,6 +535,26 @@ variants:
   - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
   bench: false
   block: 2
+  family: experts
+  qtype: Q2_K
+- id: experts03-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.3\.ffn_(gate_up|down)_exps\..*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 3
+  family: experts
+  qtype: Q2_K
+- id: experts04-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.4\.ffn_(gate_up|down)_exps\..*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 4
   family: experts
   qtype: Q2_K
 - id: experts05-q2_k
@@ -527,6 +567,26 @@ variants:
   block: 5
   family: experts
   qtype: Q2_K
+- id: experts06-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.6\.ffn_(gate_up|down)_exps\..*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 6
+  family: experts
+  qtype: Q2_K
+- id: experts07-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.7\.ffn_(gate_up|down)_exps\..*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 7
+  family: experts
+  qtype: Q2_K
 - id: experts08-q2_k
   ftype: Q8_0
   pure: true
@@ -535,6 +595,26 @@ variants:
   - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
   bench: false
   block: 8
+  family: experts
+  qtype: Q2_K
+- id: experts09-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.9\.ffn_(gate_up|down)_exps\..*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 9
+  family: experts
+  qtype: Q2_K
+- id: experts10-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.10\.ffn_(gate_up|down)_exps\..*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 10
   family: experts
   qtype: Q2_K
 - id: experts11-q2_k
@@ -547,6 +627,26 @@ variants:
   block: 11
   family: experts
   qtype: Q2_K
+- id: experts12-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.12\.ffn_(gate_up|down)_exps\..*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 12
+  family: experts
+  qtype: Q2_K
+- id: experts13-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.13\.ffn_(gate_up|down)_exps\..*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 13
+  family: experts
+  qtype: Q2_K
 - id: experts14-q2_k
   ftype: Q8_0
   pure: true
@@ -555,6 +655,26 @@ variants:
   - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
   bench: false
   block: 14
+  family: experts
+  qtype: Q2_K
+- id: experts15-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.15\.ffn_(gate_up|down)_exps\..*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 15
+  family: experts
+  qtype: Q2_K
+- id: experts16-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.16\.ffn_(gate_up|down)_exps\..*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 16
   family: experts
   qtype: Q2_K
 - id: experts17-q2_k
@@ -567,6 +687,26 @@ variants:
   block: 17
   family: experts
   qtype: Q2_K
+- id: experts18-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.18\.ffn_(gate_up|down)_exps\..*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 18
+  family: experts
+  qtype: Q2_K
+- id: experts19-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.19\.ffn_(gate_up|down)_exps\..*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 19
+  family: experts
+  qtype: Q2_K
 - id: experts20-q2_k
   ftype: Q8_0
   pure: true
@@ -575,6 +715,26 @@ variants:
   - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
   bench: false
   block: 20
+  family: experts
+  qtype: Q2_K
+- id: experts21-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.21\.ffn_(gate_up|down)_exps\..*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 21
+  family: experts
+  qtype: Q2_K
+- id: experts22-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.22\.ffn_(gate_up|down)_exps\..*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 22
   family: experts
   qtype: Q2_K
 - id: experts23-q2_k
@@ -587,6 +747,26 @@ variants:
   block: 23
   family: experts
   qtype: Q2_K
+- id: attn00-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.0\.attn_.*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 0
+  family: attn
+  qtype: Q2_K
+- id: attn01-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.1\.attn_.*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 1
+  family: attn
+  qtype: Q2_K
 - id: attn02-q2_k
   ftype: Q8_0
   pure: true
@@ -595,6 +775,26 @@ variants:
   - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
   bench: false
   block: 2
+  family: attn
+  qtype: Q2_K
+- id: attn03-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.3\.attn_.*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 3
+  family: attn
+  qtype: Q2_K
+- id: attn04-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.4\.attn_.*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 4
   family: attn
   qtype: Q2_K
 - id: attn05-q2_k
@@ -607,6 +807,26 @@ variants:
   block: 5
   family: attn
   qtype: Q2_K
+- id: attn06-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.6\.attn_.*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 6
+  family: attn
+  qtype: Q2_K
+- id: attn07-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.7\.attn_.*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 7
+  family: attn
+  qtype: Q2_K
 - id: attn08-q2_k
   ftype: Q8_0
   pure: true
@@ -615,6 +835,26 @@ variants:
   - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
   bench: false
   block: 8
+  family: attn
+  qtype: Q2_K
+- id: attn09-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.9\.attn_.*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 9
+  family: attn
+  qtype: Q2_K
+- id: attn10-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.10\.attn_.*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 10
   family: attn
   qtype: Q2_K
 - id: attn11-q2_k
@@ -627,6 +867,26 @@ variants:
   block: 11
   family: attn
   qtype: Q2_K
+- id: attn12-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.12\.attn_.*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 12
+  family: attn
+  qtype: Q2_K
+- id: attn13-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.13\.attn_.*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 13
+  family: attn
+  qtype: Q2_K
 - id: attn14-q2_k
   ftype: Q8_0
   pure: true
@@ -635,6 +895,26 @@ variants:
   - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
   bench: false
   block: 14
+  family: attn
+  qtype: Q2_K
+- id: attn15-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.15\.attn_.*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 15
+  family: attn
+  qtype: Q2_K
+- id: attn16-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.16\.attn_.*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 16
   family: attn
   qtype: Q2_K
 - id: attn17-q2_k
@@ -647,6 +927,26 @@ variants:
   block: 17
   family: attn
   qtype: Q2_K
+- id: attn18-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.18\.attn_.*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 18
+  family: attn
+  qtype: Q2_K
+- id: attn19-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.19\.attn_.*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 19
+  family: attn
+  qtype: Q2_K
 - id: attn20-q2_k
   ftype: Q8_0
   pure: true
@@ -655,6 +955,26 @@ variants:
   - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
   bench: false
   block: 20
+  family: attn
+  qtype: Q2_K
+- id: attn21-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.21\.attn_.*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 21
+  family: attn
+  qtype: Q2_K
+- id: attn22-q2_k
+  ftype: Q8_0
+  pure: true
+  overrides:
+  - ^blk\.22\.attn_.*weight$=q2_k
+  - ^blk\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\.ffn_(gate_up|down)_exps\.weight$=nvfp4
+  bench: false
+  block: 22
   family: attn
   qtype: Q2_K
 - id: attn23-q2_k
