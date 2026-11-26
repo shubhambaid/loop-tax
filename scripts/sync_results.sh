@@ -4,4 +4,4 @@ set -euo pipefail
 REMOTE="${LOOPTAX_REMOTE:-goosemini@100.104.128.73}"
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
 rsync -av --prune-empty-dirs --include '*/' --include '*.json' --include '*.csv' --include '*.txt' \
-  --exclude '*' "$REMOTE:looptax/results/" "$HERE/results/"
+  --exclude '*' "$REMOTE:looptax/repo/results/" "$HERE/results/"
