@@ -183,6 +183,8 @@ def build_variant(cfg: dict, v: dict, log: pathlib.Path, dry: bool) -> tuple[pat
     im = v.get("imatrix", cfg.get("imatrix_default", False))
     if im:
         cmd += ["--imatrix", rp(cfg["imatrix"] if im is True else im)]
+    if v.get("pure"):
+        cmd += ["--pure"]
     for o in v.get("overrides", []):
         cmd += ["--tensor-type", o]
     cmd += [rp(v.get("source", cfg["source"])), out, v["ftype"], str(cfg.get("quant_threads", os.cpu_count()))]
