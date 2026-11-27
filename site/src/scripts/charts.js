@@ -58,15 +58,16 @@ const renderers = {
     if (!rows.length) return null;
     const cat = (b) => (b < 6 ? "prelude (injected into every pass)" : b <= 17 ? "loop (reused every pass)" : "coda (runs once, control)");
     const r2 = rows.map((r) => ({ ...r, category: cat(r.block), extrapolated: r.passes > 5 }));
+    const trained = r2.filter((r) => !r.extrapolated), extra = r2.filter((r) => r.extrapolated);
     return Plot.plot({ ...base(el),
-      x: { label: "loop passes N", type: "log", ticks: [1, 2, 3, 4, 5, 6], tickFormat: "d" },
-      y: { label: "KL vs reference at the same N", type: "log", grid: true },
+      fx: { label: null, domain: ["Q2_K", "Q4_0"] },
+      x: { label: "loop passes N", type: "log", ticks: [1, 2, 3, 4, 5, 6], tickFormat: (d) => (d === 6 ? "6*" : `${d}`) },
+      y: { label: "KL vs reference at the same N", type: "log", grid: true, tickFormat: (v) => v.toPrecision(1) },
       color: { domain: ["loop (reused every pass)", "prelude (injected into every pass)", "coda (runs once, control)"],
                range: [css("--loop"), css("--series-4"), css("--edge")], legend: true },
-      facet: { data: r2, x: "qtype", label: null },
-      marks: [Plot.line(r2.filter((r) => !r.extrapolated), { x: "passes", y: "kld_mean_avg", stroke: "category", z: "variant", strokeWidth: 2 }),
-              Plot.dot(r2.filter((r) => !r.extrapolated), { x: "passes", y: "kld_mean_avg", fill: "category", r: 4, stroke: css("--surface"), strokeWidth: 2, channels: { variant: "variant" }, tip: true }),
-              Plot.dot(r2.filter((r) => r.extrapolated), { x: "passes", y: "kld_mean_avg", stroke: "category", r: 4, strokeWidth: 1.5, channels: { variant: "variant", note: () => "extrapolation: N = 6 was never trained" }, tip: true })] });
+      marks: [Plot.line(trained, { fx: "qtype", x: "passes", y: "kld_mean_avg", stroke: "category", z: "variant", strokeWidth: 2, sort: "passes" }),
+              Plot.dot(trained, { fx: "qtype", x: "passes", y: "kld_mean_avg", fill: "category", r: 4, stroke: css("--surface"), strokeWidth: 2, channels: { variant: "variant" }, tip: true }),
+              Plot.dot(extra, { fx: "qtype", x: "passes", y: "kld_mean_avg", stroke: "category", r: 4, strokeWidth: 1.5, channels: { variant: "variant", note: () => "N = 6 was never trained" }, tip: true })] });
   },
   alpha(el) {
     const rows = site.alpha || [];
@@ -80,6 +81,30 @@ const renderers = {
       marks: [Plot.ruleX([0, 1, 2], { stroke: css("--border"), strokeDasharray: "3,3" }),
               Plot.ruleY(r2, { y: "variant", x1: "lo", x2: "hi", stroke: "cat", strokeWidth: 2 }),
               Plot.dot(r2, { y: "variant", x: "alpha", fill: "cat", r: 5, stroke: css("--surface"), strokeWidth: 2, channels: { "95% CI": (d) => `${d.lo.toFixed(2)} to ${d.hi.toFixed(2)}` }, tip: true })] });
+  },
+  bf16(el) {
+    const rows = (site.experiments["bf16check"] || []).filter((r) => r.role === "variant" && r.kld_mean_avg != null)
+      .map((r) => ({ ...r, kind: r.variant === "ggml-org-nvfp4" ? "NVFP4 GGUF (original experts)" : "other quants" }));
+    if (!rows.length) return null;
+    return Plot.plot({ ...base(el), marginLeft: 150, height: 40 + 34 * rows.length,
+      x: { label: "mean KL vs BF16 (3 domains)", grid: true },
+      y: { label: null, domain: rows.slice().sort((a, b) => a.kld_mean_avg - b.kld_mean_avg).map((r) => r.variant) },
+      color: { domain: ["NVFP4 GGUF (original experts)", "other quants"], range: [css("--loop"), css("--edge")], legend: true },
+      marks: [Plot.barX(rows, { y: "variant", x: "kld_mean_avg", fill: "kind", rx: 2, channels: { "size (GB)": "file_gb" }, tip: true }),
+              Plot.text(rows, { y: "variant", x: "kld_mean_avg", text: (d) => `${d.file_gb.toFixed(1)} GB`, dx: 6, textAnchor: "start", fill: css("--text-2"), fontSize: 11 })] });
+  },
+  grid(el) {
+    const names = { reference: "NVFP4 (reference)", "uniform-iq4_xs": "IQ4_XS experts", "uniform-q3_k": "Q3_K experts", "uniform-q2_k": "Q2_K experts" };
+    const rows = (site.experiments["phase4-passes"] || []).filter((r) => names[r.variant] && r.passes <= 5)
+      .map((r) => ({ ...r, series: names[r.variant], vs3: ((r.wikitext_vs3_kld_mean ?? 0) + (r.code_vs3_kld_mean ?? 0)) / 2 }))
+      .filter((r) => r.vs3 > 0);
+    if (!rows.length) return null;
+    return Plot.plot({ ...base(el),
+      x: { label: "decode tokens/s (M4 Pro)", grid: true }, y: { label: "KL vs the shipped model (reference at 3 passes)", type: "log", grid: true },
+      color: { domain: Object.values(names), range: [css("--text"), css("--series-1"), css("--series-2"), css("--series-3")], legend: true },
+      marks: [Plot.line(rows, { x: "tg_tps", y: "vs3", stroke: "series", sort: "passes", strokeWidth: 2 }),
+              Plot.dot(rows, { x: "tg_tps", y: "vs3", fill: "series", r: 5, stroke: css("--surface"), strokeWidth: 2, channels: { passes: "passes", "file GB": "file_gb" }, tip: true }),
+              Plot.text(rows, { x: "tg_tps", y: "vs3", text: (d) => `${d.passes}p`, dx: 7, dy: -6, fill: css("--text-2"), fontSize: 10 })] });
   },
   phase2norm(el) {
     const rows = (site.experiments["phase2-scan"] || []).filter((r) => r.family === "block" && r.kl_per_gbit_removed != null);

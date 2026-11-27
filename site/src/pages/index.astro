@@ -124,6 +124,14 @@ const repo = "https://github.com/shubhambaid/loop-tax";
     rows={p1} columns={[["variant", "variant"], ["file_gb", "size (GB)", 2], ["bpw", "bits/weight", 2], ["kld_mean_avg", "mean KL", 4],
       ["wikitext_same_top_p_pct", "top-1 agree (%)", 1], ["pp_tps", "prefill tok/s", 0], ["tg_tps", "decode tok/s", 1]]} />
   <p>
+    Is the NVFP4 file a fair reference? We checked it against the BF16 GGUF (the released NVFP4/MXFP8 values, upcast),
+    running the BF16 model on the CPU because it does not fit in GPU memory.
+  </p>
+  <Chart name="bf16" wide title="Distance from the BF16 weights"
+    caption="Mean KL vs BF16 over three domains. The NVFP4 file keeps the original 4-bit experts bit for bit."
+    rows={((site.experiments as any)["bf16check"] ?? []).filter((r: any) => r.role === "variant")}
+    columns={[["variant", "variant"], ["file_gb", "size (GB)", 2], ["kld_mean_avg", "mean KL vs BF16", 5], ["wikitext_same_top_p_pct", "top-1 agree (%)", 1]]} />
+  <p>
     One practical finding: the down-projection experts are 1152 wide, which is not a multiple of 256, so llama.cpp cannot
     store them in K-quant types and silently falls back (Q2_K and Q3_K become Q4_0, Q4_K becomes Q5_0, Q6_K becomes Q8_0).
     A third of the weights never goes below about 4.5 bits per weight with stock types.
@@ -174,7 +182,14 @@ const repo = "https://github.com/shubhambaid/loop-tax";
   <div class="pending">Not run yet.</div>
 
   <h2>Part 5: bits vs loop passes</h2>
-  <div class="pending">Not run yet.</div>
+  <p>
+    The same checkpoint, now with every block's gate/up experts at one type, run at 1-5 passes. Quality is the KL from
+    the model as shipped (the reference at 3 passes); speed is decode tokens per second on the M4 Pro.
+  </p>
+  <Chart name="grid" wide title="Fewer bits or fewer passes?"
+    caption="Each line is one bit width; points are 1-5 loop passes. Down experts NVFP4 and attention Q8_0 throughout."
+    rows={((site.experiments as any)["phase4-passes"] ?? []).filter((r: any) => ["reference", "uniform-iq4_xs", "uniform-q3_k", "uniform-q2_k"].includes(r.variant))}
+    columns={[["variant", "variant"], ["passes", "passes"], ["file_gb", "GB", 2], ["wikitext_vs3_kld_mean", "KL vs shipped (wikitext)", 5], ["tg_tps", "decode tok/s", 1]]} />
 
   <h2>What this means if you quantize looped models</h2>
   <div class="pending">Written once the results are in.</div>
