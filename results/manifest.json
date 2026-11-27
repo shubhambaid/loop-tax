@@ -1656,6 +1656,15 @@
   "timestamp": "2026-11-27T01:18:31+00:00"
  },
  {
+  "file": "phase4-holdout/block03-q2_k-p2.json",
+  "experiment": "phase4-holdout",
+  "variant": "block03-q2_k",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T02:14:49+00:00"
+ },
+ {
   "file": "phase4-holdout/block03-q2_k-p3.json",
   "experiment": "phase4-holdout",
   "variant": "block03-q2_k",
@@ -1663,6 +1672,15 @@
   "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
   "machine": "Shubhams-Mac-mini.local",
   "timestamp": "2026-11-27T01:20:32+00:00"
+ },
+ {
+  "file": "phase4-holdout/block03-q2_k-p4.json",
+  "experiment": "phase4-holdout",
+  "variant": "block03-q2_k",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T02:17:49+00:00"
  },
  {
   "file": "phase4-holdout/block03-q2_k-p5.json",
@@ -1683,6 +1701,15 @@
   "timestamp": "2026-11-27T00:54:25+00:00"
  },
  {
+  "file": "phase4-holdout/block09-q2_k-p2.json",
+  "experiment": "phase4-holdout",
+  "variant": "block09-q2_k",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T01:58:31+00:00"
+ },
+ {
   "file": "phase4-holdout/block09-q2_k-p3.json",
   "experiment": "phase4-holdout",
   "variant": "block09-q2_k",
@@ -1690,6 +1717,15 @@
   "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
   "machine": "Shubhams-Mac-mini.local",
   "timestamp": "2026-11-27T00:56:31+00:00"
+ },
+ {
+  "file": "phase4-holdout/block09-q2_k-p4.json",
+  "experiment": "phase4-holdout",
+  "variant": "block09-q2_k",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T02:01:36+00:00"
  },
  {
   "file": "phase4-holdout/block09-q2_k-p5.json",
@@ -1710,6 +1746,15 @@
   "timestamp": "2026-11-27T01:30:33+00:00"
  },
  {
+  "file": "phase4-holdout/block17-q2_k-p2.json",
+  "experiment": "phase4-holdout",
+  "variant": "block17-q2_k",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T02:22:56+00:00"
+ },
+ {
   "file": "phase4-holdout/block17-q2_k-p3.json",
   "experiment": "phase4-holdout",
   "variant": "block17-q2_k",
@@ -1717,6 +1762,15 @@
   "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
   "machine": "Shubhams-Mac-mini.local",
   "timestamp": "2026-11-27T01:32:34+00:00"
+ },
+ {
+  "file": "phase4-holdout/block17-q2_k-p4.json",
+  "experiment": "phase4-holdout",
+  "variant": "block17-q2_k",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T02:25:56+00:00"
  },
  {
   "file": "phase4-holdout/block17-q2_k-p5.json",
@@ -1737,6 +1791,15 @@
   "timestamp": "2026-11-27T01:06:31+00:00"
  },
  {
+  "file": "phase4-holdout/block20-q2_k-p2.json",
+  "experiment": "phase4-holdout",
+  "variant": "block20-q2_k",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T02:06:43+00:00"
+ },
+ {
   "file": "phase4-holdout/block20-q2_k-p3.json",
   "experiment": "phase4-holdout",
   "variant": "block20-q2_k",
@@ -1744,6 +1807,15 @@
   "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
   "machine": "Shubhams-Mac-mini.local",
   "timestamp": "2026-11-27T01:08:31+00:00"
+ },
+ {
+  "file": "phase4-holdout/block20-q2_k-p4.json",
+  "experiment": "phase4-holdout",
+  "variant": "block20-q2_k",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T02:09:42+00:00"
  },
  {
   "file": "phase4-holdout/block20-q2_k-p5.json",
@@ -1764,6 +1836,15 @@
   "timestamp": "2026-11-27T00:42:06+00:00"
  },
  {
+  "file": "phase4-holdout/varloop-nvfp4r-holdout-p2.json",
+  "experiment": "phase4-holdout",
+  "variant": "varloop-nvfp4r-holdout",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T01:50:18+00:00"
+ },
+ {
   "file": "phase4-holdout/varloop-nvfp4r-holdout-p3.json",
   "experiment": "phase4-holdout",
   "variant": "varloop-nvfp4r-holdout",
@@ -1771,6 +1852,15 @@
   "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
   "machine": "Shubhams-Mac-mini.local",
   "timestamp": "2026-11-27T00:44:13+00:00"
+ },
+ {
+  "file": "phase4-holdout/varloop-nvfp4r-holdout-p4.json",
+  "experiment": "phase4-holdout",
+  "variant": "varloop-nvfp4r-holdout",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T01:53:24+00:00"
  },
  {
   "file": "phase4-holdout/varloop-nvfp4r-holdout-p5.json",

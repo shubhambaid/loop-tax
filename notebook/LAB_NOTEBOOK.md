@@ -330,3 +330,19 @@ checking the 8 result files (108 GB free afterwards).
    against BF16 too (`configs/community_vs_bf16.yaml`).
 
 Disk: deleted the Phase 4 screening reference logits (29 GB); their per-chunk sums are in the result files.
+
+## 2026-11-27: Held-out N = 2-5 confirmation
+
+Held-out run extended to N = 2 and 4 (`results/phase4-holdout/`, 24 chunks of disjoint text, 5000 paired bootstrap
+resamples). alpha over N = 2-5, held-out vs screening:
+
+| block | category | held-out alpha N = 2-5 [95% CI] | screening alpha N = 2-5 | held-out alpha N = 1-5 [95% CI] |
+|---|---|---|---|---|
+| 9 | loop | 0.06 [0.00, 0.11] | 0.04 | 0.21 [0.16, 0.25] |
+| 17 | loop | 0.19 [0.15, 0.24] | 0.14 | 0.29 [0.25, 0.33] |
+| 3 | prelude | -0.12 [-0.20, -0.04] | -0.21 | 0.07 [0.02, 0.13] |
+| 20 | coda | -0.09 [-0.14, -0.05] | -0.04 | -0.05 [-0.08, -0.02] |
+
+The negative headline holds on held-out text: once the cross-pass message is active (N >= 2), the error of a reused
+block grows at most like N^0.19 (block 17), N^0.06 for block 9, against N^-0.09 for the coda control. The held-out
+logits were deleted after the run (29 + 20 GB); the per-chunk sums are in the result files.

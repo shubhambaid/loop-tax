@@ -7,12 +7,13 @@ Lab, which stores 24 decoder layers but runs 48 per token: blocks 6-17 share wei
 same quantized weights `W + e` are applied on every pass, so the error might add up coherently instead of averaging out
 (the "loop tax"). If so, bits spent on looped weights would be worth more than bits spent elsewhere.
 
-What we found (screening runs; held-out confirmation status below):
+What we found (confirmed on held-out text where noted):
 
 - **No compounding.** Quantizing one block of the variable-loop sibling checkpoint (TML-d24-varloop-research) and running
   it with 2-5 loop passes, the KL from the full-precision model at the same pass count scales like N^-0.28 to N^0.22
   for looped blocks and N^-0.13 to N^-0.04 for control blocks that run once after the loop. Compounding errors would
-  scale like N^1 to N^2.
+  scale like N^1 to N^2. Held-out confirmation over 2-5 passes, on text disjoint from the screening set: looped blocks
+  9 and 17 at N^0.06 [0.00, 0.11] and N^0.19 [0.15, 0.24], control block 20 at N^-0.09 [-0.14, -0.05] (95% bootstrap CIs).
 - **Position, not reuse.** Looped blocks are more sensitive, but already with a single pass: the middle of the network,
   and the attention of its global-attention layers (blocks 11 and 17) in particular, is what matters.
 - **Why the intuition fails here.** Every pass restarts from the same prelude output; only a message read from the
@@ -35,15 +36,11 @@ All numbers come from `results/` and are traced in `notebook/LAB_NOTEBOOK.md`.
 | Phase 1: uniform baselines vs NVFP4 reference, community GGUFs | Done (`results/phase1-*`) |
 | BF16 reference check | Done (`results/bf16check/`) |
 | Phase 2: per-block and per-family sensitivity scan | Done (`results/phase2-scan/`) |
-| Headline: same block, 1-6 loop passes, varloop checkpoint | Done on screening; held-out N=1,3,5 agrees, N=2-5 running (`results/phase4-*`) |
+| Headline: same block, 1-6 loop passes, varloop checkpoint | Done, confirmed on held-out text (`results/phase4-*`) |
 | Phase 4: bits vs loop passes | Done (`results/phase4-passes/`) |
 | Phase 3: under 16 GB (sub-NVFP4 experts, scan-guided) and 16 GB+ (NVFP4 experts kept, attention tuned) | Running |
 
-**Held-out status.** A held-out check over 1, 3 and 5 passes agrees with the screening fit (looped blocks 9 and 17:
-N^0.23 and N^0.30; control block 20: N^-0.04; `results/phase4-holdout/alpha_fit.json`). The held-out run over 2-5
-passes, the statistic quoted above, is running.
-
-![Same block, more loop passes](assets/headline_passes.png)
+**Held-out status.** Confirmed: `results/phase4-holdout/alpha_fit.json` (4 blocks, N = 1-5, 24 chunks of disjoint text).
 
 The running log is `notebook/LAB_NOTEBOOK.md`.
 
