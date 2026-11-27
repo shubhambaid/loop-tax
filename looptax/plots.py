@@ -116,13 +116,14 @@ CAT_LABEL = {"loop": "loop (reused every pass)", "prelude": "prelude (injected i
 
 
 def phase3():
-    rows = [r for r in read("phase3-recipes") if r["role"] == "variant"]
-    fams = {"uniform": ("same type in every block", "#191919"), "loop-hi": ("loop blocks NVFP4, others lower", SERIES[1]),
+    rows = [r for r in read("phase3-sub16") + read("phase3-frontier") if r["role"] == "variant"]
+    fams = {"frontier": ("NVFP4 experts kept, rest tuned", "#6a4ce2"), "uniform": ("same type in every block", "#191919"), "loop-hi": ("loop blocks NVFP4, others lower", SERIES[1]),
             "edge-hi": ("prelude + coda NVFP4, loop lower", SERIES[0]), "guided": ("guided by the experts scan", SERIES[2])}
     fam_of = {}
     import yaml
-    for v in yaml.safe_load(open(ROOT / "configs" / "phase3_recipes.yaml"))["variants"]:
-        fam_of[v["id"]] = v["family"]
+    for f in ("phase3_sub16.yaml", "phase3_frontier.yaml"):
+        for v in yaml.safe_load(open(ROOT / "configs" / f))["variants"]:
+            fam_of[v["id"]] = v["family"]
     fig, ax = plt.subplots(figsize=(8.5, 5.2), dpi=150)
     style(ax, "Loop-aware vs uniform mixed precision (Inkling 2 Mini)", "file size (GB)", "mean KL vs NVFP4 reference")
     for fam, (lab, c) in fams.items():

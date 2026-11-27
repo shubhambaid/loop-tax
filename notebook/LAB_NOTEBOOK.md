@@ -304,3 +304,29 @@ a small effect on top of a position effect, not a compounding one.
 Housekeeping: the holdout session was meant to delete the BF16 GGUF once the BF16 check was complete, but macOS
 `wc -l` pads its output with spaces and the integer test failed, so the file stayed; deleted by hand at 06:23 after
 checking the 8 result files (108 GB free afterwards).
+
+## 2026-11-27: Results review (Shubham) and changes
+
+1. **Reframe around the negative headline.** README and site now lead with "reuse does not compound quantization error"
+   using the N = 2-5 fit (screening: loop blocks -0.28 to 0.22, coda controls -0.13 to -0.04), the N = 1 position
+   effect, and why the toy intuition fails (each pass restarts from the prelude output; only a gated message carries
+   over). The toy section is retitled "the intuition we tested". The held-out confirmation run covered N = 1, 3, 5 only,
+   so the N = 2-5 statistic is not yet held-out confirmed: the held-out run is extended to N = 2 and 4
+   (`configs/phase4_holdout.yaml`), and the site says "confirmed" automatically only once the held-out N = 2-5 fit exists.
+2. **BF16 framing.** The BF16 GGUF is the released NVFP4/MXFP8 values upcast; the NVFP4 GGUF is the near-lossless
+   representation of the release, and any K-quant re-grids FP4-trained weights. Worded as a statement about FP4-trained
+   weights, not "NVFP4 beats Q8_0".
+3. **Phase 3 rescoped.** (a) >= 16 GB frontier (`configs/phase3_frontier.yaml`, `looptax/make_frontier_config.py`):
+   native NVFP4 experts kept, coda experts and attention tuned, BF16 attention in the most sensitive blocks (11, 12, 16,
+   17, then 6, 10 from the attention-only scan). Attention above Q8_0 needs BF16 values, which the NVFP4 GGUF does not
+   have, so the source is a hybrid GGUF (`looptax/make_hybrid.py`): NVFP4 tensors and their scales copied bit for bit
+   from the ggml-org file, everything else BF16 from our conversion of the release safetensors. `unsloth-like` rebuilds
+   unsloth's layout from that source as a control (estimated 16.599 GB vs 16.611 GB for unsloth's file). Target: beat
+   unsloth UD-Q4_K_M. (b) < 16 GB frontier (`configs/phase3_sub16.yaml`): uniform gate/up types, experts-guided
+   recipes at the uniform sizes, and one matched-size loop-hi vs edge-hi pair (Q2_K, 13.67 GB) as the direct hypothesis
+   test; the other loop-hi variants are dropped. The first Phase 3 run was stopped before any recipe finished.
+4. **BF16 for final numbers.** Every Phase 3 recipe is also measured against the stored BF16 reference logits
+   (`extra_refs` in the runner, results under `domains_vs.ref-bf16`). Unsloth's file is re-downloaded to measure it
+   against BF16 too (`configs/community_vs_bf16.yaml`).
+
+Disk: deleted the Phase 4 screening reference logits (29 GB); their per-chunk sums are in the result files.

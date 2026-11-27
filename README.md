@@ -1,16 +1,30 @@
 # LoopTax
 
-**Weights that run in a loop pay their quantization error more than once.**
+**Does a looped transformer pay its quantization error more than once? On Inkling 2 Mini: no, reuse does not compound it.**
 
-LoopTax studies how quantization error behaves in *looped transformers*, where a block of layers shares weights and runs several times per token. The first target is [Inkling 2 Mini](https://huggingface.co/blog/inkling2mini) from Thinking Machines Lab: 24 stored layers, 48 layer visits per token, with layers 6-17 running three times.
+LoopTax tests a simple hypothesis on [Inkling 2 Mini](https://huggingface.co/blog/inkling2mini) from Thinking Machines
+Lab, which stores 24 decoder layers but runs 48 per token: blocks 6-17 share weights and run three times. In a loop the
+same quantized weights `W + e` are applied on every pass, so the error might add up coherently instead of averaging out
+(the "loop tax"). If so, bits spent on looped weights would be worth more than bits spent elsewhere.
+
+What we found (screening runs; held-out confirmation status below):
+
+- **No compounding.** Quantizing one block of the variable-loop sibling checkpoint (TML-d24-varloop-research) and running
+  it with 2-5 loop passes, the KL from the full-precision model at the same pass count scales like N^-0.28 to N^0.22
+  for looped blocks and N^-0.13 to N^-0.04 for control blocks that run once after the loop. Compounding errors would
+  scale like N^1 to N^2.
+- **Position, not reuse.** Looped blocks are more sensitive, but already with a single pass: the middle of the network,
+  and the attention of its global-attention layers (blocks 11 and 17) in particular, is what matters.
+- **Why the intuition fails here.** Every pass restarts from the same prelude output; only a message read from the
+  previous pass, through a learned rank-64 gate, carries over. An error made inside a pass is not re-processed by the
+  shared weights the way the toy assumes.
+- **FP4-trained weights should stay FP4.** The experts were trained and released in NVFP4. The ggml-org NVFP4 GGUF keeps
+  them bit for bit and sits at KL 0.0024 from the BF16 GGUF (the release upcast), against 0.0118 for a same-size
+  Q4_K_M, which re-grids FP4-trained weights. This is about FP4-trained weights, not about formats in general.
+
+All numbers come from `results/` and are traced in `notebook/LAB_NOTEBOOK.md`.
 
 ![Inkling 2 Mini looped architecture](assets/1_architecture.png)
-
-## The hypothesis
-
-In a normal transformer every layer is quantized separately, so each layer's rounding error is different and they partly cancel, like independent noise. In a looped transformer the same quantized weights `W + ε` are applied on every pass, so the same error is applied repeatedly and adds up coherently.
-
-If that holds, a bit spent on a looped weight is worth more than a bit spent on a weight that runs once, and uniform recipes (plain Q4_K_M, IQ4_NL and so on) leave quality on the table.
 
 ## Status
 
@@ -21,20 +35,19 @@ If that holds, a bit spent on a looped weight is worth more than a bit spent on 
 | Phase 1: uniform baselines vs NVFP4 reference, community GGUFs | Done (`results/phase1-*`) |
 | BF16 reference check | Done (`results/bf16check/`) |
 | Phase 2: per-block and per-family sensitivity scan | Done (`results/phase2-scan/`) |
-| Headline: same block, 1-6 loop passes, varloop checkpoint | Done, confirmed on held-out text (`results/phase4-*`) |
+| Headline: same block, 1-6 loop passes, varloop checkpoint | Done on screening; held-out N=1,3,5 agrees, N=2-5 running (`results/phase4-*`) |
 | Phase 4: bits vs loop passes | Done (`results/phase4-passes/`) |
-| Phase 3: loop-aware mixed precision vs uniform at matched size | Running |
+| Phase 3: under 16 GB (sub-NVFP4 experts, scan-guided) and 16 GB+ (NVFP4 experts kept, attention tuned) | Running |
 
-**Headline so far.** On TML-d24-varloop-research (Inkling 2 Mini's variable-loop sibling), the KL caused by quantizing
-one looped block grows like N^0.2-0.3 with the number of loop passes N, confirmed on held-out text; a block after the
-loop stays flat. Independent errors would give N^1 and coherently compounding errors N^2. The extra sensitivity of
-middle blocks is mostly present at one pass: position, not reuse. Exact numbers and CIs: `results/phase4-holdout/alpha_fit.json`.
+**Held-out status.** A held-out check over 1, 3 and 5 passes agrees with the screening fit (looped blocks 9 and 17:
+N^0.23 and N^0.30; control block 20: N^-0.04; `results/phase4-holdout/alpha_fit.json`). The held-out run over 2-5
+passes, the statistic quoted above, is running.
 
 ![Same block, more loop passes](assets/headline_passes.png)
 
 The running log is `notebook/LAB_NOTEBOOK.md`.
 
-## Toy results
+## The intuition we tested (toy simulation)
 
 > **These are toy results.** Random pre-norm residual MLP blocks (d=256, hidden 1024), round-to-nearest symmetric per-output-channel quantization, hidden-state relative L2 error against FP. They are **not** Inkling 2 Mini measurements. Real models have outliers, learned gates between passes and NVFP4/MXFP8 source weights.
 
