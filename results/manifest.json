@@ -1593,6 +1593,15 @@
   "timestamp": "2026-11-27T00:52:01+00:00"
  },
  {
+  "file": "phase2-scan-weight-error/experts04-q2_k.json",
+  "experiment": "phase2-scan-weight-error",
+  "variant": "experts04-q2_k",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T05:46:27+00:00"
+ },
+ {
   "file": "phase2-scan-weight-error/experts05-q2_k.json",
   "experiment": "phase2-scan-weight-error",
   "variant": "experts05-q2_k",
@@ -1600,6 +1609,15 @@
   "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
   "machine": "Shubhams-Mac-mini.local",
   "timestamp": "2026-11-26T11:58:07+00:00"
+ },
+ {
+  "file": "phase2-scan-weight-error/experts06-q2_k.json",
+  "experiment": "phase2-scan-weight-error",
+  "variant": "experts06-q2_k",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T05:47:00+00:00"
  },
  {
   "file": "phase2-scan-weight-error/experts08-q2_k.json",
@@ -1654,6 +1672,69 @@
   "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
   "machine": "Shubhams-Mac-mini.local",
   "timestamp": "2026-11-26T12:07:34+00:00"
+ },
+ {
+  "file": "phase3-frontier/attn-bf16-down-q5_1.json",
+  "experiment": "phase3-frontier",
+  "variant": "attn-bf16-down-q5_1",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T05:33:34+00:00"
+ },
+ {
+  "file": "phase3-frontier/s4-bf16-gu-q6k-down-q5_1.json",
+  "experiment": "phase3-frontier",
+  "variant": "s4-bf16-gu-q6k-down-q5_1",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T05:27:08+00:00"
+ },
+ {
+  "file": "phase3-frontier/s4-bf16.json",
+  "experiment": "phase3-frontier",
+  "variant": "s4-bf16",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T05:08:08+00:00"
+ },
+ {
+  "file": "phase3-frontier/s6-bf16-down-q5_1.json",
+  "experiment": "phase3-frontier",
+  "variant": "s6-bf16-down-q5_1",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T05:20:54+00:00"
+ },
+ {
+  "file": "phase3-frontier/s6-bf16-rest-q6k.json",
+  "experiment": "phase3-frontier",
+  "variant": "s6-bf16-rest-q6k",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T05:40:02+00:00"
+ },
+ {
+  "file": "phase3-frontier/s6-bf16.json",
+  "experiment": "phase3-frontier",
+  "variant": "s6-bf16",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T05:14:28+00:00"
+ },
+ {
+  "file": "phase3-frontier/unsloth-like.json",
+  "experiment": "phase3-frontier",
+  "variant": "unsloth-like",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T05:01:48+00:00"
  },
  {
   "file": "phase3-sub16/edge-hi-loop-q2_k.json",

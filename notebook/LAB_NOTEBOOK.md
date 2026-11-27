@@ -390,3 +390,34 @@ against the NVFP4 file (0.0019) because blocks 20-23 were released at MXFP8 and 
 references (`results/community-vs-bf16/`): KL 0.00200 vs the NVFP4 file, 0.00264 vs BF16 (wikitext 0.00240, code
 0.00283, multilingual 0.00271). For comparison, the NVFP4 file itself is 0.00238 vs BF16 at 17.63 GB. A >= 16 GB
 recipe wins if it is below 0.00264 vs BF16 at no more than 16.61 GB. The file was deleted after measuring.
+
+## 2026-11-27: Phase 3, >= 16 GB frontier (screening)
+
+Hybrid source built (`looptax/make_hybrid.py`): 22.92 GB, sha256 `c6256276...281d`; NVFP4 expert tensors and scales from
+the ggml-org file, everything else BF16 from our conversion of the release (thinkingmachines/Inkling-2-Mini@c9d0283).
+Seven recipes (`configs/phase3_frontier.yaml`), KL vs BF16 logits (mean of 3 domains, std err), screening 16 chunks:
+
+| recipe | size (GB) | vs BF16 | vs NVFP4 file | decode tok/s |
+|---|---|---|---|---|
+| attn-bf16-down-q5_1 (all attention BF16, coda gate/up Q5_K, coda down Q5_1) | 16.79 | 0.00236 [0.00006] | 0.00254 | 24.8 |
+| s6-bf16 (attention BF16 in 6, 10, 11, 12, 16, 17) | 16.76 | 0.00259 [0.00007] | 0.00215 | 26.6 |
+| s4-bf16-gu-q6k-down-q5_1 | 16.65 | 0.00259 [0.00007] | 0.00195 | 27.2 |
+| s4-bf16 (attention BF16 in 11, 12, 16, 17) | 16.71 | 0.00262 [0.00007] | 0.00201 | 27.2 |
+| unsloth-like (control: unsloth's layout from our source) | 16.61 | 0.00262 [0.00008] | 0.00200 | 27.9 |
+| s6-bf16-down-q5_1 | 16.34 | 0.00265 [0.00007] | 0.00222 | 26.7 |
+| s6-bf16-rest-q6k | 16.11 | 0.00326 [0.00008] | 0.00344 | 26.8 |
+
+Reference points vs BF16: unsloth UD-Q4_K_M (real file) 16.61 GB 0.00264; ggml-org NVFP4 file 17.63 GB 0.00238.
+The control reproduces unsloth (0.00262 vs 0.00264), so the source and pipeline are sound.
+
+Reading: no recipe clearly beats unsloth at the same size on screening. The differences between 16.3 and 16.8 GB are
+within about one standard error, except that all-BF16 attention (0.00236, 16.79 GB) matches the 17.63 GB NVFP4 file at
+0.84 GB less, and s6-bf16-down-q5_1 matches unsloth at 0.27 GB less. BF16 attention looks better against BF16 and worse
+against the NVFP4 file, as expected (the NVFP4 file has Q8_0 attention). Trimming attention outside the sensitive blocks
+to Q6_K plus Q6_K embeddings costs more than it saves (0.00326). These are unpaired means; a paired held-out comparison
+is queued (`configs/phase3_holdout.yaml`): reference = the hybrid itself, which should be numerically the release
+(checked first against the BF16 logits, `configs/hybrid_check.yaml`), 32 chunks of disjoint text, per-chunk sums,
+differences against unsloth-like bootstrapped over chunks (`looptax/paired.py`).
+
+Release rule check: nothing here "measurably beats a same-size baseline" yet; no HF upload until the paired held-out
+comparison says so.
