@@ -385,3 +385,8 @@ quantizing many blocks at once; a guide for multi-block recipes needs to be meas
 **15.6 GB.** All experts NVFP4 (blocks 20-23 requantized from Q8_0) is the best recipe under 16 GB: 0.0041 vs BF16,
 against 0.0064 for Q4_K experts of the same size and 0.0067 for IQ4_XS at 15.08 GB. Against BF16 it is worse than
 against the NVFP4 file (0.0019) because blocks 20-23 were released at MXFP8 and lose precision at NVFP4.
+
+**Target for the >= 16 GB frontier, measured.** unsloth UD-Q4_K_M (16.61 GB) re-downloaded and measured against both
+references (`results/community-vs-bf16/`): KL 0.00200 vs the NVFP4 file, 0.00264 vs BF16 (wikitext 0.00240, code
+0.00283, multilingual 0.00271). For comparison, the NVFP4 file itself is 0.00238 vs BF16 at 17.63 GB. A >= 16 GB
+recipe wins if it is below 0.00264 vs BF16 at no more than 16.61 GB. The file was deleted after measuring.
