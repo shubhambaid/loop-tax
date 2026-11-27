@@ -38,7 +38,7 @@ fetch_dir() {  # repo revision subdir files...
 }
 
 wait_for() {  # wait until no other download session is running
-  while tmux has-session -t "$1" 2>/dev/null; do sleep 60; done
+  while tmux has-session -t "=$1" 2>/dev/null; do sleep 60; done
 }
 
 for what in "$@"; do

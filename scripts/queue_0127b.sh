@@ -3,7 +3,7 @@
 set -uo pipefail
 ROOT="${LOOPTAX_ROOT:-$HOME/looptax}"; PY="$ROOT/venv/bin/python"; TM=/opt/homebrew/bin/tmux
 cd "$ROOT/repo"
-while $TM has-session -t q0127 2>/dev/null; do sleep 60; done
+while $TM has-session -t =q0127 2>/dev/null; do sleep 60; done
 export LOOPTAX_LLAMA_BUILD=build-lt
 echo "== hybrid check $(date)"
 $PY -m looptax.run configs/hybrid_check.yaml
