@@ -1,0 +1,8 @@
+# unsloth UD-Q4_K_M (the >= 16 GB target) measured against both references; it was measured vs NVFP4 in phase1-community
+experiment: community-vs-bf16
+reference: {id: ref-nvfp4, model: models/Inkling-2-Mini-NVFP4.gguf}
+eval: {dir: data/eval, ctx: 2048, domains: {wikitext: 8, code: 4, multilingual: 4}}
+llama: {ngl: 99}
+extra_refs: [{id: ref-bf16}]
+variants:
+  - {id: unsloth-ud-q4_k_m, file: models/Inkling-2-Mini-UD-Q4_K_M.gguf, repo: unsloth/Inkling-2-Mini-GGUF, revision: 8078d149286eec7193795413b9e0643da6d11fa1, delete_after: true, bench: false}

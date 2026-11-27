@@ -8,7 +8,9 @@ imatrix: models/imatrix-TML-d24-varloop-research.gguf
 imatrix_default: true
 passes:
 - 1
+- 2
 - 3
+- 4
 - 5
 trained_passes:
 - 1
@@ -39,7 +41,9 @@ variants:
   vs3: false
   passes:
   - 1
+  - 2
   - 3
+  - 4
   - 5
 - id: block20-q2_k
   kind: headline
@@ -54,7 +58,9 @@ variants:
   vs3: false
   passes:
   - 1
+  - 2
   - 3
+  - 4
   - 5
 - id: block03-q2_k
   kind: headline
@@ -69,7 +75,9 @@ variants:
   vs3: false
   passes:
   - 1
+  - 2
   - 3
+  - 4
   - 5
 - id: block17-q2_k
   kind: headline
@@ -84,5 +92,7 @@ variants:
   vs3: false
   passes:
   - 1
+  - 2
   - 3
+  - 4
   - 5

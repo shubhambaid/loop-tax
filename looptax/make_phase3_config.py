@@ -23,8 +23,8 @@ import yaml
 
 from . import recipes as R
 
-LOW_TYPES = ["Q2_K", "IQ3_XXS", "Q3_K", "IQ4_XS"]
-UNIFORM_TYPES = ["Q2_K", "IQ3_XXS", "Q3_K", "IQ4_XS", "Q4_K", "Q5_K"]
+LOW_TYPES = ["Q2_K"]            # one matched-size loop-hi vs edge-hi pair: the direct hypothesis test (review 2026-11-27)
+UNIFORM_TYPES = ["Q2_K", "IQ3_XXS", "Q3_K", "IQ4_XS", "Q4_K"]   # the < 16 GB frontier
 BASE = {"down": "NVFP4", "attn": "keep"}
 
 
@@ -58,7 +58,7 @@ def guided_recipes(scan_csv: str, table, targets_gb: list[float], qtype: str = "
 
 def main(argv=None):
     ap = argparse.ArgumentParser()
-    ap.add_argument("--out", default="configs/phase3_recipes.yaml")
+    ap.add_argument("--out", default="configs/phase3_sub16.yaml")
     ap.add_argument("--guided", help="Phase 2 summary.csv; adds sensitivity-guided recipes at the loop-hi sizes")
     a = ap.parse_args(argv)
     table = R.load_table()
@@ -72,11 +72,14 @@ def main(argv=None):
         vs.append(variant(f"loop-hi-edges-{t.lower()}", "loop-hi", R.make({"gate_up": t, **BASE}, hi_loop), table))
         vs.append(variant(f"edge-hi-loop-{t.lower()}", "edge-hi", R.make({"gate_up": t, **BASE}, hi_edge), table))
     if a.guided:
-        targets = [v["est_gb"] for v in vs if v["family"] == "loop-hi"]
+        # match every uniform size above the all-Q2_K floor, plus the loop-hi / edge-hi pair
+        floor = min(v["est_gb"] for v in vs if v["family"] == "uniform")
+        targets = sorted({v["est_gb"] for v in vs if v["family"] in ("uniform", "loop-hi") and v["est_gb"] > floor + 0.1
+                          and v["est_gb"] < 15.5})
         for vid, rec in guided_recipes(a.guided, table, targets):
             vs.append(variant(vid, "guided", rec, table))
     cfg = {
-        "experiment": "phase3-recipes",
+        "experiment": "phase3-sub16",
         "reference": {"id": "ref-nvfp4", "model": "models/Inkling-2-Mini-NVFP4.gguf"},
         "source": "models/Inkling-2-Mini-NVFP4.gguf",
         "imatrix": "models/imatrix.gguf",
@@ -85,6 +88,7 @@ def main(argv=None):
         "llama": {"ngl": 99},
         "bench": {"pp": 512, "tg": 128, "reps": 3},
         "keep_variants": False,
+        "extra_refs": [{"id": "ref-bf16"}],   # final numbers against the BF16 logits (review 2026-11-27)
         "variants": vs,
     }
     with open(a.out, "w") as f:

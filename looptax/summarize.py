@@ -38,6 +38,14 @@ def row(rec: dict) -> dict:
         for k in ("kld_mean", "kld_mean_err", "same_top_p_pct", "ppl_q"):
             if k in m:
                 r[f"{d}_vs3_{k}"] = m[k]
+    for ref_id, doms in (rec.get("domains_vs") or {}).items():
+        vals = [m["kld_mean"] for m in doms.values() if "kld_mean" in m]
+        errs = [m.get("kld_mean_err", 0) for m in doms.values() if "kld_mean" in m]
+        if vals:
+            r[f"{ref_id}_kld_mean_avg"] = sum(vals) / len(vals)
+            r[f"{ref_id}_kld_mean_avg_err"] = sum(e * e for e in errs) ** 0.5 / len(vals)
+        if "wikitext" in doms:
+            r[f"{ref_id}_wikitext_same_top_p_pct"] = doms["wikitext"].get("same_top_p_pct")
     sp = rec.get("speed") or {}
     for k in ("pp_tps", "tg_tps"):
         if k in sp:

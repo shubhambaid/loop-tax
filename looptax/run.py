@@ -261,6 +261,17 @@ def run_variant(cfg: dict, v: dict, dry: bool):
         out = sh(cmd, log, dry)
         m = parse_kl(out) if dry else require(parse_kl(out), ("kld_mean", "same_top_p_pct"), f"{v['id']} {domain}", log)
         rec["domains"][domain] = {**m, "seconds": round(time.time() - t1, 1)}
+    # extra references (e.g. the BF16 logits): same model file, KL against other stored reference logits
+    for xr in cfg.get("extra_refs", []):
+        rec.setdefault("domains_vs", {})[xr["id"]] = {}
+        for domain in cfg["eval"]["domains"]:
+            bp = rp(cfg.get("kld_dir", "kld")) / xr["id"] / f"{domain}-c{cfg['eval']['ctx']}.kld"
+            cmd = [BIN / "llama-perplexity", "-m", model, "--kl-divergence-base", bp, "--kl-divergence",
+                   "-c", str(cfg["eval"]["ctx"]), *gpu_args(cfg, v)]
+            t1 = time.time()
+            out = sh(cmd, log, dry)
+            m = parse_kl(out) if dry else require(parse_kl(out), ("kld_mean", "same_top_p_pct"), f"{v['id']} vs {xr['id']} {domain}", log)
+            rec["domains_vs"][xr["id"]][domain] = {**m, "seconds": round(time.time() - t1, 1)}
     if dry:
         return
     rec["weights"] = summarize_weights(model)
