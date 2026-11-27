@@ -18,14 +18,21 @@ If that holds, a bit spent on a looped weight is worth more than a bit spent on 
 |---|---|
 | Toy simulation (random weights) | Done, see below |
 | Setup: pinned llama.cpp, reference GGUF, eval set, GGUF layout check | Done (`docs/ARCHITECTURE.md`, `results/layout/`) |
-| Phase 1: uniform baselines vs NVFP4 reference | Done (`results/phase1-baselines/`); community GGUFs in progress |
-| Phase 2: per-block KL sensitivity scan on Inkling 2 Mini | Running; weight-error normalisation queued |
-| Headline: same block, 1-5 loop passes, on the variable-loop checkpoint | Queued |
-| Phase 3: loop-aware mixed precision vs uniform at matched size | Configured, not run |
-| Phase 4: bits vs loop passes | Queued with the headline experiment |
+| Phase 1: uniform baselines vs NVFP4 reference, community GGUFs | Done (`results/phase1-*`) |
+| BF16 reference check | Done (`results/bf16check/`) |
+| Phase 2: per-block and per-family sensitivity scan | Done (`results/phase2-scan/`) |
+| Headline: same block, 1-6 loop passes, varloop checkpoint | Done, confirmed on held-out text (`results/phase4-*`) |
+| Phase 4: bits vs loop passes | Done (`results/phase4-passes/`) |
+| Phase 3: loop-aware mixed precision vs uniform at matched size | Running |
 
-Results so far are screening numbers on about 16k scored tokens per run. Nothing is a finding until rerun on a larger
-held-out slice. The running log is `notebook/LAB_NOTEBOOK.md`.
+**Headline so far.** On TML-d24-varloop-research (Inkling 2 Mini's variable-loop sibling), the KL caused by quantizing
+one looped block grows like N^0.2-0.3 with the number of loop passes N, confirmed on held-out text; a block after the
+loop stays flat. Independent errors would give N^1 and coherently compounding errors N^2. The extra sensitivity of
+middle blocks is mostly present at one pass: position, not reuse. Exact numbers and CIs: `results/phase4-holdout/alpha_fit.json`.
+
+![Same block, more loop passes](assets/headline_passes.png)
+
+The running log is `notebook/LAB_NOTEBOOK.md`.
 
 ## Toy results
 
