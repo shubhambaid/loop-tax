@@ -45,6 +45,9 @@ const bf = variants("bf16check");
 const bfN = bf.find((r) => r.variant === "ggml-org-nvfp4");
 const bfQ8 = bf.find((r) => r.variant === "q8_0-from-bf16");
 const bfQ4 = bf.find((r) => r.variant === "q4_k_m-from-bf16");
+// measurement floor: the same NVFP4 file run CPU-only (reference) vs on the GPU (variant)
+const floorDev = variants("floor-device")[0], floorCpu = variants("floor-cpu-vs-bf16")[0];
+const floor = floorDev?.kld_mean_avg;
 
 // bits vs passes, KL against the shipped model averaged over wikitext and code
 const pp = variants("phase4-passes").concat(((S_.experiments["phase4-passes"] ?? []) as any[]).filter((r) => r.role === "reference"));
@@ -58,8 +61,9 @@ const q3at3 = vs3("uniform-q3_k", 3), nvAt2 = vs3("reference", 2);
 const comm = variants("phase1-community"), base = variants("phase1-baselines");
 const ud = comm.find((r) => r.variant === "unsloth-ud-q4_k_m");
 const iq4xs = base.find((r) => r.variant === "iq4_xs"), iq4nl = base.find((r) => r.variant === "iq4_nl");
-// Phase 3 stays a placeholder until its results are final; flip this once they are committed and checked on held-out text.
-const phase3Final = false;
+// Phase 3 stays a placeholder until its results are final. Final as of 2026-11-27: under 16 GB screening plus the
+// >= 16 GB frontier, which turned out to sit at the measurement floor against BF16 (see section 6).
+const phase3Final = true;
 const p3 = phase3Final ? variants("phase3") : [];
 
 // architecture diagram geometry
@@ -112,9 +116,9 @@ const commit = site.models?.llama_cpp?.commit ?? site.env.llama_cpp_commit;
         control block {hCoda.block} at N<sup>{f2(hCoda.alpha_2to5)}</sup>.</>}</li>
       <li><strong>Loop blocks are more sensitive, but because of where they sit, not because they repeat.</strong> The
         sensitive part is attention in a few middle layers, not the experts.</li>
-      {bfN && bfQ4 && <li><strong>For a model trained in FP4, the native NVFP4 file is the near-lossless format.</strong>{" "}
-        Standard K-quants of the same size are about {Math.round(bfQ4.kld_mean_avg / bfN.kld_mean_avg)}x further from the
-        released model.</li>}
+      {bfN && bfQ4 && floor && <li><strong>For a model trained in FP4, keep the native NVFP4 file.</strong>{" "}
+        It cannot be told apart from the released weights: its distance from them is below the noise between running the
+        same file on CPU and GPU. A same-size Q4_K_M sits {(bfQ4.kld_mean_avg / floor).toFixed(1)}x above that noise.</li>}
     </ol>
   </section>
 
@@ -239,16 +243,24 @@ const commit = site.models?.llama_cpp?.commit ?? site.env.llama_cpp_commit;
 
   <h2 id="fp4"><span class="num">6</span>FP4-native weights</h2>
   <p>
-    The BF16 checkpoint is the released NVFP4/MXFP8 values upcast, so the native NVFP4 file is the model, not an
-    approximation of it. Any K-quant has to round those values onto a different grid.
+    The experts were trained with NVFP4 forward passes and released in NVFP4 (MXFP8 for blocks 20-23). The native NVFP4
+    file stores those expert values exactly. The BF16 checkpoint is the release upcast to 16 bits, which rounds the
+    product of a 4-bit value, an 8-bit block scale and a 32-bit tensor scale, so it is very close to the release but not
+    identical. Any K-quant has to move FP4-trained values onto a different grid.
   </p>
+  {floor && floorCpu && <p>
+    How close is close? Running the very same NVFP4 file on the CPU and on the GPU already gives KL {f4(floor)}: that is
+    the noise of llama.cpp's compute paths on this model. The NVFP4 file vs BF16 ({f4(bfN.kld_mean_avg)} on GPU,
+    {" "}{f4(floorCpu.kld_mean_avg)} with both on CPU) and Q8_0 vs BF16 ({f4(bfQ8.kld_mean_avg)}) are at that floor, so they
+    cannot be ranked against each other. Q4_K_M ({f4(bfQ4.kld_mean_avg)}) is well above it.
+  </p>}
   {bfN && bfQ8 && bfQ4 && <div class="stat-row">
     <div class="stat hi"><div class="v">{f4(bfN.kld_mean_avg)}</div><div class="l">NVFP4 file · {bfN.file_gb.toFixed(1)} GB</div></div>
     <div class="stat"><div class="v">{f4(bfQ8.kld_mean_avg)}</div><div class="l">Q8_0 · {bfQ8.file_gb.toFixed(1)} GB</div></div>
     <div class="stat"><div class="v">{f4(bfQ4.kld_mean_avg)}</div><div class="l">Q4_K_M · {bfQ4.file_gb.toFixed(1)} GB</div></div>
   </div>}
   <Chart name="bf16" wide title="Distance from the BF16 weights"
-    caption="Mean KL vs BF16 over three domains. The NVFP4 file keeps the original 4-bit experts bit for bit."
+    caption="Mean KL vs BF16 (computed on the CPU) over three domains. Dashed line: the same NVFP4 file run on CPU vs GPU, the measurement floor."
     rows={bf} columns={[["variant", "variant"], ["file_gb", "size (GB)", 2], ["kld_mean_avg", "mean KL vs BF16", 5], ["wikitext_same_top_p_pct", "top-1 agree (%)", 1]]} />
 
   <h2><span class="num">7</span>Bits vs passes</h2>
@@ -269,9 +281,29 @@ const commit = site.models?.llama_cpp?.commit ?? site.env.llama_cpp_commit;
       {iq4xs && iq4nl && <> stock IQ4_XS ({iq4xs.file_gb.toFixed(1)} GB) and IQ4_NL ({iq4nl.file_gb.toFixed(1)} GB) below 16 GB.</>}
     </div>
   ) : (
+    <>
+    <p>
+      Every recipe keeps the down experts at NVFP4 and varies the gate/up experts per block; the 16 GB+ recipes also keep
+      all NVFP4 experts and tune attention and the blocks 20-23 experts, built from a source that holds the release's NVFP4
+      experts bit for bit and everything else in BF16.
+    </p>
+    <ul>
+      {p3.find((r) => r.variant === "loop-hi-edges-q2_k") && p3.find((r) => r.variant === "edge-hi-loop-q2_k") && <li>
+        <strong>Bits in the loop beat bits at the edges, at equal size:</strong> loop blocks at NVFP4 with the rest at Q2_K reach
+        KL {f4(p3.find((r) => r.variant === "loop-hi-edges-q2_k")["ref-bf16_kld_mean_avg"])} vs BF16, the mirror image
+        {" "}{f4(p3.find((r) => r.variant === "edge-hi-loop-q2_k")["ref-bf16_kld_mean_avg"])}. The loop holds the sensitive middle of
+        the network, so this fits the position effect; it does not need reuse to explain it.</li>}
+      <li><strong>Below 15 GB, the same type everywhere beats mixing:</strong> uniform IQ3_XXS is better than every recipe that
+        mixes Q2_K and NVFP4, at a smaller size. Recipes guided by single-block scans did worst: single-block sensitivities do
+        not add up when many blocks are quantized together.</li>
+      {ud && floor && <li><strong>At 16 GB and up there is nothing left to win:</strong> unsloth's UD-Q4_K_M, the NVFP4 file and
+        all our recipes sit within the measurement floor of the release ({f4(floor)}), so none can be shown to be better than
+        another. We are not publishing a "better quant".</li>}
+    </ul>
     <Chart name="phase3" wide title="Quality vs size for the Phase 3 recipes"
-      caption="Grey squares: stock llama.cpp recipes and community GGUFs."
+      caption="Mean KL vs BF16. Dashed line: measurement floor (same file, CPU vs GPU). Grey squares: other GGUFs measured against the same BF16 logits. Screening run, 16 chunks per point."
       rows={p3} columns={[["variant", "recipe"], ["recipe_family", "family"], ["file_gb", "size (GB)", 2], ["ref-bf16_kld_mean_avg", "mean KL vs BF16", 5], ["kld_mean_avg", "mean KL vs NVFP4 file", 5], ["tg_tps", "decode tok/s", 1]]} />
+    </>
   )}
 
   <h2><span class="num">9</span>Limitations</h2>

@@ -102,14 +102,15 @@ const renderers = {
               Plot.ruleY([0], { stroke: css("--border") })] });
   },
   bf16(el) {
+    const fl = ((site.experiments["floor-device"] || []).find((r) => r.role === "variant") || {}).kld_mean_avg;
     const rows = (site.experiments["bf16check"] || []).filter((r) => r.role === "variant" && r.kld_mean_avg != null)
       .map((r) => ({ ...r, kind: r.variant === "ggml-org-nvfp4" ? "NVFP4 GGUF (original experts)" : "other quants" }));
     if (!rows.length) return null;
-    return Plot.plot({ ...base(el), marginLeft: 150, height: 40 + 34 * rows.length,
+    return Plot.plot({ ...base(el), marginRight: 60, marginLeft: 150, height: 40 + 34 * rows.length,
       x: { label: "mean KL vs BF16 (3 domains)", grid: true },
       y: { label: null, domain: rows.slice().sort((a, b) => a.kld_mean_avg - b.kld_mean_avg).map((r) => r.variant) },
       color: { domain: ["NVFP4 GGUF (original experts)", "other quants"], range: [css("--loop"), css("--edge")], legend: true },
-      marks: [Plot.barX(rows, { y: "variant", x: "kld_mean_avg", fill: "kind", rx: 2, channels: { "size (GB)": "file_gb" }, tip: true }),
+      marks: [...(fl ? [Plot.ruleX([fl], { stroke: css("--text-2"), strokeDasharray: "4,3" })] : []), Plot.barX(rows, { y: "variant", x: "kld_mean_avg", fill: "kind", rx: 2, channels: { "size (GB)": "file_gb" }, tip: true }),
               Plot.text(rows, { y: "variant", x: "kld_mean_avg", text: (d) => `${d.file_gb.toFixed(1)} GB`, dx: 6, textAnchor: "start", fill: css("--text-2"), fontSize: 11 })] });
   },
   grid(el) {
@@ -126,6 +127,7 @@ const renderers = {
               Plot.text(rows, { x: "tg_tps", y: "vs3", text: (d) => `${d.passes}p`, dx: 7, dy: -6, fill: css("--text-2"), fontSize: 10 })] });
   },
   phase3(el) {
+    const fl = ((site.experiments["floor-device"] || []).find((r) => r.role === "variant") || {}).kld_mean_avg;
     const names = { uniform: "same type in every block", "loop-hi": "loop NVFP4, prelude + coda Q2_K",
                     "edge-hi": "prelude + coda NVFP4, loop Q2_K", guided: "guided by the experts scan",
                     frontier: "NVFP4 experts kept, rest tuned" };
@@ -136,10 +138,10 @@ const renderers = {
     const ctxNames = ["ggml-org-nvfp4", "ggml-org-iq4_nl", "q4_k_m-from-nvfp4", "iq4_nl-from-nvfp4"];
     const ctx = [...(site.experiments["bf16check"] || []).filter((r) => ctxNames.includes(r.variant)).map((r) => ({ ...r, y: r.kld_mean_avg })),
                  ...(site.experiments["community-vs-bf16"] || []).filter((r) => r.role === "variant" && r[key] != null).map((r) => ({ ...r, y: r[key] }))];
-    return Plot.plot({ ...base(el),
+    return Plot.plot({ ...base(el), marginRight: 130,
       x: { label: "file size (GB)", grid: true }, y: { label: "mean KL vs BF16", type: "log", grid: true, tickFormat: (v) => v.toPrecision(1) },
       color: { domain: Object.values(names), range: [css("--text"), css("--loop"), css("--edge"), css("--series-3"), css("--series-4")], legend: true },
-      marks: [Plot.dot(ctx, { x: "file_gb", y: "y", symbol: "square", stroke: css("--text-2"), r: 4, channels: { variant: "variant" }, tip: true }),
+      marks: [...(fl ? [Plot.ruleY([fl], { stroke: css("--text-2"), strokeDasharray: "4,3" }), Plot.text([fl], { y: (d) => d, frameAnchor: "left", dy: -7, dx: 4, text: () => "measurement floor: same file, CPU vs GPU", fill: css("--text-2"), fontSize: 10 })] : []), Plot.dot(ctx, { x: "file_gb", y: "y", symbol: "square", stroke: css("--text-2"), r: 4, channels: { variant: "variant" }, tip: true }),
               Plot.text(ctx, { x: "file_gb", y: "y", text: "variant", dx: 6, textAnchor: "start", fill: css("--text-2"), fontSize: 10 }),
               Plot.line(rows.filter((r) => ["uniform", "guided", "frontier"].includes(r.recipe_family)), { x: "file_gb", y: "y", stroke: "fam", sort: "file_gb", strokeWidth: 2 }),
               Plot.dot(rows, { x: "file_gb", y: "y", fill: "fam", r: 5, symbol: (d) => (["loop-hi", "edge-hi"].includes(d.recipe_family) ? "diamond" : "circle"),

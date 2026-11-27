@@ -19,9 +19,14 @@ What we found (confirmed on held-out text where noted):
 - **Why the intuition fails here.** Every pass restarts from the same prelude output; only a message read from the
   previous pass, through a learned rank-64 gate, carries over. An error made inside a pass is not re-processed by the
   shared weights the way the toy assumes.
-- **FP4-trained weights should stay FP4.** The experts were trained and released in NVFP4. The ggml-org NVFP4 GGUF keeps
-  them bit for bit and sits at KL 0.0024 from the BF16 GGUF (the release upcast), against 0.0118 for a same-size
-  Q4_K_M, which re-grids FP4-trained weights. This is about FP4-trained weights, not about formats in general.
+- **FP4-trained weights should stay FP4.** The experts were trained and released in NVFP4. The ggml-org NVFP4 GGUF
+  keeps them bit for bit. Against the BF16 GGUF it sits at KL 0.0024, which is below the noise of llama.cpp itself on
+  this model (the same NVFP4 file run on CPU vs GPU: KL 0.0026), so it cannot be told apart from the release. A
+  same-size Q4_K_M, which re-grids FP4-trained weights, sits at 0.0118, 4.5x that floor. This is about FP4-trained
+  weights, not about formats in general.
+- **No better quant to publish.** Under 16 GB, one type everywhere beats mixing, and at equal size bits in the loop
+  beat bits at the edges (KL 0.0215 vs 0.0249 vs BF16), consistent with the position effect. At 16 GB and up,
+  unsloth's UD-Q4_K_M, the NVFP4 file and all our recipes are within the measurement floor of the release.
 
 All numbers come from `results/` and are traced in `notebook/LAB_NOTEBOOK.md`.
 
@@ -38,7 +43,7 @@ All numbers come from `results/` and are traced in `notebook/LAB_NOTEBOOK.md`.
 | Phase 2: per-block and per-family sensitivity scan | Done (`results/phase2-scan/`) |
 | Headline: same block, 1-6 loop passes, varloop checkpoint | Done, confirmed on held-out text (`results/phase4-*`) |
 | Phase 4: bits vs loop passes | Done (`results/phase4-passes/`) |
-| Phase 3: under 16 GB (sub-NVFP4 experts, scan-guided) and 16 GB+ (NVFP4 experts kept, attention tuned) | Running |
+| Phase 3: under 16 GB (sub-NVFP4 experts, scan-guided) and 16 GB+ (NVFP4 experts kept, attention tuned) | Done (`results/phase3-*`, floor: `results/floor-*`) |
 
 **Held-out status.** Confirmed: `results/phase4-holdout/alpha_fit.json` (4 blocks, N = 1-5, 24 chunks of disjoint text).
 

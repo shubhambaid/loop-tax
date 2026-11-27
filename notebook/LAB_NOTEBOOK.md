@@ -421,3 +421,40 @@ differences against unsloth-like bootstrapped over chunks (`looptax/paired.py`).
 
 Release rule check: nothing here "measurably beats a same-size baseline" yet; no HF upload until the paired held-out
 comparison says so.
+
+## 2026-11-27 afternoon: the measurement floor, and what it means for Phase 3
+
+**Queue bugs.** (1) tmux matches session names by prefix, so `queue_0127b.sh` waited for "q0127" and found itself
+("q0127b"); about two hours idle. All queue scripts now use exact names (`-t =name`; note that zsh expands a leading
+`=` unless it is quoted). (2) The hybrid GGUF (22.9 GB) ran Metal out of memory under `--fit` on its third domain and
+its held-out reference run; the hybrid check and the held-out frontier run were abandoned (see below for why they are
+no longer needed).
+
+**The hybrid is not numerically the release.** Before failing, the hybrid check gave KL 0.0018 (wikitext) and 0.0021
+(code) against the BF16 logits, not about zero, although its expert values are the release's exactly and everything
+else is BF16. Two reasons, measured:
+
+| comparison (`results/floor-*`, `results/bf16check/`) | weights | devices | mean KL (3 domains) |
+|---|---|---|---|
+| NVFP4 file vs itself | identical | GPU vs CPU | 0.00259 |
+| NVFP4 file vs BF16 | NVFP4 vs BF16 | CPU vs CPU | 0.00278 |
+| NVFP4 file vs BF16 | NVFP4 vs BF16 | GPU vs CPU | 0.00238 |
+
+Running the very same file on CPU and GPU already differs by KL 0.0026 (98.3-98.6% same top token): compute-path
+noise (kernels, activation rounding). The BF16 GGUF is also not bit-exact to the release: it rounds the product of a
+4-bit value, an E4M3 block scale and an FP32 tensor scale to an 8-bit mantissa. Every "vs BF16" number for a GPU run
+therefore carries a floor of about 0.0024-0.0028, and differences below it cannot be ranked. Comparisons where the
+reference and the variants run on the same device and differ only where we ask are unaffected (identity control:
+KL exactly 0): the headline, the scan, and Phases 1-3 against the NVFP4 file.
+
+**Consequences.**
+- BF16 check: the NVFP4 file (0.0024) and Q8_0 (0.0026) are at the floor, indistinguishable from the release and from
+  each other; Q4_K_M (0.0118) is 4.5x above it. Site and README reworded accordingly.
+- >= 16 GB frontier: unsloth (0.00264), our rebuild of its layout (0.00262) and all six other recipes (0.00236-0.00265
+  between 16.3 and 16.8 GB, plus 0.00326 at 16.1 GB) are within the floor. Nothing measurably beats unsloth; the
+  held-out paired test against the hybrid would compare differences far below the noise of the reference itself, so
+  it was dropped. No recipe meets the release rule; no Hugging Face upload.
+- Under 16 GB the differences are well above the floor (0.0041-0.0406) and stand: uniform beats mixing, loop-hi beats
+  edge-hi at equal size, guided recipes lose.
+- Site: Phase 3 section marked final (`phase3Final = true`), floor line added to the BF16 and Phase 3 charts.
+  Committed locally, not pushed: pushes to `site/` or `results/` redeploy the public site and need Shubham's yes.

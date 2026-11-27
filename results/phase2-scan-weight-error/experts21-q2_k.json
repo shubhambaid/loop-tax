@@ -1,0 +1,64 @@
+{
+ "experiment": "phase2-scan-weight-error",
+ "variant": "experts21-q2_k",
+ "block": 21,
+ "family": "experts",
+ "qtype": "Q2_K",
+ "quantize_command": [
+  "/Users/goosemini/looptax/llama.cpp/build/bin/llama-quantize",
+  "--allow-requantize",
+  "--imatrix",
+  "/Users/goosemini/looptax/models/imatrix.gguf",
+  "--pure",
+  "--tensor-type",
+  "^blk\\.21\\.ffn_(gate_up|down)_exps\\..*weight$=q2_k",
+  "--tensor-type",
+  "^blk\\.(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19)\\.ffn_(gate_up|down)_exps\\.weight$=nvfp4",
+  "/Users/goosemini/looptax/models/Inkling-2-Mini-NVFP4.gguf",
+  "/Users/goosemini/looptax/work/phase2-scan-werr-experts21-q2_k.gguf",
+  "Q8_0",
+  "12"
+ ],
+ "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+ "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+ "llama_cpp_build": "build",
+ "machine": "Shubhams-Mac-mini.local",
+ "timestamp": "2026-11-27T05:52:17+00:00",
+ "weight_error": {
+  "down": {
+   "rel_err": 0.0069591870590326585,
+   "bits_ref": 2887778304,
+   "bits_var": 1528823808,
+   "bits_removed": 1358954496,
+   "numel": 339738624,
+   "tensors": [
+    {
+     "name": "blk.21.ffn_down_exps.weight",
+     "ref_type": "Q8_0",
+     "var_type": "Q4_0"
+    }
+   ]
+  },
+  "gate_up": {
+   "rel_err": 0.07327082176762124,
+   "bits_ref": 5775556608,
+   "bits_var": 1783627776,
+   "bits_removed": 3991928832,
+   "numel": 679477248,
+   "tensors": [
+    {
+     "name": "blk.21.ffn_gate_up_exps.weight",
+     "ref_type": "Q8_0",
+     "var_type": "Q2_K"
+    }
+   ]
+  },
+  "block_total": {
+   "rel_err": 0.04010797199283953,
+   "bits_ref": 8663334912,
+   "bits_var": 3312451584,
+   "bits_removed": 5350883328,
+   "numel": 1019215872
+  }
+ }
+}
