@@ -33,10 +33,14 @@ def variant(vid: str, family: str, recipe: dict, table) -> dict:
             "est_gb": round(R.size_bytes(recipe, table) / 1e9, 3), "recipe": R.describe(recipe)}
 
 
-def guided_recipes(scan_csv: str, table, targets_gb: list[float], qtype: str = "Q2_K") -> list[tuple[str, dict]]:
+def guided_recipes(scan_csv: str, table, targets_gb: list[float], qtype: str = "Q2_K",
+                   family: str = "experts") -> list[tuple[str, dict]]:
     """Greedy allocation: start with every gate_up at `qtype`, then upgrade blocks to NVFP4 in order of measured
-    sensitivity (Phase 2 KL of that block at `qtype`) until the size target is reached. Same budget as the curves."""
-    rows = [r for r in csv.DictReader(open(scan_csv)) if r.get("family") == "block" and r.get("qtype") == qtype]
+    sensitivity until the size target is reached. Sensitivity = Phase 2 KL when only that block's experts go to
+    `qtype` (the recipe only changes expert types, so whole-block KL, which is partly attention, would mislead).
+    Same budgets as the loop-hi curve."""
+    rows = [r for r in csv.DictReader(open(scan_csv)) if r.get("family") == family and r.get("qtype") == qtype]
+    assert len(rows) == 24, f"need experts-only scan for all 24 blocks, have {len(rows)}"
     sens = sorted(((float(r["kld_mean_avg"]), int(float(r["block"]))) for r in rows), reverse=True)
     out = []
     for target in targets_gb:
@@ -48,6 +52,7 @@ def guided_recipes(scan_csv: str, table, targets_gb: list[float], qtype: str = "
             upgraded.append(b)
         rec = R.make({"gate_up": qtype, **BASE}, {x: {"gate_up": "NVFP4"} for x in upgraded})
         out.append((f"guided-{target:.1f}gb", rec))
+        print(f"guided {target:.2f} GB: NVFP4 gate_up in blocks {sorted(upgraded)}")
     return out
 
 

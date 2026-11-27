@@ -1,5 +1,77 @@
 [
  {
+  "file": "bf16check/ggml-org-iq4_nl.json",
+  "experiment": "bf16check",
+  "variant": "ggml-org-iq4_nl",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T22:07:37+00:00"
+ },
+ {
+  "file": "bf16check/ggml-org-nvfp4.json",
+  "experiment": "bf16check",
+  "variant": "ggml-org-nvfp4",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T22:04:43+00:00"
+ },
+ {
+  "file": "bf16check/iq4_nl-from-bf16.json",
+  "experiment": "bf16check",
+  "variant": "iq4_nl-from-bf16",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T22:16:35+00:00"
+ },
+ {
+  "file": "bf16check/iq4_nl-from-nvfp4.json",
+  "experiment": "bf16check",
+  "variant": "iq4_nl-from-nvfp4",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T22:25:05+00:00"
+ },
+ {
+  "file": "bf16check/q4_k_m-from-bf16.json",
+  "experiment": "bf16check",
+  "variant": "q4_k_m-from-bf16",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T22:12:23+00:00"
+ },
+ {
+  "file": "bf16check/q4_k_m-from-nvfp4.json",
+  "experiment": "bf16check",
+  "variant": "q4_k_m-from-nvfp4",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T22:21:03+00:00"
+ },
+ {
+  "file": "bf16check/q8_0-from-bf16.json",
+  "experiment": "bf16check",
+  "variant": "q8_0-from-bf16",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T22:28:28+00:00"
+ },
+ {
+  "file": "bf16check/ref-bf16.json",
+  "experiment": "bf16check",
+  "variant": "ref-bf16",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T19:14:18+00:00"
+ },
+ {
   "file": "phase1-baselines/iq4_nl.json",
   "experiment": "phase1-baselines",
   "variant": "iq4_nl",
@@ -90,6 +162,33 @@
   "timestamp": "2026-11-26T14:01:37+00:00"
  },
  {
+  "file": "phase1-community/unsloth-ud-q4_k_m.json",
+  "experiment": "phase1-community",
+  "variant": "unsloth-ud-q4_k_m",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T00:38:11+00:00"
+ },
+ {
+  "file": "phase2-scan/attn00-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "attn00-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T23:50:53+00:00"
+ },
+ {
+  "file": "phase2-scan/attn01-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "attn01-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T23:53:51+00:00"
+ },
+ {
   "file": "phase2-scan/attn02-q2_k.json",
   "experiment": "phase2-scan",
   "variant": "attn02-q2_k",
@@ -97,6 +196,24 @@
   "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
   "machine": "Shubhams-Mac-mini.local",
   "timestamp": "2026-11-26T13:38:13+00:00"
+ },
+ {
+  "file": "phase2-scan/attn03-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "attn03-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T23:56:49+00:00"
+ },
+ {
+  "file": "phase2-scan/attn04-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "attn04-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T23:59:48+00:00"
  },
  {
   "file": "phase2-scan/attn05-q2_k.json",
@@ -108,6 +225,24 @@
   "timestamp": "2026-11-26T13:41:10+00:00"
  },
  {
+  "file": "phase2-scan/attn06-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "attn06-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T00:02:45+00:00"
+ },
+ {
+  "file": "phase2-scan/attn07-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "attn07-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T00:05:43+00:00"
+ },
+ {
   "file": "phase2-scan/attn08-q2_k.json",
   "experiment": "phase2-scan",
   "variant": "attn08-q2_k",
@@ -115,6 +250,24 @@
   "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
   "machine": "Shubhams-Mac-mini.local",
   "timestamp": "2026-11-26T13:44:06+00:00"
+ },
+ {
+  "file": "phase2-scan/attn09-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "attn09-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T00:08:41+00:00"
+ },
+ {
+  "file": "phase2-scan/attn10-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "attn10-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T00:11:39+00:00"
  },
  {
   "file": "phase2-scan/attn11-q2_k.json",
@@ -126,6 +279,24 @@
   "timestamp": "2026-11-26T13:47:03+00:00"
  },
  {
+  "file": "phase2-scan/attn12-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "attn12-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T00:14:36+00:00"
+ },
+ {
+  "file": "phase2-scan/attn13-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "attn13-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T00:17:33+00:00"
+ },
+ {
   "file": "phase2-scan/attn14-q2_k.json",
   "experiment": "phase2-scan",
   "variant": "attn14-q2_k",
@@ -133,6 +304,24 @@
   "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
   "machine": "Shubhams-Mac-mini.local",
   "timestamp": "2026-11-26T13:49:59+00:00"
+ },
+ {
+  "file": "phase2-scan/attn15-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "attn15-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T00:20:32+00:00"
+ },
+ {
+  "file": "phase2-scan/attn16-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "attn16-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T00:23:30+00:00"
  },
  {
   "file": "phase2-scan/attn17-q2_k.json",
@@ -144,6 +333,24 @@
   "timestamp": "2026-11-26T13:52:56+00:00"
  },
  {
+  "file": "phase2-scan/attn18-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "attn18-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T00:26:29+00:00"
+ },
+ {
+  "file": "phase2-scan/attn19-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "attn19-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T00:29:27+00:00"
+ },
+ {
   "file": "phase2-scan/attn20-q2_k.json",
   "experiment": "phase2-scan",
   "variant": "attn20-q2_k",
@@ -151,6 +358,24 @@
   "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
   "machine": "Shubhams-Mac-mini.local",
   "timestamp": "2026-11-26T13:55:52+00:00"
+ },
+ {
+  "file": "phase2-scan/attn21-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "attn21-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T00:32:25+00:00"
+ },
+ {
+  "file": "phase2-scan/attn22-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "attn22-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T00:35:24+00:00"
  },
  {
   "file": "phase2-scan/attn23-q2_k.json",
@@ -594,6 +819,24 @@
   "timestamp": "2026-11-26T13:11:06+00:00"
  },
  {
+  "file": "phase2-scan/experts00-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "experts00-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T23:02:24+00:00"
+ },
+ {
+  "file": "phase2-scan/experts01-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "experts01-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T23:05:27+00:00"
+ },
+ {
   "file": "phase2-scan/experts02-q2_k.json",
   "experiment": "phase2-scan",
   "variant": "experts02-q2_k",
@@ -601,6 +844,24 @@
   "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
   "machine": "Shubhams-Mac-mini.local",
   "timestamp": "2026-11-26T13:14:07+00:00"
+ },
+ {
+  "file": "phase2-scan/experts03-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "experts03-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T23:08:28+00:00"
+ },
+ {
+  "file": "phase2-scan/experts04-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "experts04-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T23:11:29+00:00"
  },
  {
   "file": "phase2-scan/experts05-q2_k.json",
@@ -612,6 +873,24 @@
   "timestamp": "2026-11-26T13:17:08+00:00"
  },
  {
+  "file": "phase2-scan/experts06-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "experts06-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T23:14:32+00:00"
+ },
+ {
+  "file": "phase2-scan/experts07-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "experts07-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T23:17:34+00:00"
+ },
+ {
   "file": "phase2-scan/experts08-q2_k.json",
   "experiment": "phase2-scan",
   "variant": "experts08-q2_k",
@@ -619,6 +898,24 @@
   "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
   "machine": "Shubhams-Mac-mini.local",
   "timestamp": "2026-11-26T13:20:09+00:00"
+ },
+ {
+  "file": "phase2-scan/experts09-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "experts09-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T23:20:36+00:00"
+ },
+ {
+  "file": "phase2-scan/experts10-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "experts10-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T23:23:38+00:00"
  },
  {
   "file": "phase2-scan/experts11-q2_k.json",
@@ -630,6 +927,24 @@
   "timestamp": "2026-11-26T13:23:10+00:00"
  },
  {
+  "file": "phase2-scan/experts12-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "experts12-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T23:26:40+00:00"
+ },
+ {
+  "file": "phase2-scan/experts13-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "experts13-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T23:29:42+00:00"
+ },
+ {
   "file": "phase2-scan/experts14-q2_k.json",
   "experiment": "phase2-scan",
   "variant": "experts14-q2_k",
@@ -637,6 +952,24 @@
   "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
   "machine": "Shubhams-Mac-mini.local",
   "timestamp": "2026-11-26T13:26:13+00:00"
+ },
+ {
+  "file": "phase2-scan/experts15-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "experts15-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T23:32:44+00:00"
+ },
+ {
+  "file": "phase2-scan/experts16-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "experts16-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T23:35:47+00:00"
  },
  {
   "file": "phase2-scan/experts17-q2_k.json",
@@ -648,6 +981,24 @@
   "timestamp": "2026-11-26T13:29:15+00:00"
  },
  {
+  "file": "phase2-scan/experts18-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "experts18-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T23:38:49+00:00"
+ },
+ {
+  "file": "phase2-scan/experts19-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "experts19-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T23:41:51+00:00"
+ },
+ {
   "file": "phase2-scan/experts20-q2_k.json",
   "experiment": "phase2-scan",
   "variant": "experts20-q2_k",
@@ -655,6 +1006,24 @@
   "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
   "machine": "Shubhams-Mac-mini.local",
   "timestamp": "2026-11-26T13:32:16+00:00"
+ },
+ {
+  "file": "phase2-scan/experts21-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "experts21-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T23:44:53+00:00"
+ },
+ {
+  "file": "phase2-scan/experts22-q2_k.json",
+  "experiment": "phase2-scan",
+  "variant": "experts22-q2_k",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T23:47:55+00:00"
  },
  {
   "file": "phase2-scan/experts23-q2_k.json",
@@ -1249,6 +1618,816 @@
   "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
   "machine": "Shubhams-Mac-mini.local",
   "timestamp": "2026-11-26T12:07:34+00:00"
+ },
+ {
+  "file": "phase4-holdout/varloop-nvfp4r-holdout-p1.json",
+  "experiment": "phase4-holdout",
+  "variant": "varloop-nvfp4r-holdout",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T00:42:06+00:00"
+ },
+ {
+  "file": "phase4-holdout/varloop-nvfp4r-holdout-p3.json",
+  "experiment": "phase4-holdout",
+  "variant": "varloop-nvfp4r-holdout",
+  "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T00:44:13+00:00"
+ },
+ {
+  "file": "phase4-passes/block03-q2_k-p1.json",
+  "experiment": "phase4-passes",
+  "variant": "block03-q2_k",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T15:13:29+00:00"
+ },
+ {
+  "file": "phase4-passes/block03-q2_k-p2.json",
+  "experiment": "phase4-passes",
+  "variant": "block03-q2_k",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T15:14:36+00:00"
+ },
+ {
+  "file": "phase4-passes/block03-q2_k-p3.json",
+  "experiment": "phase4-passes",
+  "variant": "block03-q2_k",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T15:16:12+00:00"
+ },
+ {
+  "file": "phase4-passes/block03-q2_k-p4.json",
+  "experiment": "phase4-passes",
+  "variant": "block03-q2_k",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T15:18:18+00:00"
+ },
+ {
+  "file": "phase4-passes/block03-q2_k-p5.json",
+  "experiment": "phase4-passes",
+  "variant": "block03-q2_k",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T15:20:55+00:00"
+ },
+ {
+  "file": "phase4-passes/block03-q2_k-p6.json",
+  "experiment": "phase4-passes",
+  "variant": "block03-q2_k",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T15:24:04+00:00"
+ },
+ {
+  "file": "phase4-passes/block03-q4_0-p1.json",
+  "experiment": "phase4-passes",
+  "variant": "block03-q4_0",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T17:40:47+00:00"
+ },
+ {
+  "file": "phase4-passes/block03-q4_0-p2.json",
+  "experiment": "phase4-passes",
+  "variant": "block03-q4_0",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T17:41:54+00:00"
+ },
+ {
+  "file": "phase4-passes/block03-q4_0-p3.json",
+  "experiment": "phase4-passes",
+  "variant": "block03-q4_0",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T17:43:29+00:00"
+ },
+ {
+  "file": "phase4-passes/block03-q4_0-p4.json",
+  "experiment": "phase4-passes",
+  "variant": "block03-q4_0",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T17:45:36+00:00"
+ },
+ {
+  "file": "phase4-passes/block03-q4_0-p5.json",
+  "experiment": "phase4-passes",
+  "variant": "block03-q4_0",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T17:48:13+00:00"
+ },
+ {
+  "file": "phase4-passes/block03-q4_0-p6.json",
+  "experiment": "phase4-passes",
+  "variant": "block03-q4_0",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T17:51:21+00:00"
+ },
+ {
+  "file": "phase4-passes/block06-q2_k-p1.json",
+  "experiment": "phase4-passes",
+  "variant": "block06-q2_k",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T15:43:27+00:00"
+ },
+ {
+  "file": "phase4-passes/block06-q2_k-p2.json",
+  "experiment": "phase4-passes",
+  "variant": "block06-q2_k",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T15:44:34+00:00"
+ },
+ {
+  "file": "phase4-passes/block06-q2_k-p3.json",
+  "experiment": "phase4-passes",
+  "variant": "block06-q2_k",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T15:46:08+00:00"
+ },
+ {
+  "file": "phase4-passes/block06-q2_k-p4.json",
+  "experiment": "phase4-passes",
+  "variant": "block06-q2_k",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T15:48:15+00:00"
+ },
+ {
+  "file": "phase4-passes/block06-q2_k-p5.json",
+  "experiment": "phase4-passes",
+  "variant": "block06-q2_k",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T15:50:52+00:00"
+ },
+ {
+  "file": "phase4-passes/block06-q2_k-p6.json",
+  "experiment": "phase4-passes",
+  "variant": "block06-q2_k",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T15:54:00+00:00"
+ },
+ {
+  "file": "phase4-passes/block09-q2_k-p1.json",
+  "experiment": "phase4-passes",
+  "variant": "block09-q2_k",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T14:44:21+00:00"
+ },
+ {
+  "file": "phase4-passes/block09-q2_k-p2.json",
+  "experiment": "phase4-passes",
+  "variant": "block09-q2_k",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T14:45:38+00:00"
+ },
+ {
+  "file": "phase4-passes/block09-q2_k-p3.json",
+  "experiment": "phase4-passes",
+  "variant": "block09-q2_k",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T14:47:13+00:00"
+ },
+ {
+  "file": "phase4-passes/block09-q2_k-p4.json",
+  "experiment": "phase4-passes",
+  "variant": "block09-q2_k",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T14:49:20+00:00"
+ },
+ {
+  "file": "phase4-passes/block09-q2_k-p5.json",
+  "experiment": "phase4-passes",
+  "variant": "block09-q2_k",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T14:51:57+00:00"
+ },
+ {
+  "file": "phase4-passes/block09-q2_k-p6.json",
+  "experiment": "phase4-passes",
+  "variant": "block09-q2_k",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T14:55:06+00:00"
+ },
+ {
+  "file": "phase4-passes/block09-q4_0-p1.json",
+  "experiment": "phase4-passes",
+  "variant": "block09-q4_0",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T17:11:58+00:00"
+ },
+ {
+  "file": "phase4-passes/block09-q4_0-p2.json",
+  "experiment": "phase4-passes",
+  "variant": "block09-q4_0",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T17:13:05+00:00"
+ },
+ {
+  "file": "phase4-passes/block09-q4_0-p3.json",
+  "experiment": "phase4-passes",
+  "variant": "block09-q4_0",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T17:14:40+00:00"
+ },
+ {
+  "file": "phase4-passes/block09-q4_0-p4.json",
+  "experiment": "phase4-passes",
+  "variant": "block09-q4_0",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T17:16:47+00:00"
+ },
+ {
+  "file": "phase4-passes/block09-q4_0-p5.json",
+  "experiment": "phase4-passes",
+  "variant": "block09-q4_0",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T17:19:24+00:00"
+ },
+ {
+  "file": "phase4-passes/block09-q4_0-p6.json",
+  "experiment": "phase4-passes",
+  "variant": "block09-q4_0",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T17:22:32+00:00"
+ },
+ {
+  "file": "phase4-passes/block12-q2_k-p1.json",
+  "experiment": "phase4-passes",
+  "variant": "block12-q2_k",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T16:03:39+00:00"
+ },
+ {
+  "file": "phase4-passes/block12-q2_k-p2.json",
+  "experiment": "phase4-passes",
+  "variant": "block12-q2_k",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T16:04:46+00:00"
+ },
+ {
+  "file": "phase4-passes/block12-q2_k-p3.json",
+  "experiment": "phase4-passes",
+  "variant": "block12-q2_k",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T16:31:13+00:00"
+ },
+ {
+  "file": "phase4-passes/block12-q2_k-p4.json",
+  "experiment": "phase4-passes",
+  "variant": "block12-q2_k",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T16:33:23+00:00"
+ },
+ {
+  "file": "phase4-passes/block12-q2_k-p5.json",
+  "experiment": "phase4-passes",
+  "variant": "block12-q2_k",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T16:36:01+00:00"
+ },
+ {
+  "file": "phase4-passes/block12-q2_k-p6.json",
+  "experiment": "phase4-passes",
+  "variant": "block12-q2_k",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T16:39:10+00:00"
+ },
+ {
+  "file": "phase4-passes/block17-q2_k-p1.json",
+  "experiment": "phase4-passes",
+  "variant": "block17-q2_k",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T16:43:04+00:00"
+ },
+ {
+  "file": "phase4-passes/block17-q2_k-p2.json",
+  "experiment": "phase4-passes",
+  "variant": "block17-q2_k",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T16:44:11+00:00"
+ },
+ {
+  "file": "phase4-passes/block17-q2_k-p3.json",
+  "experiment": "phase4-passes",
+  "variant": "block17-q2_k",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T16:45:47+00:00"
+ },
+ {
+  "file": "phase4-passes/block17-q2_k-p4.json",
+  "experiment": "phase4-passes",
+  "variant": "block17-q2_k",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T16:47:53+00:00"
+ },
+ {
+  "file": "phase4-passes/block17-q2_k-p5.json",
+  "experiment": "phase4-passes",
+  "variant": "block17-q2_k",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T16:50:30+00:00"
+ },
+ {
+  "file": "phase4-passes/block17-q2_k-p6.json",
+  "experiment": "phase4-passes",
+  "variant": "block17-q2_k",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T16:53:39+00:00"
+ },
+ {
+  "file": "phase4-passes/block20-q2_k-p1.json",
+  "experiment": "phase4-passes",
+  "variant": "block20-q2_k",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T14:59:00+00:00"
+ },
+ {
+  "file": "phase4-passes/block20-q2_k-p2.json",
+  "experiment": "phase4-passes",
+  "variant": "block20-q2_k",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T15:00:07+00:00"
+ },
+ {
+  "file": "phase4-passes/block20-q2_k-p3.json",
+  "experiment": "phase4-passes",
+  "variant": "block20-q2_k",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T15:01:42+00:00"
+ },
+ {
+  "file": "phase4-passes/block20-q2_k-p4.json",
+  "experiment": "phase4-passes",
+  "variant": "block20-q2_k",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T15:03:48+00:00"
+ },
+ {
+  "file": "phase4-passes/block20-q2_k-p5.json",
+  "experiment": "phase4-passes",
+  "variant": "block20-q2_k",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T15:06:26+00:00"
+ },
+ {
+  "file": "phase4-passes/block20-q2_k-p6.json",
+  "experiment": "phase4-passes",
+  "variant": "block20-q2_k",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T15:09:34+00:00"
+ },
+ {
+  "file": "phase4-passes/block20-q4_0-p1.json",
+  "experiment": "phase4-passes",
+  "variant": "block20-q4_0",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T17:26:22+00:00"
+ },
+ {
+  "file": "phase4-passes/block20-q4_0-p2.json",
+  "experiment": "phase4-passes",
+  "variant": "block20-q4_0",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T17:27:30+00:00"
+ },
+ {
+  "file": "phase4-passes/block20-q4_0-p3.json",
+  "experiment": "phase4-passes",
+  "variant": "block20-q4_0",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T17:29:05+00:00"
+ },
+ {
+  "file": "phase4-passes/block20-q4_0-p4.json",
+  "experiment": "phase4-passes",
+  "variant": "block20-q4_0",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T17:31:11+00:00"
+ },
+ {
+  "file": "phase4-passes/block20-q4_0-p5.json",
+  "experiment": "phase4-passes",
+  "variant": "block20-q4_0",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T17:33:48+00:00"
+ },
+ {
+  "file": "phase4-passes/block20-q4_0-p6.json",
+  "experiment": "phase4-passes",
+  "variant": "block20-q4_0",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T17:36:57+00:00"
+ },
+ {
+  "file": "phase4-passes/block22-q2_k-p1.json",
+  "experiment": "phase4-passes",
+  "variant": "block22-q2_k",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T16:57:33+00:00"
+ },
+ {
+  "file": "phase4-passes/block22-q2_k-p2.json",
+  "experiment": "phase4-passes",
+  "variant": "block22-q2_k",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T16:58:40+00:00"
+ },
+ {
+  "file": "phase4-passes/block22-q2_k-p3.json",
+  "experiment": "phase4-passes",
+  "variant": "block22-q2_k",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T17:00:15+00:00"
+ },
+ {
+  "file": "phase4-passes/block22-q2_k-p4.json",
+  "experiment": "phase4-passes",
+  "variant": "block22-q2_k",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T17:02:21+00:00"
+ },
+ {
+  "file": "phase4-passes/block22-q2_k-p5.json",
+  "experiment": "phase4-passes",
+  "variant": "block22-q2_k",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T17:04:59+00:00"
+ },
+ {
+  "file": "phase4-passes/block22-q2_k-p6.json",
+  "experiment": "phase4-passes",
+  "variant": "block22-q2_k",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T17:08:07+00:00"
+ },
+ {
+  "file": "phase4-passes/reference-p1.json",
+  "experiment": "phase4-passes",
+  "variant": "reference",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T18:54:08+00:00"
+ },
+ {
+  "file": "phase4-passes/reference-p2.json",
+  "experiment": "phase4-passes",
+  "variant": "reference",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T18:56:18+00:00"
+ },
+ {
+  "file": "phase4-passes/reference-p3.json",
+  "experiment": "phase4-passes",
+  "variant": "reference",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T18:59:22+00:00"
+ },
+ {
+  "file": "phase4-passes/reference-p4.json",
+  "experiment": "phase4-passes",
+  "variant": "reference",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T19:01:28+00:00"
+ },
+ {
+  "file": "phase4-passes/reference-p5.json",
+  "experiment": "phase4-passes",
+  "variant": "reference",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T19:06:33+00:00"
+ },
+ {
+  "file": "phase4-passes/uniform-iq4_xs-p1.json",
+  "experiment": "phase4-passes",
+  "variant": "uniform-iq4_xs",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T18:35:35+00:00"
+ },
+ {
+  "file": "phase4-passes/uniform-iq4_xs-p2.json",
+  "experiment": "phase4-passes",
+  "variant": "uniform-iq4_xs",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T18:37:43+00:00"
+ },
+ {
+  "file": "phase4-passes/uniform-iq4_xs-p3.json",
+  "experiment": "phase4-passes",
+  "variant": "uniform-iq4_xs",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T18:40:48+00:00"
+ },
+ {
+  "file": "phase4-passes/uniform-iq4_xs-p4.json",
+  "experiment": "phase4-passes",
+  "variant": "uniform-iq4_xs",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T18:42:54+00:00"
+ },
+ {
+  "file": "phase4-passes/uniform-iq4_xs-p5.json",
+  "experiment": "phase4-passes",
+  "variant": "uniform-iq4_xs",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T18:48:01+00:00"
+ },
+ {
+  "file": "phase4-passes/uniform-q2_k-p1.json",
+  "experiment": "phase4-passes",
+  "variant": "uniform-q2_k",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T17:56:48+00:00"
+ },
+ {
+  "file": "phase4-passes/uniform-q2_k-p2.json",
+  "experiment": "phase4-passes",
+  "variant": "uniform-q2_k",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T17:58:53+00:00"
+ },
+ {
+  "file": "phase4-passes/uniform-q2_k-p3.json",
+  "experiment": "phase4-passes",
+  "variant": "uniform-q2_k",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T18:01:56+00:00"
+ },
+ {
+  "file": "phase4-passes/uniform-q2_k-p4.json",
+  "experiment": "phase4-passes",
+  "variant": "uniform-q2_k",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T18:04:02+00:00"
+ },
+ {
+  "file": "phase4-passes/uniform-q2_k-p5.json",
+  "experiment": "phase4-passes",
+  "variant": "uniform-q2_k",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T18:09:07+00:00"
+ },
+ {
+  "file": "phase4-passes/uniform-q3_k-p1.json",
+  "experiment": "phase4-passes",
+  "variant": "uniform-q3_k",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T18:15:49+00:00"
+ },
+ {
+  "file": "phase4-passes/uniform-q3_k-p2.json",
+  "experiment": "phase4-passes",
+  "variant": "uniform-q3_k",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T18:17:58+00:00"
+ },
+ {
+  "file": "phase4-passes/uniform-q3_k-p3.json",
+  "experiment": "phase4-passes",
+  "variant": "uniform-q3_k",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T18:21:07+00:00"
+ },
+ {
+  "file": "phase4-passes/uniform-q3_k-p4.json",
+  "experiment": "phase4-passes",
+  "variant": "uniform-q3_k",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T18:23:17+00:00"
+ },
+ {
+  "file": "phase4-passes/uniform-q3_k-p5.json",
+  "experiment": "phase4-passes",
+  "variant": "uniform-q3_k",
+  "git_commit": "beefd92160a94eb792e9943ccebb8a09c062492d",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T18:28:31+00:00"
+ },
+ {
+  "file": "phase4-passes/varloop-nvfp4r-p1.json",
+  "experiment": "phase4-passes",
+  "variant": "varloop-nvfp4r",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T14:30:41+00:00"
+ },
+ {
+  "file": "phase4-passes/varloop-nvfp4r-p2.json",
+  "experiment": "phase4-passes",
+  "variant": "varloop-nvfp4r",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T14:31:42+00:00"
+ },
+ {
+  "file": "phase4-passes/varloop-nvfp4r-p3.json",
+  "experiment": "phase4-passes",
+  "variant": "varloop-nvfp4r",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T14:33:12+00:00"
+ },
+ {
+  "file": "phase4-passes/varloop-nvfp4r-p4.json",
+  "experiment": "phase4-passes",
+  "variant": "varloop-nvfp4r",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T14:35:12+00:00"
+ },
+ {
+  "file": "phase4-passes/varloop-nvfp4r-p5.json",
+  "experiment": "phase4-passes",
+  "variant": "varloop-nvfp4r",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T14:37:40+00:00"
+ },
+ {
+  "file": "phase4-passes/varloop-nvfp4r-p6.json",
+  "experiment": "phase4-passes",
+  "variant": "varloop-nvfp4r",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T14:40:39+00:00"
+ },
+ {
+  "file": "varloop-refcheck/nvfp4r.json",
+  "experiment": "varloop-refcheck",
+  "variant": "nvfp4r",
+  "git_commit": "2edeeddb78d264022b9f2c05ad2c48afc1b4f892",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T14:28:34+00:00"
+ },
+ {
+  "file": "varloop-refcheck/varloop-q8_0.json",
+  "experiment": "varloop-refcheck",
+  "variant": "varloop-q8_0",
+  "git_commit": "806589ede87134e0a2a9401df14ada589dfe3275",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-26T14:05:02+00:00"
  },
  {
   "file": "env/remote_inventory.json",

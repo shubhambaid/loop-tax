@@ -1,0 +1,3 @@
+experiment,variant,role,file_gb,bpw,passes,ftype,block,family,qtype,gate_up,est_gb,imatrix,wikitext_ppl,code_ppl,git_commit,llama_cpp_commit,timestamp
+phase4-holdout,varloop-nvfp4r-holdout,reference,,,1,,,,,,,,6.0282,2.4829,7df252691a1f14ff5087e340fb7539b7d99d83e8,07ba74babd586c6b5f558d196e3cf7cc1eea26f4,2026-11-27T00:42:06+00:00
+phase4-holdout,varloop-nvfp4r-holdout,reference,,,3,,,,,,,,5.649,2.3073,7df252691a1f14ff5087e340fb7539b7d99d83e8,07ba74babd586c6b5f558d196e3cf7cc1eea26f4,2026-11-27T00:44:13+00:00

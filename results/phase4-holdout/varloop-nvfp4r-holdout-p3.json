@@ -1,0 +1,28 @@
+{
+ "experiment": "phase4-holdout",
+ "variant": "varloop-nvfp4r-holdout",
+ "role": "reference",
+ "passes": 3,
+ "model_file": "TML-d24-varloop-research-NVFP4R.gguf",
+ "git_commit": "7df252691a1f14ff5087e340fb7539b7d99d83e8",
+ "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+ "llama_cpp_build": "build-lt (pinned commit + scripts/perplexity-chunk-sums.patch)",
+ "machine": "Shubhams-Mac-mini.local",
+ "timestamp": "2026-11-27T00:44:13+00:00",
+ "domains": {
+  "wikitext": {
+   "ppl": 5.649,
+   "ppl_err": 0.09996,
+   "chunks": 16,
+   "n_ctx": 2048,
+   "seconds": 157.8
+  },
+  "code": {
+   "ppl": 2.3073,
+   "ppl_err": 0.04446,
+   "chunks": 8,
+   "n_ctx": 2048,
+   "seconds": 79.5
+  }
+ }
+}

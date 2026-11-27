@@ -60,6 +60,14 @@ def fit_alpha(ns: np.ndarray, y: np.ndarray) -> tuple[float, float]:
     return float(coef[1]), float(np.exp(coef[0]))
 
 
+def _fit_with_ci(v: dict, ns: list[int], idx: np.ndarray) -> tuple[float, list[float]]:
+    K = np.stack([v["N"][n] for n in ns])
+    alpha, _ = fit_alpha(np.array(ns, float), K.mean(axis=1))
+    bm = K[:, idx].mean(axis=2)
+    ba = np.array([fit_alpha(np.array(ns, float), np.clip(bm[:, b], 1e-12, None))[0] for b in range(idx.shape[0])])
+    return alpha, [float(np.percentile(ba, 2.5)), float(np.percentile(ba, 97.5))]
+
+
 def analyse(boot: int, trained: list[int], seed: int = 0) -> list[dict]:
     rng = np.random.default_rng(seed)
     res = []
@@ -75,11 +83,15 @@ def analyse(boot: int, trained: list[int], seed: int = 0) -> list[dict]:
         bmeans = K[:, idx].mean(axis=2)                # [len(ns), boot]
         balpha = np.array([fit_alpha(np.array(ns, float), np.clip(bmeans[:, b], 1e-12, None))[0] for b in range(boot)])
         ratio = {n: float(v["N"][n].mean() / v["N"][1].mean()) for n in sorted(v["N"]) if 1 in v["N"]}
+        # secondary fit without N = 1: pass 1 runs the loop with no cross-pass message, so N = 1 -> 2 changes the
+        # computation itself, not only the reuse count
+        ns2 = [n for n in ns if n >= 2]
+        a2, ci2 = _fit_with_ci(v, ns2, idx) if len(ns2) >= 3 else (None, None)
         res.append({
             "variant": vid, "block": v["meta"].get("block"), "category": v["meta"].get("category"),
             "qtype": v["meta"].get("qtype"), "domains": v["domains"], "chunks": int(n_chunks), "fit_passes": ns,
             "alpha": alpha, "alpha_ci95": [float(np.percentile(balpha, 2.5)), float(np.percentile(balpha, 97.5))],
-            "c": c, "kl_mean_by_passes": {str(n): float(v["N"][n].mean()) for n in sorted(v["N"])},
+            "c": c, "alpha_2to5": a2, "alpha_2to5_ci95": ci2, "kl_mean_by_passes": {str(n): float(v["N"][n].mean()) for n in sorted(v["N"])},
             "kl_ratio_to_1_pass": {str(n): r for n, r in ratio.items()},
             "extrapolated_passes": sorted(n for n in v["N"] if n not in trained),
             "bootstrap": {"resamples": boot, "unit": "evaluation chunk (paired across N)", "seed": seed},
@@ -96,7 +108,9 @@ def main(argv=None):
     (EXP / "alpha_fit.json").write_text(json.dumps(res, indent=1) + "\n")
     for r in res:
         lo, hi = r["alpha_ci95"]
+        lo2, hi2 = r["alpha_2to5_ci95"]
         print(f"{r['variant']:16s} {r['category']:8s} alpha {r['alpha']:5.2f} [{lo:5.2f}, {hi:5.2f}]  "
+              f"alpha(2-5) {r['alpha_2to5']:5.2f} [{lo2:5.2f}, {hi2:5.2f}]  "
               + " ".join(f"N{n}:{k:.5f}" for n, k in r["kl_mean_by_passes"].items()))
 
 
