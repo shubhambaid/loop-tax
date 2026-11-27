@@ -103,14 +103,17 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--boot", type=int, default=5000)
     ap.add_argument("--trained", nargs="+", type=int, default=[1, 2, 3, 4, 5])
+    ap.add_argument("--exp", default="phase4-passes", help="results/<exp> (phase4-holdout for the confirmation run)")
     a = ap.parse_args(argv)
+    global EXP
+    EXP = REPO / "results" / a.exp
     res = analyse(a.boot, a.trained)
     (EXP / "alpha_fit.json").write_text(json.dumps(res, indent=1) + "\n")
     for r in res:
         lo, hi = r["alpha_ci95"]
-        lo2, hi2 = r["alpha_2to5_ci95"]
-        print(f"{r['variant']:16s} {r['category']:8s} alpha {r['alpha']:5.2f} [{lo:5.2f}, {hi:5.2f}]  "
-              f"alpha(2-5) {r['alpha_2to5']:5.2f} [{lo2:5.2f}, {hi2:5.2f}]  "
+        a2 = (f"alpha(2-5) {r['alpha_2to5']:5.2f} [{r['alpha_2to5_ci95'][0]:5.2f}, {r['alpha_2to5_ci95'][1]:5.2f}]  "
+              if r["alpha_2to5"] is not None else "")
+        print(f"{r['variant']:16s} {r['category']:8s} alpha {r['alpha']:5.2f} [{lo:5.2f}, {hi:5.2f}]  {a2}"
               + " ".join(f"N{n}:{k:.5f}" for n, k in r["kl_mean_by_passes"].items()))
 
 
