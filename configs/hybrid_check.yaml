@@ -1,0 +1,9 @@
+# Is the hybrid GGUF (original NVFP4 experts bit for bit + everything else BF16 from the release) numerically the release?
+# Measured against the stored BF16 logits (ggml-org BF16 GGUF) on the screening set. If KL is near zero, the hybrid can
+# serve as the BF16-equivalent reference for held-out runs (it fits partial GPU offload; the BF16 GGUF needs CPU only).
+experiment: hybrid-check
+reference: {id: ref-bf16, model: models/Inkling-2-Mini-BF16.gguf}
+eval: {dir: data/eval, ctx: 2048, domains: {wikitext: 8, code: 4, multilingual: 4}}
+llama: {ngl: null}
+variants:
+  - {id: hybrid, file: models/Inkling-2-Mini-hybrid.gguf, bench: false}
