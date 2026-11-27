@@ -18,6 +18,11 @@ for (const d of readdirSync(results)) {
   if (existsSync(f)) experiments[d] = csvParse(readFileSync(f, "utf8"), autoType);
 }
 
+// Phase 3 recipe family per variant (from the generated config)
+const p3cfg = YAML.parse(readFileSync(join(repo, "configs", "phase3_recipes.yaml"), "utf8"));
+const p3family = Object.fromEntries(p3cfg.variants.map((v) => [v.id, v.family]));
+for (const r of experiments["phase3-recipes"] ?? []) r.recipe_family = p3family[r.variant];
+
 // per-variant JSON details that the CSV flattens away (recipes, tensor types per block for phase 3)
 const recipes = {};
 const p3 = join(results, "phase3-recipes");

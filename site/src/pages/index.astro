@@ -200,7 +200,16 @@ const repo = "https://github.com/shubhambaid/loop-tax";
     rows={(site as any).alpha} columns={[["variant", "variant"], ["category", "category"], ["alpha", "alpha", 2]]} />
 
   <h2>Part 4: loop-aware mixed precision</h2>
-  <div class="pending">Not run yet.</div>
+  <p>
+    Back on Inkling 2 Mini: at a fixed file size, does it pay to give the loop blocks more bits? Every recipe keeps the down
+    experts at NVFP4 and attention at Q8_0, and varies the type of the gate/up experts per block: the same type everywhere,
+    NVFP4 in the loop and a lower type elsewhere, the mirror image, or blocks upgraded in order of their measured
+    experts-only sensitivity.
+  </p>
+  <Chart name="phase3" wide title="Quality vs size for four allocation strategies"
+    caption="Mean KL vs the NVFP4 reference over three domains. Grey squares: stock llama.cpp recipes and community GGUFs."
+    rows={((site.experiments as any)["phase3-recipes"] ?? []).filter((r: any) => r.role === "variant")}
+    columns={[["variant", "recipe"], ["recipe_family", "family"], ["file_gb", "size (GB)", 2], ["kld_mean_avg", "mean KL", 5], ["tg_tps", "decode tok/s", 1]]} />
 
   <h2>Part 5: bits vs loop passes</h2>
   <p>

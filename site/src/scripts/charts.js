@@ -106,6 +106,22 @@ const renderers = {
               Plot.dot(rows, { x: "tg_tps", y: "vs3", fill: "series", r: 5, stroke: css("--surface"), strokeWidth: 2, channels: { passes: "passes", "file GB": "file_gb" }, tip: true }),
               Plot.text(rows, { x: "tg_tps", y: "vs3", text: (d) => `${d.passes}p`, dx: 7, dy: -6, fill: css("--text-2"), fontSize: 10 })] });
   },
+  phase3(el) {
+    const names = { uniform: "same type in every block", "loop-hi": "loop blocks NVFP4, others lower",
+                    "edge-hi": "prelude + coda NVFP4, loop lower", guided: "guided by the experts scan" };
+    const rows = (site.experiments["phase3-recipes"] || []).filter((r) => r.role === "variant" && names[r.recipe_family])
+      .map((r) => ({ ...r, fam: names[r.recipe_family] }));
+    if (!rows.length) return null;
+    const ctx = [...(site.experiments["phase1-baselines"] || []).filter((r) => r.role === "variant" && r.file_gb < 20).map((r) => ({ ...r, kind: "stock recipe" })),
+                 ...(site.experiments["phase1-community"] || []).filter((r) => r.role === "variant").map((r) => ({ ...r, kind: "community GGUF" }))];
+    return Plot.plot({ ...base(el),
+      x: { label: "file size (GB)", grid: true }, y: { label: "mean KL vs NVFP4 reference", type: "log", grid: true, tickFormat: (v) => v.toPrecision(1) },
+      color: { domain: Object.values(names), range: [css("--text"), css("--loop"), css("--edge"), css("--series-3")], legend: true },
+      marks: [Plot.dot(ctx, { x: "file_gb", y: "kld_mean_avg", symbol: "square", stroke: css("--text-2"), r: 4, channels: { variant: "variant", kind: "kind" }, tip: true }),
+              Plot.text(ctx, { x: "file_gb", y: "kld_mean_avg", text: "variant", dx: 6, textAnchor: "start", fill: css("--text-2"), fontSize: 10 }),
+              Plot.line(rows, { x: "file_gb", y: "kld_mean_avg", stroke: "fam", sort: "file_gb", strokeWidth: 2 }),
+              Plot.dot(rows, { x: "file_gb", y: "kld_mean_avg", fill: "fam", r: 5, stroke: css("--surface"), strokeWidth: 2, channels: { variant: "variant" }, tip: true })] });
+  },
   phase2norm(el) {
     const rows = (site.experiments["phase2-scan"] || []).filter((r) => r.family === "block" && r.kl_per_gbit_removed != null);
     if (!rows.length) return null;

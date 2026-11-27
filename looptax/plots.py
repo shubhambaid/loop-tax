@@ -115,6 +115,41 @@ CAT_LABEL = {"loop": "loop (reused every pass)", "prelude": "prelude (injected i
              "coda": "coda (runs once, control)"}
 
 
+def phase3():
+    rows = [r for r in read("phase3-recipes") if r["role"] == "variant"]
+    fams = {"uniform": ("same type in every block", "#191919"), "loop-hi": ("loop blocks NVFP4, others lower", SERIES[1]),
+            "edge-hi": ("prelude + coda NVFP4, loop lower", SERIES[0]), "guided": ("guided by the experts scan", SERIES[2])}
+    fam_of = {}
+    import yaml
+    for v in yaml.safe_load(open(ROOT / "configs" / "phase3_recipes.yaml"))["variants"]:
+        fam_of[v["id"]] = v["family"]
+    fig, ax = plt.subplots(figsize=(8.5, 5.2), dpi=150)
+    style(ax, "Loop-aware vs uniform mixed precision (Inkling 2 Mini)", "file size (GB)", "mean KL vs NVFP4 reference")
+    for fam, (lab, c) in fams.items():
+        rs = sorted((r for r in rows if fam_of.get(r["variant"]) == fam), key=lambda r: float(r["file_gb"]))
+        if not rs:
+            continue
+        ax.plot([float(r["file_gb"]) for r in rs], [float(r["kld_mean_avg"]) for r in rs], color=c, lw=2, marker="o",
+                ms=6, mec=SURFACE, mew=1.5, label=lab)
+    other = [(r, "stock llama.cpp recipe") for r in read("phase1-baselines") if r["role"] == "variant" and float(r["file_gb"]) < 20]
+    other += [(r, "community GGUF") for r in read("phase1-community") if r["role"] == "variant"]
+    for r, kind in other:
+        ax.plot(float(r["file_gb"]), float(r["kld_mean_avg"]), marker="s" if kind == "community GGUF" else "^", ms=6,
+                color=TEXT2, ls="none")
+        ax.annotate(r["variant"], (float(r["file_gb"]), float(r["kld_mean_avg"])), xytext=(5, -3),
+                    textcoords="offset points", fontsize=7, color=TEXT2)
+    ax.set_yscale("log")
+    ax.yaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(lambda v, _: f"{v:g}"))
+    ax.yaxis.set_minor_formatter(matplotlib.ticker.FuncFormatter(lambda v, _: f"{v:g}" if f"{v:.0e}"[0] in "25" else ""))
+    ax.legend(frameon=False, fontsize=8, labelcolor=TEXT, loc="upper right")
+    fig.text(0.01, 0.01, "Grey: stock llama.cpp recipes (triangles) and community GGUFs (squares) for context. "
+             "Down experts NVFP4 and attention Q8_0 in every Phase 3 recipe. Screening run, 16 chunks.", fontsize=7, color=TEXT2)
+    fig.tight_layout(rect=(0, 0.03, 1, 1))
+    out = ASSETS / "phase3_pareto.png"
+    fig.savefig(out, facecolor=SURFACE)
+    print(out)
+
+
 def headline():
     import json
     fits = json.load(open(RESULTS / "phase4-passes" / "alpha_fit.json"))
