@@ -214,3 +214,68 @@ Checked that the pass override reaches the quantized runs: their perplexity trac
 not supported for this model; the extra sensitivity of middle blocks comes from position, not reuse. Not a finding
 until the remaining blocks are in and the held-out rerun (`configs/phase4_holdout.yaml`: blocks 9, 17, 20, 3 at
 N = 1, 3, 5, 24 chunks of disjoint text) agrees.
+
+## 2026-11-27 morning: overnight results (headline, grid, BF16 check, Phase 2 extension)
+
+The overnight queue finished at 06:11. Every result file was re-validated (metrics present, per-chunk sums present for
+Phase 4). Charts: `assets/headline_passes.png`, `assets/grid_bits_passes.png`, `assets/bf16_check.png`.
+
+**Headline (screening): quantization error of a reused block does not compound with passes.** One block perturbed,
+TML-d24-varloop-research run at N = 1-6 passes, KL vs the NVFP4R reference at the same N, wikitext 8 + code 4 chunks,
+fit KL = c N^alpha on N = 1-5 (`results/phase4-passes/alpha_fit.json`, 5000 paired bootstrap resamples over chunks).
+N = 6 was never trained and is shown but not fitted.
+
+| block | category | type | alpha N=1-5 [95% CI] | alpha N=2-5 [95% CI] | KL N=1 | KL N=3 | KL N=5 | KL N=6* |
+|---|---|---|---|---|---|---|---|---|
+| 3 | prelude | Q2_K | 0.00 [-0.08, 0.10] | -0.21 [-0.32, -0.10] | 0.00594 | 0.00662 | 0.00612 | 0.00623 |
+| 6 | loop | Q2_K | -0.06 [-0.13, 0.01] | -0.28 [-0.40, -0.16] | 0.00850 | 0.00873 | 0.00813 | 0.00827 |
+| 9 | loop | Q2_K | 0.19 [0.12, 0.26] | 0.04 [-0.08, 0.15] | 0.00835 | 0.01113 | 0.01165 | 0.01207 |
+| 12 | loop | Q2_K | 0.07 [-0.02, 0.14] | -0.12 [-0.23, -0.00] | 0.01185 | 0.01407 | 0.01374 | 0.01430 |
+| 17 | loop | Q2_K | 0.28 [0.22, 0.33] | 0.14 [0.07, 0.21] | 0.00788 | 0.01149 | 0.01253 | 0.01326 |
+| 20 | coda | Q2_K | 0.04 [-0.03, 0.12] | -0.04 [-0.10, 0.02] | 0.00594 | 0.00639 | 0.00635 | 0.00644 |
+| 22 | coda | Q2_K | -0.05 [-0.10, 0.02] | -0.13 [-0.18, -0.08] | 0.00534 | 0.00520 | 0.00505 | 0.00509 |
+| 3 | prelude | Q4_0 | 0.29 [0.19, 0.38] | 0.03 [-0.06, 0.10] | 0.00240 | 0.00375 | 0.00392 | 0.00436 |
+| 9 | loop | Q4_0 | 0.47 [0.38, 0.54] | 0.22 [0.13, 0.30] | 0.00196 | 0.00367 | 0.00434 | 0.00489 |
+| 20 | coda | Q4_0 | 0.01 [-0.04, 0.05] | -0.09 [-0.18, -0.01] | 0.00091 | 0.00094 | 0.00093 | 0.00094 |
+
+Reading: coherent compounding predicts alpha near 2, independent addition near 1. All loop blocks are far below 1:
+-0.06 to 0.28 at Q2_K, 0.47 for block 9 at Q4_0. Coda controls are flat (-0.05 to 0.04). Every curve, controls
+included, has a step from N = 1 to N = 2; pass 1 runs the loop with no cross-pass message and no controllers, so that
+step is a change of computation, not just of reuse count. Fitting N = 2-5 only: loop blocks -0.28 to 0.22, prelude
+-0.21 to 0.03, coda -0.13 to -0.04. Relative to the controls, loop blocks 9 and 17 grow slightly (about +0.2 to +0.3 in
+alpha), blocks 6 and 12 not at all. The extra sensitivity of loop blocks is mostly present already at N = 1, when the
+block runs once (block 12 at Q2_K: 0.0119 vs 0.0053-0.0059 for coda blocks): it comes with the position, not with
+reuse. The prelude, whose error is injected into every pass, behaves like the loop blocks at Q4_0 (alpha 0.29) and
+like the coda at Q2_K (0.00). Pending: held-out confirmation (`configs/phase4_holdout.yaml`, running).
+
+**Bits x passes grid** (gate/up experts at the stated type in all blocks, down experts NVFP4, attention Q8_0; KL vs
+the reference at N = 3, i.e. distance from the model as shipped; decode tok/s from llama-completion, tg128):
+NVFP4R 1p 0.0799 (61.0 tok/s), 2p 0.0355 (38.5), 4p 0.0109 (22.4), 5p 0.0165 (18.5); IQ4_XS 3p 0.0074 (27.7);
+Q3_K 2p 0.0481 (35.6), 3p 0.0166 (26.2); Q2_K 3p 0.0500 (28.8). Answer to "Q3 with 3 passes or more bits with 2?":
+Q3_K at 3 passes (0.0166) is closer to the shipped model than full-precision NVFP4R at 2 passes (0.0355). More than 3
+passes moves the model away from its 3-pass behaviour (perplexity flat: 5.606, 5.597, 5.592). Quantization cost at a
+given N (KL vs the reference at the same N) is flat from N = 2 to 5 for every bit width (IQ4_XS 0.0072-0.0074,
+Q3_K 0.0158-0.0166, Q2_K 0.0495-0.0513), with a lower value at N = 1. Quantizing all blocks shows the same picture as
+one block: no compounding.
+
+**BF16 check (CPU-only BF16 reference, 3 domains, 16 chunks; 2.8 h).** Mean KL vs BF16:
+ggml-org NVFP4 17.6 GB 0.00238; Q8_0 from BF16 27.8 GB 0.00261; ggml-org IQ4_NL 17.6 GB 0.00692;
+Q4_K_M 17.5 GB 0.01180 (from BF16) / 0.01166 (from NVFP4); IQ4_NL 14.9 GB 0.01474 / 0.01475. So the tentative Phase 1
+observation holds against BF16: at the same size, the NVFP4 file is about 5x closer to the released weights than
+Q4_K_M, and even closer than Q8_0. The quantization source (BF16 vs the NVFP4 file) makes no measurable difference, so
+the NVFP4-sourced Phases 1-3 stand. The NVFP4 file vs BF16 (0.0024) also bounds how much the NVFP4 reference itself
+differs from the release.
+
+**Phase 2 extension** (experts only and attention only, all 24 blocks, Q2_K). Mean KL x 1e-3, prelude / loop / coda:
+experts 4.22 / 4.19 / 2.27; attention 5.02 / 7.74 / 2.38 (peaks 11.8 at block 11, 10.4 at 17, 10.2 at 12, 8.6 at 16).
+Expert sensitivity does not distinguish loop from prelude; attention does, mostly in two global-attention layers and
+their neighbours. Weight-error normalisation for these 32 runs is running.
+
+**Community.** ggml-org IQ4_NL (experts of blocks 0-19 IQ4_NL, rest Q8_0, 17.6 GB): KL 0.0068 vs our NVFP4 reference;
+unsloth UD-Q4_K_M (keeps the NVFP4 experts, other tensors lower): 16.6 GB, KL 0.0020 vs our NVFP4 reference, 257 / 28
+tok/s. It is 1 GB smaller than the NVFP4 file at very small cost: the strongest same-size baseline so far, and the
+one any Phase 3 recipe has to beat.
+
+**Phase 3 queued** after the held-out run (`configs/phase3_recipes.yaml`, 19 recipes): uniform gate/up types, loop-hi
+and its mirror edge-hi at matched sizes, and an experts-guided greedy recipe ranked by the experts-only scan (it
+upgrades prelude and early-loop blocks and 16-17 first, coda last).
