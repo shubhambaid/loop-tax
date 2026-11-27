@@ -346,3 +346,42 @@ resamples). alpha over N = 2-5, held-out vs screening:
 The negative headline holds on held-out text: once the cross-pass message is active (N >= 2), the error of a reused
 block grows at most like N^0.19 (block 17), N^0.06 for block 9, against N^-0.09 for the coda control. The held-out
 logits were deleted after the run (29 + 20 GB); the per-chunk sums are in the result files.
+
+## 2026-11-27: Phase 3, under 16 GB
+
+`configs/phase3_sub16.yaml`, source = NVFP4 GGUF, ggml-org imatrix, down experts NVFP4, attention Q8_0; only the gate/up
+experts vary. Every recipe measured against the NVFP4 file and against the BF16 logits (`domains_vs.ref-bf16`).
+Chart: `assets/phase3_pareto.png` (KL vs BF16, other GGUFs from the BF16 check for context). Screening, 16 chunks.
+
+| recipe | family | size (GB) | KL vs NVFP4 file | KL vs BF16 [std err] | top-1 vs BF16 (wikitext) | decode tok/s |
+|---|---|---|---|---|---|---|
+| uniform-q2_k | uniform | 11.77 | 0.0406 | 0.0406 [0.0008] | 91.09 | 29.5 |
+| guided-12.6gb | guided | 12.56 | 0.0323 | 0.0323 [0.0007] | 92.11 | 28.7 |
+| uniform-iq3_xxs | uniform | 12.66 | 0.0192 | 0.0191 [0.0004] | 94.15 | 27.5 |
+| guided-13.4gb | guided | 13.36 | 0.0280 | 0.0279 [0.0006] | 92.96 | 28.6 |
+| uniform-q3_k | uniform | 13.42 | 0.0134 | 0.0135 [0.0003] | 95.17 | 26.2 |
+| edge-hi-loop-q2_k | edge-hi | 13.68 | 0.0248 | 0.0249 [0.0005] | 93.05 | 28.8 |
+| guided-13.7gb | guided | 13.68 | 0.0247 | 0.0245 [0.0006] | 93.65 | 28.8 |
+| loop-hi-edges-q2_k | loop-hi | 13.68 | 0.0215 | 0.0215 [0.0005] | 94.07 | 28.7 |
+| guided-15.1gb | guided | 14.95 | 0.0094 | 0.0115 [0.0003] | 95.91 | 28.3 |
+| uniform-iq4_xs | uniform | 15.08 | 0.0065 | 0.0067 [0.0001] | 96.75 | 27.7 |
+| uniform-nvfp4 | uniform | 15.59 | 0.0019 | 0.0041 [0.0001] | 97.75 | 28.2 |
+| uniform-q4_k | uniform | 15.59 | 0.0064 | 0.0064 [0.0001] | 96.69 | 28.2 |
+
+**Uniform beats mixing below 15 GB.** Every recipe that leaves some blocks at Q2_K and gives others NVFP4 is beaten by a
+uniform type of the same or smaller size: uniform IQ3_XXS (12.66 GB, 0.0191 vs BF16) beats all three mixed recipes at
+13.68 GB (0.0215-0.0249) and the guided 13.36 GB one (0.0279). Q2_K is lossy enough here that spreading bits evenly wins.
+
+**The direct hypothesis test.** At matched size (13.68 GB), loop blocks at NVFP4 with prelude and coda at Q2_K score
+0.0215 [0.0005] vs BF16; the mirror image, 0.0249 [0.0005]. Spending the bits on the loop is better by about 14%,
+a difference of about five standard errors. This is consistent with the headline: the loop holds the middle of the
+network, which is the sensitive part with or without reuse; it does not need a reuse effect to explain it.
+
+**Experts-guided recipes lose.** The greedy recipe ranked blocks by their single-block experts-only KL, which rates
+prelude and loop experts alike, so it upgraded prelude blocks early. At 13.68 GB it lands at 0.0245, worse than loop-hi
+(0.0215), and at every size it is worse than uniform. Single-block sensitivities do not add up to the joint effect of
+quantizing many blocks at once; a guide for multi-block recipes needs to be measured on multi-block perturbations.
+
+**15.6 GB.** All experts NVFP4 (blocks 20-23 requantized from Q8_0) is the best recipe under 16 GB: 0.0041 vs BF16,
+against 0.0064 for Q4_K experts of the same size and 0.0067 for IQ4_XS at 15.08 GB. Against BF16 it is worse than
+against the NVFP4 file (0.0019) because blocks 20-23 were released at MXFP8 and lose precision at NVFP4.

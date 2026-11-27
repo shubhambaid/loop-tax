@@ -70,17 +70,36 @@ const renderers = {
               Plot.dot(extra, { fx: "qtype", x: "passes", y: "kld_mean_avg", stroke: "category", r: 4, strokeWidth: 1.5, channels: { variant: "variant", note: () => "N = 6 was never trained" }, tip: true })] });
   },
   alpha(el) {
-    const rows = site.alpha || [];
-    if (!rows.length) return null;
     const label = { loop: "loop (reused every pass)", prelude: "prelude (injected into every pass)", coda: "coda (runs once, control)" };
-    const r2 = rows.map((r) => ({ ...r, cat: label[r.category] ?? r.category, lo: r.alpha_ci95[0], hi: r.alpha_ci95[1] }));
-    return Plot.plot({ ...base(el), marginLeft: 120, height: 40 + 28 * r2.length,
-      x: { label: "alpha in KL ~ N^alpha (fit on N = 1-5, 95% bootstrap CI)", grid: true },
-      y: { label: null, domain: r2.map((r) => r.variant) },
+    const tag = (rs, set) => (rs || []).filter((r) => r.alpha_2to5 != null).map((r) => ({ ...r, set, cat: label[r.category] ?? r.category,
+      lo: r.alpha_2to5_ci95[0], hi: r.alpha_2to5_ci95[1], row: `${r.variant} (${set})` }));
+    const r2 = [...tag(site.alpha, "screening"), ...tag(site.alphaHoldout, "held-out")]
+      .sort((a, b) => a.block - b.block || a.qtype.localeCompare(b.qtype) || (a.set === "held-out") - (b.set === "held-out"));
+    if (!r2.length) return null;
+    const held = r2.filter((r) => r.set === "held-out"), scr = r2.filter((r) => r.set === "screening");
+    return Plot.plot({ ...base(el), marginLeft: 170, height: 50 + 24 * r2.length,
+      x: { label: "alpha in KL ~ N^alpha, passes 2-5 (95% bootstrap CI)", grid: true, domain: [-0.5, 2.1] },
+      y: { label: null, domain: r2.map((r) => r.row) },
       color: { domain: Object.values(label), range: [css("--loop"), css("--series-4"), css("--edge")], legend: true },
-      marks: [Plot.ruleX([0, 1, 2], { stroke: css("--border"), strokeDasharray: "3,3" }),
-              Plot.ruleY(r2, { y: "variant", x1: "lo", x2: "hi", stroke: "cat", strokeWidth: 2 }),
-              Plot.dot(r2, { y: "variant", x: "alpha", fill: "cat", r: 5, stroke: css("--surface"), strokeWidth: 2, channels: { "95% CI": (d) => `${d.lo.toFixed(2)} to ${d.hi.toFixed(2)}` }, tip: true })] });
+      marks: [Plot.ruleX([0, 1, 2], { stroke: css("--text-2"), strokeOpacity: 0.5, strokeDasharray: "3,3" }),
+              Plot.text([{ x: 1, t: "independent" }, { x: 2, t: "coherent" }], { x: "x", text: "t", frameAnchor: "top", dy: -14, fill: css("--text-2"), fontSize: 11 }),
+              Plot.ruleY(r2, { y: "row", x1: "lo", x2: "hi", stroke: "cat", strokeWidth: 2 }),
+              Plot.dot(scr, { y: "row", x: "alpha_2to5", fill: "cat", r: 5, stroke: css("--surface"), strokeWidth: 2,
+                channels: { text: "set", "95% CI": (d) => `${d.lo.toFixed(2)} to ${d.hi.toFixed(2)}` }, tip: true }),
+              Plot.dot(held, { y: "row", x: "alpha_2to5", stroke: "cat", fill: css("--surface"), r: 5, strokeWidth: 2,
+                channels: { text: "set", "95% CI": (d) => `${d.lo.toFixed(2)} to ${d.hi.toFixed(2)}` }, tip: true })] });
+  },
+  family(el) {
+    const names = { attn: "attention only", experts: "experts only" };
+    const rows = (site.experiments["phase2-scan"] || []).filter((r) => names[r.family] && r.qtype === "Q2_K" && r.kld_mean_avg != null)
+      .map((r) => ({ ...r, part: names[r.family], role: r.block >= 6 && r.block <= 17 ? "looped (runs 3x)" : "runs once" }));
+    if (!rows.length) return null;
+    return Plot.plot({ ...base(el),
+      x: { label: "physical block", type: "band" }, y: { label: "mean KL vs reference", grid: true },
+      fy: { label: null, domain: Object.values(names) },
+      color: { domain: ["runs once", "looped (runs 3x)"], range: [css("--edge"), css("--loop")], legend: true },
+      marks: [Plot.barY(rows, { fy: "part", x: "block", y: "kld_mean_avg", fill: "role", rx: 2, tip: true }),
+              Plot.ruleY([0], { stroke: css("--border") })] });
   },
   bf16(el) {
     const rows = (site.experiments["bf16check"] || []).filter((r) => r.role === "variant" && r.kld_mean_avg != null)
@@ -107,21 +126,24 @@ const renderers = {
               Plot.text(rows, { x: "tg_tps", y: "vs3", text: (d) => `${d.passes}p`, dx: 7, dy: -6, fill: css("--text-2"), fontSize: 10 })] });
   },
   phase3(el) {
-    const names = { uniform: "same type in every block", "loop-hi": "loop blocks NVFP4, others lower",
-                    "edge-hi": "prelude + coda NVFP4, loop lower", guided: "guided by the experts scan",
+    const names = { uniform: "same type in every block", "loop-hi": "loop NVFP4, prelude + coda Q2_K",
+                    "edge-hi": "prelude + coda NVFP4, loop Q2_K", guided: "guided by the experts scan",
                     frontier: "NVFP4 experts kept, rest tuned" };
-    const rows = (site.experiments["phase3"] || []).filter((r) => r.role === "variant" && names[r.recipe_family])
-      .map((r) => ({ ...r, fam: names[r.recipe_family] }));
+    const key = "ref-bf16_kld_mean_avg";
+    const rows = (site.experiments["phase3"] || []).filter((r) => r.role === "variant" && names[r.recipe_family] && r[key] != null)
+      .map((r) => ({ ...r, fam: names[r.recipe_family], y: r[key] }));
     if (!rows.length) return null;
-    const ctx = [...(site.experiments["phase1-baselines"] || []).filter((r) => r.role === "variant" && r.file_gb < 20).map((r) => ({ ...r, kind: "stock recipe" })),
-                 ...(site.experiments["phase1-community"] || []).filter((r) => r.role === "variant").map((r) => ({ ...r, kind: "community GGUF" }))];
+    const ctxNames = ["ggml-org-nvfp4", "ggml-org-iq4_nl", "q4_k_m-from-nvfp4", "iq4_nl-from-nvfp4"];
+    const ctx = [...(site.experiments["bf16check"] || []).filter((r) => ctxNames.includes(r.variant)).map((r) => ({ ...r, y: r.kld_mean_avg })),
+                 ...(site.experiments["community-vs-bf16"] || []).filter((r) => r.role === "variant" && r[key] != null).map((r) => ({ ...r, y: r[key] }))];
     return Plot.plot({ ...base(el),
-      x: { label: "file size (GB)", grid: true }, y: { label: "mean KL vs NVFP4 reference", type: "log", grid: true, tickFormat: (v) => v.toPrecision(1) },
+      x: { label: "file size (GB)", grid: true }, y: { label: "mean KL vs BF16", type: "log", grid: true, tickFormat: (v) => v.toPrecision(1) },
       color: { domain: Object.values(names), range: [css("--text"), css("--loop"), css("--edge"), css("--series-3"), css("--series-4")], legend: true },
-      marks: [Plot.dot(ctx, { x: "file_gb", y: "kld_mean_avg", symbol: "square", stroke: css("--text-2"), r: 4, channels: { variant: "variant", kind: "kind" }, tip: true }),
-              Plot.text(ctx, { x: "file_gb", y: "kld_mean_avg", text: "variant", dx: 6, textAnchor: "start", fill: css("--text-2"), fontSize: 10 }),
-              Plot.line(rows, { x: "file_gb", y: "kld_mean_avg", stroke: "fam", sort: "file_gb", strokeWidth: 2 }),
-              Plot.dot(rows, { x: "file_gb", y: "kld_mean_avg", fill: "fam", r: 5, stroke: css("--surface"), strokeWidth: 2, channels: { variant: "variant" }, tip: true })] });
+      marks: [Plot.dot(ctx, { x: "file_gb", y: "y", symbol: "square", stroke: css("--text-2"), r: 4, channels: { variant: "variant" }, tip: true }),
+              Plot.text(ctx, { x: "file_gb", y: "y", text: "variant", dx: 6, textAnchor: "start", fill: css("--text-2"), fontSize: 10 }),
+              Plot.line(rows.filter((r) => ["uniform", "guided", "frontier"].includes(r.recipe_family)), { x: "file_gb", y: "y", stroke: "fam", sort: "file_gb", strokeWidth: 2 }),
+              Plot.dot(rows, { x: "file_gb", y: "y", fill: "fam", r: 5, symbol: (d) => (["loop-hi", "edge-hi"].includes(d.recipe_family) ? "diamond" : "circle"),
+                stroke: css("--surface"), strokeWidth: 2, channels: { variant: "variant", "KL vs NVFP4 file": "kld_mean_avg" }, tip: true })] });
   },
   phase2norm(el) {
     const rows = (site.experiments["phase2-scan"] || []).filter((r) => r.family === "block" && r.kl_per_gbit_removed != null);

@@ -1,100 +1,131 @@
 ---
 // LoopTax results page. Every number below is read from src/data/site.json, which scripts/build-data.mjs builds from
-// the repo's results/, toy/ and configs/ at build time.
+// the repo's results/, toy/ and configs/ at build time. Nothing numeric is typed by hand.
 import "../styles/global.css";
 import Chart from "../components/Chart.astro";
 import site from "../data/site.json";
 
+const S_: any = site;
 const L = site.layout;
 const loopStart = L.loop["loop.start"], loopEnd = L.loop["loop.end"], passes = L.loop["loop.count"];
-const nLoop = loopEnd - loopStart;
 const pct = (x: number, d = 1) => `${(100 * x).toFixed(d)}%`;
-const gb = (n: number) => `${(n / 1e9).toFixed(1)}B`;
+const f2 = (x: number) => x.toFixed(2);
+const f4 = (x: number) => x.toFixed(4);
+const variants = (exp: string) => ((S_.experiments[exp] ?? []) as any[]).filter((r) => r.role === "variant");
 
-// toy numbers
+// toy
 const depth = site.toy.depth;
 const toyLooped = depth.looped_mean.at(-1), toyDistinct = depth.distinct_mean.at(-1);
 const grid = site.toy.grid as { loop_bits: number; edge_bits: number; avg_bits: number; err: number }[];
-const g54 = grid.find((g) => g.loop_bits === 5 && g.edge_bits === 4);
-const g45 = grid.find((g) => g.loop_bits === 4 && g.edge_bits === 5);
 
-// headline (held-out confirmation) and BF16 check
-const H = ((site as any).alphaHoldout ?? []) as any[];
-const hLoop = H.filter((r) => r.category === "loop"), hCoda = H.find((r) => r.category === "coda");
-const f2 = (x: number) => x.toFixed(2);
-const bf = ((site.experiments as any)["bf16check"] ?? []).filter((r: any) => r.role === "variant");
-const bfN = bf.find((r: any) => r.variant === "ggml-org-nvfp4"), bfQ = bf.find((r: any) => r.variant === "q4_k_m-from-bf16");
-const rc = (site as any).refcheck;
-const S = ((site as any).alpha ?? []) as any[];
-const sLoop = S.filter((r) => r.category === "loop" && r.alpha_2to5 != null), sCoda = S.filter((r) => r.category === "coda" && r.alpha_2to5 != null);
-const rng = (rs: any[], k: string) => rs.length ? [Math.min(...rs.map((r) => r[k])), Math.max(...rs.map((r) => r[k]))] : null;
-const loop25 = rng(sLoop, "alpha_2to5"), coda25 = rng(sCoda, "alpha_2to5");
-// "confirmed" only once the held-out run has its own N = 2-5 fit
-const hLoop25 = hLoop.filter((r) => r.alpha_2to5 != null), hCoda25 = hCoda && hCoda.alpha_2to5 != null ? hCoda : null;
-const confirmed = hLoop25.length > 0 && hCoda25 != null;
-const atN1 = (cat: string) => S.filter((r) => r.category === cat && r.qtype === "Q2_K").map((r) => r.kl_mean_by_passes["1"]);
-const n1Loop = atN1("loop"), n1Coda = atN1("coda");
+// controlled test: screening fit (N = 2-5) and held-out confirmation
+const S = (S_.alpha ?? []) as any[];
+const H = (S_.alphaHoldout ?? []) as any[];
+const rng = (rs: any[]) => rs.length ? [Math.min(...rs.map((r) => r.alpha_2to5)), Math.max(...rs.map((r) => r.alpha_2to5))] : null;
+const loop25 = rng(S.filter((r) => r.category === "loop" && r.alpha_2to5 != null));
+const coda25 = rng(S.filter((r) => r.category === "coda" && r.alpha_2to5 != null));
+const hLoop = H.filter((r) => r.category === "loop" && r.alpha_2to5 != null);
+const hCoda = H.find((r) => r.category === "coda" && r.alpha_2to5 != null);
+const confirmed = hLoop.length > 0 && hCoda != null;
+const ci = (r: any) => `[${f2(r.alpha_2to5_ci95[0])}, ${f2(r.alpha_2to5_ci95[1])}]`;
 
-// phase 1
-const p1 = ((site.experiments as any)["phase1-baselines"] ?? []).filter((r: any) => r.role === "variant")
-  .sort((a: any, b: any) => a.file_gb - b.file_gb);
-const ref = ((site.experiments as any)["phase1-baselines"] ?? []).find((r: any) => r.role === "reference");
-const p2 = ((site.experiments as any)["phase2-scan"] ?? []).filter((r: any) => r.family === "block");
-const p2Done = p2.length >= 48;
+// sensitivity by family
+const p2 = variants("phase2-scan");
+const attn = p2.filter((r) => r.family === "attn" && r.qtype === "Q2_K");
+const experts = p2.filter((r) => r.family === "experts" && r.qtype === "Q2_K");
+const topAttn = attn.slice().sort((a, b) => b.kld_mean_avg - a.kld_mean_avg).slice(0, 4).map((r) => r.block).sort((a, b) => a - b);
+const exRange = (lo: number, hi: number) => {
+  const v = experts.filter((r) => r.block >= lo && r.block < hi).map((r) => r.kld_mean_avg);
+  return v.length ? `${f4(Math.min(...v))}-${f4(Math.max(...v))}` : null;
+};
+const exPrelude = exRange(0, loopStart), exLoop = exRange(loopStart, loopEnd);
+
+// FP4-native weights vs BF16
+const bf = variants("bf16check");
+const bfN = bf.find((r) => r.variant === "ggml-org-nvfp4");
+const bfQ8 = bf.find((r) => r.variant === "q8_0-from-bf16");
+const bfQ4 = bf.find((r) => r.variant === "q4_k_m-from-bf16");
+
+// bits vs passes, KL against the shipped model averaged over wikitext and code
+const pp = variants("phase4-passes").concat(((S_.experiments["phase4-passes"] ?? []) as any[]).filter((r) => r.role === "reference"));
+const vs3 = (v: string, n: number) => {
+  const r = pp.find((r) => r.variant === v && r.passes === n);
+  return r && r.wikitext_vs3_kld_mean != null ? (r.wikitext_vs3_kld_mean + r.code_vs3_kld_mean) / 2 : null;
+};
+const q3at3 = vs3("uniform-q3_k", 3), nvAt2 = vs3("reference", 2);
+
+// phase 3 bars to beat
+const comm = variants("phase1-community"), base = variants("phase1-baselines");
+const ud = comm.find((r) => r.variant === "unsloth-ud-q4_k_m");
+const iq4xs = base.find((r) => r.variant === "iq4_xs"), iq4nl = base.find((r) => r.variant === "iq4_nl");
+// Phase 3 stays a placeholder until its results are final; flip this once they are committed and checked on held-out text.
+const phase3Final = false;
+const p3 = phase3Final ? variants("phase3") : [];
 
 // architecture diagram geometry
 const blocks = Array.from({ length: L.block_count }, (_, i) => i);
 const bw = 26, gap = 4, x0 = 10;
 const bx = (i: number) => x0 + i * (bw + gap);
 const repo = "https://github.com/shubhambaid/loop-tax";
+const commit = site.models?.llama_cpp?.commit ?? site.env.llama_cpp_commit;
 ---
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>LoopTax: does quantization error compound in a looped transformer?</title>
-  <meta name="description" content="Does quantization error compound when a transformer runs the same layers several times? Measured on Inkling 2 Mini." />
-  <meta property="og:title" content="LoopTax: reuse does not compound quantization error in Inkling 2 Mini's loop" />
-  <meta property="og:description" content="Per-layer quantization sensitivity, loop-aware mixed precision and bits vs loop passes on Inkling 2 Mini." />
-  <meta property="og:image" content="https://looptax.alethic-labs.com/og.png" />
+  <title>Is there a loop tax? Quantizing a looped transformer</title>
+  <meta name="description" content="Looped transformers reuse the same weights several times per token. We expected their quantization error to compound with every pass. On Inkling 2 Mini, it doesn't." />
+  <meta property="og:title" content="Is there a loop tax? On Inkling 2 Mini, reuse does not compound quantization error" />
+  <meta property="og:description" content="A controlled test of quantization error across loop passes, where the sensitivity actually sits, and why FP4-trained weights should stay FP4." />
   <meta property="og:url" content="https://looptax.alethic-labs.com/" />
-  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;1,6..96,400&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" />
   <script is:inline>
     const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t;
   </script>
 </head>
 <body>
-<button class="theme-toggle" id="theme-toggle" aria-label="Toggle light or dark theme">theme</button>
+<header class="topbar">
+  <a class="brand" href="https://alethic-labs.com/">Alethic Labs</a>
+  <nav><a href="#tldr">TL;DR</a><a href="#test">The test</a><a href="#fp4">FP4</a><a href="#reproduce">Reproduce</a><a href={repo}>Code</a></nav>
+  <button class="theme-toggle" id="theme-toggle" aria-label="Toggle light or dark theme">theme</button>
+</header>
 <main>
-  <div class="kicker">Alethic Labs research note</div>
-  <h1>LoopTax: does a looped transformer pay its quantization error more than once?</h1>
-  <p class="lede">
-    Inkling 2 Mini stores {L.block_count} decoder layers but runs {L.visits} per token: blocks {loopStart}-{loopEnd - 1} share
-    weights and run {passes} times. The hypothesis: a quantization error in a shared weight is applied on every pass, so it
-    should compound. We tested it directly.
-  </p>
-  {loop25 && coda25 && (
-    <p><strong>No. Reuse does not compound quantization error here.</strong> We quantized one block of Inkling 2 Mini's
-    variable-loop sibling checkpoint and ran it with 2 to 5 loop passes. For looped blocks the damage scales like
-    N<sup>{f2(loop25[0])}</sup> to N<sup>{f2(loop25[1])}</sup>; for the control blocks that run once after the loop,
-    N<sup>{f2(coda25[0])}</sup> to N<sup>{f2(coda25[1])}</sup>. Compounding errors would scale like N to N<sup>2</sup>.
-    Looped blocks are more sensitive, but they already are with a single pass{" "}
-    {`(KL ${Math.min(...n1Loop).toFixed(4)}-${Math.max(...n1Loop).toFixed(4)} vs ${Math.min(...n1Coda).toFixed(4)}-${Math.max(...n1Coda).toFixed(4)} for the controls)`}: the sensitivity comes with
-    their position in the middle of the network, not with reuse.
-    {confirmed
-      ? <> Confirmed on held-out text over 2-5 passes: {hLoop25.map((r, i) => <>{i ? ", " : ""}block {r.block} N<sup>{f2(r.alpha_2to5)}</sup></>)}; control block {hCoda25.block} N<sup>{f2(hCoda25.alpha_2to5)}</sup>.</>
-      : <> This is the screening result. A held-out check over 1, 3 and 5 passes agrees ({hLoop.map((r, i) => <>{i ? ", " : ""}block {r.block} N<sup>{f2(r.alpha)}</sup></>)}{hCoda && <>, control block {hCoda.block} N<sup>{f2(hCoda.alpha)}</sup></>}); the held-out run over 2-5 passes is in progress.</>}
+  <section class="hero">
+    <div class="kicker">Research note · Inkling 2 Mini · llama.cpp</div>
+    <h1>Is there a <em>loop tax</em>?</h1>
+    <p class="lede">
+      Looped transformers reuse the same weights several times per token. We expected their quantization error to
+      compound with every pass. On Inkling 2 Mini, it doesn't.
     </p>
-  )}
-  <h2>The architecture</h2>
+  </section>
+
+  <section id="tldr" class="tldr">
+    <h2>TL;DR</h2>
+    <ol>
+      <li><strong>Reuse does not compound quantization error.</strong> A quantized loop block does about the same damage at
+        2 passes as at 5, like control blocks that run once.
+        {confirmed && <> Confirmed on held-out text: loop blocks {hLoop.map((r, i) => <>{i ? " and " : ""}{r.block} at N<sup>{f2(r.alpha_2to5)}</sup></>)},
+        control block {hCoda.block} at N<sup>{f2(hCoda.alpha_2to5)}</sup>.</>}</li>
+      <li><strong>Loop blocks are more sensitive, but because of where they sit, not because they repeat.</strong> The
+        sensitive part is attention in a few middle layers, not the experts.</li>
+      {bfN && bfQ4 && <li><strong>For a model trained in FP4, the native NVFP4 file is the near-lossless format.</strong>{" "}
+        Standard K-quants of the same size are about {Math.round(bfQ4.kld_mean_avg / bfN.kld_mean_avg)}x further from the
+        released model.</li>}
+    </ol>
+  </section>
+
+  <h2><span class="num">1</span>The architecture</h2>
   <p>
-    Blocks 0-{loopStart - 1} (the prelude) run once. Blocks {loopStart}-{loopEnd - 1} (the loop core) run {passes} times; every
-    pass starts again from the prelude output and receives a gated message from the previous pass, and every visit keeps its
-    own KV cache. Only the last pass continues into blocks {loopEnd}-{L.block_count - 1} (the coda).{" "}
-    {`The loop core holds ${gb(L.params_loop_blocks)} parameters and the prelude plus coda ${gb(L.params_edge_blocks)}; routed experts are ${pct(L.params_by_family.experts / L.params_total)} of all weights.`}
+    Inkling 2 Mini stores {L.block_count} decoder layers but runs layers {loopStart} to {loopEnd - 1} {passes === 3 ? "three" : passes} times
+    per token, {L.visits} layer visits in total. Each pass restarts from the prelude output and receives a gated message
+    from the previous pass.
   </p>
   <figure class="wide">
-    <svg viewBox={`0 0 ${bx(L.block_count) + 10} 120`} role="img" aria-label={`${L.block_count} stored blocks, blocks ${loopStart} to ${loopEnd - 1} run ${passes} times`} style="width:100%;height:auto">
+    <svg viewBox={`0 0 ${bx(L.block_count) + 10} 124`} role="img" aria-label={`${L.block_count} stored blocks, blocks ${loopStart} to ${loopEnd - 1} run ${passes} times`} style="width:100%;height:auto">
       {blocks.map((i) => {
         const inLoop = i >= loopStart && i < loopEnd;
         return (
@@ -106,180 +137,168 @@ const repo = "https://github.com/shubhambaid/loop-tax";
       })}
       <path d={`M ${bx(loopEnd) - gap - 2} 36 C ${bx(loopEnd)} 6, ${bx(loopStart) - 2} 6, ${bx(loopStart) + 2} 36`} fill="none" stroke="var(--text)" stroke-width="1.5" marker-end="url(#arrow)" />
       <text x={(bx(loopStart) + bx(loopEnd)) / 2} y="14" text-anchor="middle" font-size="11" fill="var(--text)">x{passes} passes, shared weights</text>
-      <text x={bx(0)} y="116" font-size="10" fill="var(--text-2)">prelude (runs once)</text>
-      <text x={bx(loopEnd)} y="116" font-size="10" fill="var(--text-2)">coda (runs once)</text>
+      <text x={bx(0)} y="118" font-size="10" fill="var(--text-2)">prelude (runs once)</text>
+      <text x={bx(loopEnd)} y="118" font-size="10" fill="var(--text-2)">coda (runs once)</text>
       <defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--text)" /></marker></defs>
     </svg>
-    <figcaption><strong>{L.block_count} stored blocks, {L.visits} layer visits per token.</strong> Checked from the GGUF tensor table: one physical copy of each block, loop controller tensors only in blocks {loopStart}-{loopEnd - 1}.</figcaption>
+    <figcaption><strong>{L.block_count} stored blocks, {L.visits} layer visits per token.</strong> Read from the GGUF tensor table: one physical copy of each block, loop controller tensors only in blocks {loopStart}-{loopEnd - 1}.</figcaption>
   </figure>
 
-  <h2>The intuition we tested</h2>
+  <h2><span class="num">2</span>The intuition we tested</h2>
   <p>
-    Quantizing a weight matrix adds a small error <code>e</code>. In an ordinary stack every layer has its own error, so the
-    errors are roughly independent and partly cancel. In a loop the same <code>W + e</code> is applied on every pass: it is a
-    bug in a function that gets called {passes} times. If the passes push the error in the same direction, it adds up
-    coherently instead of averaging out.
+    If the same quantized weights are applied three times, the same rounding error is applied three times. In a toy model
+    where each pass feeds the next, that error stacks up. This section shows the toy and is clearly a toy: random weights,
+    not Inkling.
   </p>
   <p>
-    A toy simulation shows that the mechanism can exist. Random residual MLP blocks, round-to-nearest quantization,
-    hidden-state error against full precision.{" "}
-    {`At equal depth and 4-bit weights the looped stack ends at ${pct(toyLooped)} error vs ${pct(toyDistinct)} for distinct blocks. In an Inkling-shaped toy at 4.5 average bits, 5-bit loop with 4-bit edges gives ${pct(g54!.err)} vs ${pct(g45!.err)} the other way round.`}
+    {`At equal depth and 4-bit weights, the looped toy stack ends at ${pct(toyLooped)} hidden-state error against ${pct(toyDistinct)} for distinct blocks.`}
   </p>
   <Chart name="toyDepth" toy title="Error vs layer visits, distinct vs looped blocks"
     caption="20 seeds, 4-bit round-to-nearest. The curves are identical until the loop restarts."
     rows={depth.distinct_mean.map((v: number, i: number) => ({ depth: i + 1, distinct: 100 * v, looped: 100 * depth.looped_mean[i] }))}
     columns={[["depth", "layer visits"], ["distinct", "distinct blocks (%)", 2], ["looped", "looped blocks (%)", 2]]} />
   <Chart name="toyGrid" toy title="Final error by loop bits and edge bits (Inkling-shaped toy)"
-    caption="Cells show final hidden-state error in percent; 10 seeds."
+    caption="Cells show final hidden-state error in percent; 10 seeds. In the toy, a spare bit is always worth more in the loop."
     rows={grid.map((g) => ({ ...g, errp: 100 * g.err }))}
     columns={[["loop_bits", "loop bits"], ["edge_bits", "edge bits"], ["avg_bits", "average bits", 1], ["errp", "error (%)", 1]]} />
-  <p>
-    <strong>Why the toy does not carry over.</strong> The toy feeds each pass's output into the next pass, so an error made
-    on pass 1 is the input of pass 2 and gets processed again: <code>h, f(h), f(f(h))</code>. Inkling's loop is built
-    differently. Every pass restarts from the same prelude output; the only thing that carries over from one pass to the
-    next is a message read from the previous pass's block outputs, and a learned rank-64 gate per block decides how much of
-    it to let in. The error made inside a pass is not re-processed by the shared weights; it can only leak forward through
-    that gated message. The measurements say the leak is small.
-  </p>
 
-  <h2>Part 1: baselines on the real model</h2>
+  <h2 id="test"><span class="num">3</span>The controlled test</h2>
   <p>
-    Reference: ggml-org's NVFP4 GGUF of Inkling 2 Mini. Its experts are the released NVFP4 weights bit for bit; everything
-    else is Q8_0. We re-quantized it with llama.cpp's standard recipes and measured KL divergence of the next-token
-    distribution against the reference on wikitext-2, Python code and an 8-language FLORES sample (context 2048).
+    On the variable-loop research checkpoint we quantized one block and ran 1 to 5 passes, comparing each run with the
+    unquantized model at the same pass count. We fit KL = c · N<sup>α</sup>: α near 2 means errors add coherently, near
+    1 independently, near 0 not at all.
+    {loop25 && coda25 && <> Loop blocks came out at {f2(loop25[0])} to {f2(loop25[1])} (passes 2 to 5), coda controls at
+    {" "}{f2(coda25[0])} to {f2(coda25[1])}.</>} Pass 1 differs from the rest because it has no incoming message, so the
+    fit uses passes 2 to 5.
   </p>
-  {ref && <div class="stat-row">
-    <div class="stat"><div class="v">{ref.file_gb.toFixed(1)} GB</div><div class="l">reference size</div></div>
-    <div class="stat"><div class="v">{ref.wikitext_ppl?.toFixed(2)}</div><div class="l">reference wikitext perplexity</div></div>
-    <div class="stat"><div class="v">{ref.pp_tps?.toFixed(0)} / {ref.tg_tps?.toFixed(1)}</div><div class="l">tok/s prefill / decode, M4 Pro</div></div>
+  <Chart name="headlineKL" wide title="KL from quantizing one block, by number of loop passes"
+    caption="Log-log axes, screening text. Each line is one perturbed block. Pass 6 (hollow) was never trained." />
+  <Chart name="alpha" wide title="Fitted exponent α per block, passes 2 to 5"
+    caption="Filled: screening text. Hollow: held-out text disjoint from the screening set. Bars are 95% paired bootstrap intervals over evaluation chunks. Dashed lines at 0, 1 and 2."
+    rows={[...S.map((r) => ({ ...r, set: "screening" })), ...H.map((r) => ({ ...r, set: "held-out" }))].filter((r) => r.alpha_2to5 != null)}
+    columns={[["variant", "variant"], ["set", "text"], ["category", "category"], ["alpha_2to5", "α (N = 2-5)", 2]]} />
+  {confirmed && <p class="note">
+    Held-out confirmation: {hLoop.map((r, i) => <>{i ? "; " : ""}loop block {r.block} α = {f2(r.alpha_2to5)} {ci(r)}</>)};
+    control block {hCoda.block} α = {f2(hCoda.alpha_2to5)} {ci(hCoda)}.
+  </p>}
+
+  <h2><span class="num">4</span>Why the intuition fails here</h2>
+  <p>
+    The toy behaves like an accumulator: every pass adds onto the last. Inkling behaves like a retry loop: every pass
+    starts from the same input and only a small gated note carries over. Errors do not get a chance to pile up.
+  </p>
+  <figure class="wide flow">
+    <div class="flow-panel">
+      <div class="toy-label">toy simulation, random weights, not Inkling 2 Mini</div>
+      <svg viewBox="0 0 400 120" role="img" aria-label="Accumulator: each pass takes the previous pass's output as input">
+        <defs><marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--text-2)" /></marker></defs>
+        <text x="10" y="64" font-size="12" fill="var(--text)">h</text>
+        {[0, 1, 2].map((k) => <>
+          <line x1={28 + k * 120} y1="60" x2={68 + k * 120} y2="60" stroke="var(--text-2)" stroke-width="1.5" marker-end="url(#a2)" />
+          <rect x={72 + k * 120} y="40" width="64" height="40" rx="6" fill="var(--loop)" opacity="0.9" />
+          <text x={104 + k * 120} y="65" text-anchor="middle" font-size="12" fill="#fff">W + e</text>
+        </>)}
+        <line x1="388" y1="60" x2="398" y2="60" stroke="var(--text-2)" stroke-width="1.5" />
+        <text x="200" y="108" text-anchor="middle" font-size="11" fill="var(--text-2)">output of pass k is the input of pass k+1: e is processed again</text>
+      </svg>
+      <div class="flow-title">Accumulator (the toy)</div>
+    </div>
+    <div class="flow-panel">
+      <svg viewBox="0 0 400 150" role="img" aria-label="Retry loop: every pass starts from the prelude output, only a gated message carries over">
+        <defs><marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--text-2)" /></marker></defs>
+        <rect x="6" y="56" width="74" height="40" rx="6" fill="var(--edge)" opacity="0.8" />
+        <text x="43" y="80" text-anchor="middle" font-size="11" fill="#fff">prelude</text>
+        {[0, 1, 2].map((k) => <>
+          <path d={`M 80 76 C 120 76, 130 ${20 + k * 45}, 160 ${30 + k * 45}`} fill="none" stroke="var(--text-2)" stroke-width="1.5" marker-end="url(#a3)" />
+          <rect x="164" y={12 + k * 45} width="80" height="36" rx="6" fill="var(--loop)" opacity="0.9" />
+          <text x="204" y={35 + k * 45} text-anchor="middle" font-size="11" fill="#fff">pass {k + 1}</text>
+        </>)}
+        {[0, 1].map((k) => <>
+          <path d={`M 244 ${30 + k * 45} C 280 ${34 + k * 45}, 280 ${53 + k * 45}, 248 ${58 + k * 45}`} fill="none" stroke="var(--text-2)" stroke-width="1" stroke-dasharray="3,3" marker-end="url(#a3)" />
+          <text x="284" y={48 + k * 45} font-size="10" fill="var(--text-2)">gated note</text>
+        </>)}
+        <line x1="244" y1="120" x2="300" y2="120" stroke="var(--text-2)" stroke-width="1.5" marker-end="url(#a3)" />
+        <text x="306" y="124" font-size="11" fill="var(--text)">coda</text>
+        <text x="200" y="146" text-anchor="middle" font-size="11" fill="var(--text-2)">every pass restarts from the same input</text>
+      </svg>
+      <div class="flow-title">Retry loop (Inkling 2 Mini)</div>
+    </div>
+  </figure>
+
+  <h2><span class="num">5</span>Where the sensitivity actually is</h2>
+  <p>
+    A per-layer scan shows the middle layers are more sensitive even when they run once. Breaking it down, experts are
+    about equally sensitive in prelude and loop blocks{exPrelude && exLoop && <> (KL {exPrelude} vs {exLoop} at Q2_K)</>};
+    attention in a few middle layers (blocks {topAttn.join(", ").replace(/, (\d+)$/, " and $1")}) is what stands out.
+  </p>
+  <Chart name="phase2" wide title="KL increase when one whole block is quantized"
+    caption="Looped blocks highlighted. Screening run, about 16k scored tokens per bar."
+    rows={p2.filter((r) => r.family === "block")} columns={[["block", "block"], ["qtype", "type"], ["kld_mean_avg", "mean KL", 5], ["kld_mean_avg_err", "std err", 5]]} />
+  <Chart name="family" wide title="Attention only vs experts only, one block at Q2_K"
+    caption="Same scan, perturbing only one part of the block. The attention bars carry the middle-layer bump; the expert bars stay flat across prelude and loop."
+    rows={[...attn, ...experts]} columns={[["block", "block"], ["family", "part"], ["kld_mean_avg", "mean KL", 5]]} />
+
+  <h2 id="fp4"><span class="num">6</span>FP4-native weights</h2>
+  <p>
+    The BF16 checkpoint is the released NVFP4/MXFP8 values upcast, so the native NVFP4 file is the model, not an
+    approximation of it. Any K-quant has to round those values onto a different grid.
+  </p>
+  {bfN && bfQ8 && bfQ4 && <div class="stat-row">
+    <div class="stat hi"><div class="v">{f4(bfN.kld_mean_avg)}</div><div class="l">NVFP4 file · {bfN.file_gb.toFixed(1)} GB</div></div>
+    <div class="stat"><div class="v">{f4(bfQ8.kld_mean_avg)}</div><div class="l">Q8_0 · {bfQ8.file_gb.toFixed(1)} GB</div></div>
+    <div class="stat"><div class="v">{f4(bfQ4.kld_mean_avg)}</div><div class="l">Q4_K_M · {bfQ4.file_gb.toFixed(1)} GB</div></div>
   </div>}
-  <Chart name="phase1" wide title="Uniform quants: quality vs size"
-    caption="Mean KL divergence averaged over three domains, log scale. Hover for details."
-    rows={p1} columns={[["variant", "variant"], ["file_gb", "size (GB)", 2], ["bpw", "bits/weight", 2], ["kld_mean_avg", "mean KL", 4],
-      ["wikitext_same_top_p_pct", "top-1 agree (%)", 1], ["pp_tps", "prefill tok/s", 0], ["tg_tps", "decode tok/s", 1]]} />
-  <p>
-    Is the NVFP4 file a fair reference? Inkling 2 Mini's experts were trained with NVFP4 forward passes and released in
-    NVFP4 (MXFP8 for blocks 20-23). The BF16 GGUF is those released values upcast to 16 bits, so it is the exact release,
-    just stored larger. The NVFP4 GGUF stores the same expert values bit for bit, so it is a near-lossless representation
-    of the release, while any K-quant or IQ quant re-grids weights that were trained on an FP4 grid. We measured all of
-    them against the BF16 GGUF, run on the CPU because it does not fit in GPU memory.
-  </p>
   <Chart name="bf16" wide title="Distance from the BF16 weights"
     caption="Mean KL vs BF16 over three domains. The NVFP4 file keeps the original 4-bit experts bit for bit."
-    rows={((site.experiments as any)["bf16check"] ?? []).filter((r: any) => r.role === "variant")}
-    columns={[["variant", "variant"], ["file_gb", "size (GB)", 2], ["kld_mean_avg", "mean KL vs BF16", 5], ["wikitext_same_top_p_pct", "top-1 agree (%)", 1]]} />
-  <p>
-    One practical finding: the down-projection experts are 1152 wide, which is not a multiple of 256, so llama.cpp cannot
-    store them in K-quant types and silently falls back (Q2_K and Q3_K become Q4_0, Q4_K becomes Q5_0, Q6_K becomes Q8_0).
-    A third of the weights never goes below about 4.5 bits per weight with stock types.
-  </p>
+    rows={bf} columns={[["variant", "variant"], ["file_gb", "size (GB)", 2], ["kld_mean_avg", "mean KL vs BF16", 5], ["wikitext_same_top_p_pct", "top-1 agree (%)", 1]]} />
 
-  <h2>Part 2: which layers are sensitive?</h2>
+  <h2><span class="num">7</span>Bits vs passes</h2>
   <p>
-    Keep everything at reference precision except one physical block, drop that block to 2 or 3 bits, and measure KL against
-    the reference. {p2Done ? "" : "The scan is running; the chart fills in when all 48 runs are in."}
-  </p>
-  <Chart name="phase2" wide title="KL increase when one block is quantized"
-    caption="Looped blocks highlighted. Screening run, about 16k scored tokens per bar."
-    rows={p2} columns={[["block", "block"], ["qtype", "type"], ["kld_mean_avg", "mean KL", 5], ["kld_mean_avg_err", "std err", 5]]} />
-  <p>
-    Two caveats shape how to read this. First, "Q2_K" does not reach every weight in the block: the down experts are 1152
-    wide and fall back to Q4_0, about the same storage as NVFP4, so the scan mostly measures attention plus the gate/up
-    experts. Separate runs perturb only the experts or only attention. Second, blocks do not start from the same place:
-    in the reference, experts of blocks 0-19 are NVFP4 while blocks 20-23 are Q8_0, so quantizing block 20 removes far
-    more bits. The chart below divides KL by the bits actually removed.
-  </p>
-  <Chart name="phase2norm" wide title="KL per gigabit removed"
-    caption="Bits removed come from the tensor types of each variant; weight error is measured by dequantizing both files."
-    rows={p2.filter((r: any) => r.kl_per_gbit_removed != null)} columns={[["block", "block"], ["qtype", "type"], ["kl_per_gbit_removed", "KL per Gbit", 4], ["rel_err", "rel. weight error", 4]]} />
-  <p>
-    A per-block scan cannot separate "this block loops" from "this block sits in the middle of the network", because all
-    looped blocks are in the middle. Part 3 removes that confound.
-  </p>
-
-  <h2>Part 3: the direct test, same block, more passes</h2>
-  <p>
-    TML-d24-varloop-research has the same architecture but accepts any number of loop passes. We quantize one block,
-    keep everything else identical, run the model with 1 to 6 passes, and compare each run with the unquantized model
-    at the same number of passes. Weights and position stay fixed; only the reuse count changes. The checkpoint was
-    trained with 1-5 passes, so N = 6 is shown hollow as an extrapolation and left out of the fit.
-  </p>
-  <p>
-    Blocks fall into three groups. Loop blocks are reused on every pass. Prelude blocks run once, but every pass restarts
-    from the prelude output, so their error is injected into all N passes. Coda blocks run once after the loop: they are
-    the control. If KL grows like N, the repeated errors add like independent noise; like N squared, they add
-    coherently, which is the loop tax.
-  </p>
-  <Chart name="headlineKL" wide title="KL from quantizing one block, by number of loop passes" caption="Log-log axes. Each line is one perturbed block." />
-  <Chart name="alpha" wide title="Fitted exponent alpha per block"
-    caption="KL(N) = c N^alpha, least squares on log-log over N = 1-5; 95% intervals from a paired bootstrap over evaluation chunks. Dashed lines at 0, 1 and 2."
-    rows={(site as any).alpha} columns={[["variant", "variant"], ["category", "category"], ["alpha", "alpha", 2]]} />
-
-  <h2>Part 4: loop-aware mixed precision</h2>
-  <p>
-    Back on Inkling 2 Mini: at a fixed file size, does it pay to give the loop blocks more bits? Every recipe keeps the down
-    experts at NVFP4 and attention at Q8_0, and varies the type of the gate/up experts per block: the same type everywhere,
-    NVFP4 in the loop and a lower type elsewhere, the mirror image, or blocks upgraded in order of their measured
-    experts-only sensitivity.
-  </p>
-  <Chart name="phase3" wide title="Quality vs size for four allocation strategies"
-    caption="Mean KL vs the NVFP4 reference over three domains. Grey squares: stock llama.cpp recipes and community GGUFs."
-    rows={((site.experiments as any)["phase3"] ?? []).filter((r: any) => r.role === "variant")}
-    columns={[["variant", "recipe"], ["recipe_family", "family"], ["file_gb", "size (GB)", 2], ["kld_mean_avg", "mean KL", 5], ["tg_tps", "decode tok/s", 1]]} />
-
-  <h2>Part 5: bits vs loop passes</h2>
-  <p>
-    The same checkpoint, now with every block's gate/up experts at one type, run at 1-5 passes. Quality is the KL from
-    the model as shipped (the reference at 3 passes); speed is decode tokens per second on the M4 Pro.
+    {q3at3 != null && nvAt2 != null && <>Against the 3-pass model as shipped, Q3 at 3 passes ({f4(q3at3)} KL) is closer than
+    full NVFP4 at 2 passes ({f4(nvAt2)}). </>}Fewer passes is faster, but it costs more quality than fewer bits.
   </p>
   <Chart name="grid" wide title="Fewer bits or fewer passes?"
-    caption="Each line is one bit width; points are 1-5 loop passes. Down experts NVFP4 and attention Q8_0 throughout."
-    rows={((site.experiments as any)["phase4-passes"] ?? []).filter((r: any) => ["reference", "uniform-iq4_xs", "uniform-q3_k", "uniform-q2_k"].includes(r.variant))}
-    columns={[["variant", "variant"], ["passes", "passes"], ["file_gb", "GB", 2], ["wikitext_vs3_kld_mean", "KL vs shipped (wikitext)", 5], ["tg_tps", "decode tok/s", 1]]} />
+    caption="Each line is one bit width for the gate/up experts; points are 1-5 loop passes. KL against the reference at 3 passes, averaged over wikitext and code."
+    rows={pp.filter((r) => ["reference", "uniform-iq4_xs", "uniform-q3_k", "uniform-q2_k"].includes(r.variant))}
+    columns={[["variant", "variant"], ["passes", "passes"], ["file_gb", "GB", 2], ["wikitext_vs3_kld_mean", "KL vs shipped (wikitext)", 5], ["code_vs3_kld_mean", "KL vs shipped (code)", 5], ["tg_tps", "decode tok/s", 1]]} />
 
-  <h2>What this means if you quantize looped models</h2>
-  <ul>
-    <li>Reuse alone is not a reason to spend more bits on a looped block. In a loop like Inkling's, where every pass restarts
-      from the same input and only a gated message carries over, the error of a reused block barely depends on how many
-      passes run. Loops that feed each pass's output straight into the next one may behave like the toy and should be
-      measured, not assumed.</li>
-    <li>Position matters more than reuse: middle blocks, and the attention of the global-attention layers in particular,
-      are the sensitive ones whether or not they loop. A per-block sensitivity scan is a better guide than the loop
-      structure.</li>
-    {bfN && bfQ && <li>If a model was trained and released with 4-bit weights, keep those weights as they are. For Inkling 2
-      Mini the NVFP4 file stores the released expert values exactly and is {(bfQ.kld_mean_avg / bfN.kld_mean_avg).toFixed(1)}x
-      closer to the release than a same-size Q4_K_M, which re-grids FP4-trained weights (KL {bfN.kld_mean_avg.toFixed(4)} vs
-      {" "}{bfQ.kld_mean_avg.toFixed(4)} against the BF16 GGUF). This is a statement about FP4-trained weights, not about NVFP4 vs
-      other formats in general.</li>}
-    <li>On llama.cpp, check which types your tensors can take: Inkling's down-projection experts are 1152 wide and cannot
-      use K-quants, so recipes silently fall back to larger types.</li>
-  </ul>
+  <h2><span class="num">8</span>Building a better quant</h2>
+  {p3.length === 0 ? (
+    <div class="pending">
+      <strong>In progress.</strong> Phase 3 results land here when they are in the repo. Bars to beat:
+      {ud && <> unsloth UD-Q4_K_M at {ud.file_gb.toFixed(1)} GB for 16 GB and up;</>}
+      {iq4xs && iq4nl && <> stock IQ4_XS ({iq4xs.file_gb.toFixed(1)} GB) and IQ4_NL ({iq4nl.file_gb.toFixed(1)} GB) below 16 GB.</>}
+    </div>
+  ) : (
+    <Chart name="phase3" wide title="Quality vs size for the Phase 3 recipes"
+      caption="Grey squares: stock llama.cpp recipes and community GGUFs."
+      rows={p3} columns={[["variant", "recipe"], ["recipe_family", "family"], ["file_gb", "size (GB)", 2], ["ref-bf16_kld_mean_avg", "mean KL vs BF16", 5], ["kld_mean_avg", "mean KL vs NVFP4 file", 5], ["tg_tps", "decode tok/s", 1]]} />
+  )}
 
-  <h2>Limitations</h2>
-  <ul>
-    <li>One model, one machine (Apple M4 Pro, 24 GB), one llama.cpp build ({site.env.llama_cpp_commit.slice(0, 7)}).</li>
-    <li>The reference is the NVFP4 GGUF, not BF16: 24 GB of memory cannot hold BF16 on the GPU.</li>
-    <li>KL on {Object.keys(site.evalset).length} text domains at context 2048; no downstream task evaluation.</li>
-    <li>The toy simulation uses random weights and plain residual iteration; the real loop is gated and restarts each pass.</li>
-    <li>The passes experiment uses TML-d24-varloop-research, a sibling research checkpoint, not Inkling 2 Mini itself. Its
-      reference has every expert at NVFP4, re-quantized from our Q8_0 conversion{rc ? `, which is itself KL ${rc.wikitext.kld_mean.toFixed(4)} (wikitext) from the Q8_0` : ""}.
-      The checkpoint was trained with 1-5 passes and post-trained with 3; 6 passes is an extrapolation.</li>
-    <li>Pass 1 runs the loop without the cross-pass message, so the step from 1 to 2 passes changes the computation, not
-      only the reuse count.</li>
-  </ul>
+  <h2><span class="num">9</span>Limitations</h2>
+  <p>
+    One model, one machine (Apple M4 Pro, {(site.env.memory_bytes / 2 ** 30).toFixed(0)} GB), KL on
+    {" "}{Object.keys(site.evalset).length === 3 ? "three" : Object.keys(site.evalset).length} text domains, no downstream task
+    scores. Passes other than 3 were only mid-trained, and pass 6 was never trained.
+  </p>
 
-  <h2>Reproduce it</h2>
-  <p>Hardware: {site.env.cpu}, {(site.env.memory_bytes / 2 ** 30).toFixed(0)} GB unified memory, {site.env.os}. llama.cpp {site.env.llama_cpp_version}.</p>
+  <h2 id="reproduce"><span class="num">10</span>Reproduce it</h2>
+  <p>Exact llama.cpp commit, every command, every result file.</p>
+  <p class="note">llama.cpp <code>{commit}</code> ({site.env.llama_cpp_version}) on {site.env.cpu}, {site.env.os}.</p>
   <pre><code>git clone {repo}
 cd loop-tax
-make remote-build remote-download         # llama.cpp at the pinned commit, reference GGUF
+make remote-build remote-download          # pinned llama.cpp, reference GGUF, varloop checkpoint, BF16 source
 python -m looptax.run configs/phase1.yaml --make-base
 python -m looptax.run configs/phase1.yaml
-python -m looptax.run configs/phase2_scan.yaml</code></pre>
-  <p>Raw results: <a href="data/results/manifest.json">manifest.json</a>, plus one JSON per run and a summary CSV per experiment under <code>data/results/</code>.</p>
+python -m looptax.run configs/bf16check.yaml
+python -m looptax.run configs/phase2_scan.yaml
+python -m looptax.run configs/phase4_passes.yaml
+python -m looptax.run configs/phase4_holdout.yaml
+make sync-results                          # pull result files into results/</code></pre>
+  <p>Raw results: <a href="data/results/manifest.json">manifest.json</a>, plus one JSON per run and a summary CSV per experiment under <code>data/results/</code>. The lab notebook traces every number: <a href={`${repo}/blob/main/notebook/LAB_NOTEBOOK.md`}>LAB_NOTEBOOK.md</a>.</p>
 
   <footer>
-    By Shubham Baid, Alethic Labs. Code: <a href={repo}>github.com/shubhambaid/loop-tax</a>.
+    By Shubham Baid, <a href="https://alethic-labs.com/">Alethic Labs</a>. Code: <a href={repo}>github.com/shubhambaid/loop-tax</a>.
     Built from repo commit {site.generatedFrom}.
   </footer>
 </main>

@@ -1647,6 +1647,114 @@
   "timestamp": "2026-11-26T12:07:34+00:00"
  },
  {
+  "file": "phase3-sub16/edge-hi-loop-q2_k.json",
+  "experiment": "phase3-sub16",
+  "variant": "edge-hi-loop-q2_k",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T03:25:13+00:00"
+ },
+ {
+  "file": "phase3-sub16/guided-12.6gb.json",
+  "experiment": "phase3-sub16",
+  "variant": "guided-12.6gb",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T03:32:28+00:00"
+ },
+ {
+  "file": "phase3-sub16/guided-13.4gb.json",
+  "experiment": "phase3-sub16",
+  "variant": "guided-13.4gb",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T03:39:22+00:00"
+ },
+ {
+  "file": "phase3-sub16/guided-13.7gb.json",
+  "experiment": "phase3-sub16",
+  "variant": "guided-13.7gb",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T03:46:08+00:00"
+ },
+ {
+  "file": "phase3-sub16/guided-15.1gb.json",
+  "experiment": "phase3-sub16",
+  "variant": "guided-15.1gb",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T03:52:23+00:00"
+ },
+ {
+  "file": "phase3-sub16/loop-hi-edges-q2_k.json",
+  "experiment": "phase3-sub16",
+  "variant": "loop-hi-edges-q2_k",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T03:18:24+00:00"
+ },
+ {
+  "file": "phase3-sub16/uniform-iq3_xxs.json",
+  "experiment": "phase3-sub16",
+  "variant": "uniform-iq3_xxs",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T02:44:55+00:00"
+ },
+ {
+  "file": "phase3-sub16/uniform-iq4_xs.json",
+  "experiment": "phase3-sub16",
+  "variant": "uniform-iq4_xs",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T02:58:06+00:00"
+ },
+ {
+  "file": "phase3-sub16/uniform-nvfp4.json",
+  "experiment": "phase3-sub16",
+  "variant": "uniform-nvfp4",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T03:11:34+00:00"
+ },
+ {
+  "file": "phase3-sub16/uniform-q2_k.json",
+  "experiment": "phase3-sub16",
+  "variant": "uniform-q2_k",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T02:32:41+00:00"
+ },
+ {
+  "file": "phase3-sub16/uniform-q3_k.json",
+  "experiment": "phase3-sub16",
+  "variant": "uniform-q3_k",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T02:51:21+00:00"
+ },
+ {
+  "file": "phase3-sub16/uniform-q4_k.json",
+  "experiment": "phase3-sub16",
+  "variant": "uniform-q4_k",
+  "git_commit": "919aa6959e5f86078fe0619ca62bbfb9eeb728c2",
+  "llama_cpp_commit": "07ba74babd586c6b5f558d196e3cf7cc1eea26f4",
+  "machine": "Shubhams-Mac-mini.local",
+  "timestamp": "2026-11-27T03:05:31+00:00"
+ },
+ {
   "file": "phase4-holdout/block03-q2_k-p1.json",
   "experiment": "phase4-holdout",
   "variant": "block03-q2_k",
