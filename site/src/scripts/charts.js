@@ -94,7 +94,7 @@ const renderers = {
     const rows = (site.experiments["phase2-scan"] || []).filter((r) => names[r.family] && r.qtype === "Q2_K" && r.kld_mean_avg != null)
       .map((r) => ({ ...r, part: names[r.family], role: r.block >= 6 && r.block <= 17 ? "looped (runs 3x)" : "runs once" }));
     if (!rows.length) return null;
-    return Plot.plot({ ...base(el),
+    return Plot.plot({ ...base(el), marginRight: 110,
       x: { label: "physical block", type: "band" }, y: { label: "mean KL vs reference", grid: true },
       fy: { label: null, domain: Object.values(names) },
       color: { domain: ["runs once", "looped (runs 3x)"], range: [css("--edge"), css("--loop")], legend: true },
@@ -119,7 +119,7 @@ const renderers = {
       .filter((r) => r.vs3 > 0);
     if (!rows.length) return null;
     return Plot.plot({ ...base(el),
-      x: { label: "decode tokens/s (M4 Pro)", grid: true }, y: { label: "KL vs the shipped model (reference at 3 passes)", type: "log", grid: true },
+      x: { label: "decode tokens/s (M4 Pro)", grid: true }, y: { label: "KL vs the shipped model (reference at 3 passes)", type: "log", grid: true, tickFormat: (v) => v.toPrecision(1) },
       color: { domain: Object.values(names), range: [css("--text"), css("--series-1"), css("--series-2"), css("--series-3")], legend: true },
       marks: [Plot.line(rows, { x: "tg_tps", y: "vs3", stroke: "series", sort: "passes", strokeWidth: 2 }),
               Plot.dot(rows, { x: "tg_tps", y: "vs3", fill: "series", r: 5, stroke: css("--surface"), strokeWidth: 2, channels: { passes: "passes", "file GB": "file_gb" }, tip: true }),

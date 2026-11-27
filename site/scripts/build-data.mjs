@@ -1,6 +1,6 @@
 // Build-time data for the site. Every number shown on the page comes from files under ../results, ../toy and
 // ../configs, read here. Nothing is typed by hand. Raw result files are copied to public/data for download.
-import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync, cpSync, statSync } from "node:fs";
+import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync, cpSync, statSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execSync } from "node:child_process";
@@ -68,7 +68,17 @@ const toy = {
 
 const models = YAML.parse(readFileSync(join(repo, "configs", "models.yaml"), "utf8"));
 const evalset = readJSON(join(repo, "configs", "evalset_manifest.json"));
-const env = readJSON(join(results, "env", "remote_inventory.json"));
+const envRaw = readJSON(join(results, "env", "remote_inventory.json"));
+
+// Privacy scrub for everything the site publishes: the remote box's hostname and absolute home-directory paths are
+// replaced (paths become relative to the work root). The repo's results/ files are left untouched.
+const hostname = envRaw.hostname;
+const scrub = (text) => {
+  let t = text.replace(/\/Users\/[^/"'\s]+\/looptax\//g, "").replace(/\/(?:Users|home)\/[^/"'\s]+/g, "~");
+  if (hostname) t = t.split(hostname).join("remote-m4pro");
+  return t;
+};
+const { hostname: _h, ...env } = envRaw;
 const layout = readJSON(join(results, "layout", "inkling2-mini-nvfp4.json"));
 const layoutSummary = {
   architecture: layout.architecture, block_count: layout.block_count_declared, physical_blocks: layout.physical_blocks_found,
@@ -87,10 +97,20 @@ try { gitCommit = execSync("git rev-parse --short HEAD", { cwd: repo }).toString
 
 const out = { generatedFrom: gitCommit, experiments, alpha, alphaHoldout, refcheck, recipes, toy, models, evalset, env, layout: layoutSummary, community };
 mkdirSync(join(here, "..", "src", "data"), { recursive: true });
-writeFileSync(join(here, "..", "src", "data", "site.json"), JSON.stringify(out));
+writeFileSync(join(here, "..", "src", "data", "site.json"), scrub(JSON.stringify(out)));
 
 // downloadable raw results
 const pub = join(here, "..", "public", "data");
 mkdirSync(pub, { recursive: true });
-cpSync(results, join(pub, "results"), { recursive: true });
+rmSync(join(pub, "results"), { recursive: true, force: true });
+const copyScrubbed = (src, dst) => {
+  mkdirSync(dst, { recursive: true });
+  for (const f of readdirSync(src)) {
+    const s = join(src, f), d = join(dst, f);
+    if (statSync(s).isDirectory()) copyScrubbed(s, d);
+    else if (/\.(json|csv|md|txt|yaml|yml|log)$/.test(f)) writeFileSync(d, scrub(readFileSync(s, "utf8")));
+    else cpSync(s, d);
+  }
+};
+copyScrubbed(results, join(pub, "results"));
 console.log(`site data: ${Object.keys(experiments).join(", ")} (repo ${gitCommit})`);

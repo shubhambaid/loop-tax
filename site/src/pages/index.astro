@@ -198,7 +198,6 @@ const commit = site.models?.llama_cpp?.commit ?? site.env.llama_cpp_commit;
           <rect x={72 + k * 120} y="40" width="64" height="40" rx="6" fill="var(--loop)" opacity="0.9" />
           <text x={104 + k * 120} y="65" text-anchor="middle" font-size="12" fill="#fff">W + e</text>
         </>)}
-        <line x1="388" y1="60" x2="398" y2="60" stroke="var(--text-2)" stroke-width="1.5" />
         <text x="200" y="108" text-anchor="middle" font-size="11" fill="var(--text-2)">output of pass k is the input of pass k+1: e is processed again</text>
       </svg>
       <div class="flow-title">Accumulator (the toy)</div>
@@ -257,7 +256,7 @@ const commit = site.models?.llama_cpp?.commit ?? site.env.llama_cpp_commit;
     {q3at3 != null && nvAt2 != null && <>Against the 3-pass model as shipped, Q3 at 3 passes ({f4(q3at3)} KL) is closer than
     full NVFP4 at 2 passes ({f4(nvAt2)}). </>}Fewer passes is faster, but it costs more quality than fewer bits.
   </p>
-  <Chart name="grid" wide title="Fewer bits or fewer passes?"
+  <Chart name="grid" wide title="Fewer bits or fewer passes"
     caption="Each line is one bit width for the gate/up experts; points are 1-5 loop passes. KL against the reference at 3 passes, averaged over wikitext and code."
     rows={pp.filter((r) => ["reference", "uniform-iq4_xs", "uniform-q3_k", "uniform-q2_k"].includes(r.variant))}
     columns={[["variant", "variant"], ["passes", "passes"], ["file_gb", "GB", 2], ["wikitext_vs3_kld_mean", "KL vs shipped (wikitext)", 5], ["code_vs3_kld_mean", "KL vs shipped (code)", 5], ["tg_tps", "decode tok/s", 1]]} />
@@ -287,14 +286,14 @@ const commit = site.models?.llama_cpp?.commit ?? site.env.llama_cpp_commit;
   <p class="note">llama.cpp <code>{commit}</code> ({site.env.llama_cpp_version}) on {site.env.cpu}, {site.env.os}.</p>
   <pre><code>git clone {repo}
 cd loop-tax
-make remote-build remote-download          # pinned llama.cpp, reference GGUF, varloop checkpoint, BF16 source
+make remote-build remote-download   # pinned llama.cpp and all models
 python -m looptax.run configs/phase1.yaml --make-base
 python -m looptax.run configs/phase1.yaml
 python -m looptax.run configs/bf16check.yaml
 python -m looptax.run configs/phase2_scan.yaml
 python -m looptax.run configs/phase4_passes.yaml
 python -m looptax.run configs/phase4_holdout.yaml
-make sync-results                          # pull result files into results/</code></pre>
+make sync-results                   # pull result files into results/</code></pre>
   <p>Raw results: <a href="data/results/manifest.json">manifest.json</a>, plus one JSON per run and a summary CSV per experiment under <code>data/results/</code>. The lab notebook traces every number: <a href={`${repo}/blob/main/notebook/LAB_NOTEBOOK.md`}>LAB_NOTEBOOK.md</a>.</p>
 
   <footer>
