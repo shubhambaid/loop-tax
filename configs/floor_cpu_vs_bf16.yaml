@@ -1,0 +1,8 @@
+# Same device as the BF16 reference: the NVFP4 GGUF run CPU-only against the (CPU-only) BF16 logits. Compared with the
+# GPU run of the same file in bf16check, this separates the weight difference from the device floor.
+experiment: floor-cpu-vs-bf16
+reference: {id: ref-bf16, model: models/Inkling-2-Mini-BF16.gguf}
+eval: {dir: data/eval, ctx: 2048, domains: {wikitext: 8, code: 4, multilingual: 4}}
+llama: {ngl: null, extra: ["--device", "none"]}
+variants:
+  - {id: nvfp4-file-cpu, file: models/Inkling-2-Mini-NVFP4.gguf, bench: false}

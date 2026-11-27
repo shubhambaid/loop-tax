@@ -1,0 +1,9 @@
+# Numerical floor: the SAME file (ggml-org NVFP4 GGUF) run CPU-only as the reference and on the Metal GPU as the
+# variant. Any KL here is compute-path noise (kernels, activation rounding, device), not a weight difference.
+# The BF16 reference logits were computed CPU-only, so every GPU variant measured against them carries this floor.
+experiment: floor-device
+reference: {id: nvfp4-cpu, model: models/Inkling-2-Mini-NVFP4.gguf, llama: {ngl: null, extra: ["--device", "none"]}}
+eval: {dir: data/eval, ctx: 2048, domains: {wikitext: 8, code: 4, multilingual: 4}}
+llama: {ngl: 99}
+variants:
+  - {id: nvfp4-file-gpu, file: models/Inkling-2-Mini-NVFP4.gguf, bench: false}
