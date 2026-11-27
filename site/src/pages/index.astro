@@ -18,6 +18,14 @@ const grid = site.toy.grid as { loop_bits: number; edge_bits: number; avg_bits: 
 const g54 = grid.find((g) => g.loop_bits === 5 && g.edge_bits === 4);
 const g45 = grid.find((g) => g.loop_bits === 4 && g.edge_bits === 5);
 
+// headline (held-out confirmation) and BF16 check
+const H = ((site as any).alphaHoldout ?? []) as any[];
+const hLoop = H.filter((r) => r.category === "loop"), hCoda = H.find((r) => r.category === "coda");
+const f2 = (x: number) => x.toFixed(2);
+const bf = ((site.experiments as any)["bf16check"] ?? []).filter((r: any) => r.role === "variant");
+const bfN = bf.find((r: any) => r.variant === "ggml-org-nvfp4"), bfQ = bf.find((r: any) => r.variant === "q4_k_m-from-bf16");
+const rc = (site as any).refcheck;
+
 // phase 1
 const p1 = ((site.experiments as any)["phase1-baselines"] ?? []).filter((r: any) => r.role === "variant")
   .sort((a: any, b: any) => a.file_gb - b.file_gb);
@@ -56,13 +64,26 @@ const repo = "https://github.com/shubhambaid/loop-tax";
     weights and run {passes} times. We measured whether those shared weights are more sensitive to quantization, and whether
     spending bits on them beats uniform recipes.
   </p>
-  <div class="pending">Headline result: written once Phases 2-4 are complete. Status of each part is shown below.</div>
+  {hLoop.length > 0 && hCoda && (
+    <div class="stat-row">
+      {hLoop.map((r) => <div class="stat"><div class="v">N<sup>{f2(r.alpha)}</sup></div><div class="l">KL growth with loop passes, looped block {r.block} (95% CI {f2(r.alpha_ci95[0])} to {f2(r.alpha_ci95[1])})</div></div>)}
+      <div class="stat"><div class="v">N<sup>{f2(hCoda.alpha)}</sup></div><div class="l">same for block {hCoda.block}, which runs once (control)</div></div>
+    </div>
+  )}
+  {hLoop.length > 0 && (
+    <p><strong>Short answer: a small loop tax, not a compounding one.</strong> On TML-d24-varloop-research, Inkling 2 Mini's
+    sibling checkpoint that accepts any number of loop passes, quantizing one looped block and running the model with
+    more passes makes the damage grow like N<sup>{f2(Math.min(...hLoop.map((r) => r.alpha)))}</sup> to
+    N<sup>{f2(Math.max(...hLoop.map((r) => r.alpha)))}</sup> on held-out text. Errors that added up independently would
+    grow like N, errors that compound coherently like N<sup>2</sup>. Most of the extra sensitivity of the looped blocks is
+    there even with a single pass: it comes from where they sit in the network, not from being reused.</p>
+  )}
 
   <h2>The architecture</h2>
   <p>
     Blocks 0-{loopStart - 1} (the prelude) run once. Blocks {loopStart}-{loopEnd - 1} (the loop core) run {passes} times; every
     pass starts again from the prelude output and receives a gated message from the previous pass, and every visit keeps its
-    own KV cache. Only the last pass continues into blocks {loopEnd}-{L.block_count - 1} (the coda).
+    own KV cache. Only the last pass continues into blocks {loopEnd}-{L.block_count - 1} (the coda).{" "}
     {`The loop core holds ${gb(L.params_loop_blocks)} parameters and the prelude plus coda ${gb(L.params_edge_blocks)}; routed experts are ${pct(L.params_by_family.experts / L.params_total)} of all weights.`}
   </p>
   <figure class="wide">
@@ -192,7 +213,17 @@ const repo = "https://github.com/shubhambaid/loop-tax";
     columns={[["variant", "variant"], ["passes", "passes"], ["file_gb", "GB", 2], ["wikitext_vs3_kld_mean", "KL vs shipped (wikitext)", 5], ["tg_tps", "decode tok/s", 1]]} />
 
   <h2>What this means if you quantize looped models</h2>
-  <div class="pending">Written once the results are in.</div>
+  <ul>
+    <li>Reuse alone is not a reason to spend many more bits on a looped block. On this model the error of a reused block
+      grows weakly with the number of passes, not linearly or quadratically.</li>
+    <li>Position matters more than reuse: middle blocks, and the attention of the global-attention layers in particular,
+      are the sensitive ones whether or not they loop. A per-block sensitivity scan is a better guide than the loop
+      structure.</li>
+    {bfN && bfQ && <li>If a model was trained with 4-bit weights, keep them. The NVFP4 file is {(bfQ.kld_mean_avg / bfN.kld_mean_avg).toFixed(1)}x
+      closer to the released weights than Q4_K_M of the same size (KL {bfN.kld_mean_avg.toFixed(4)} vs {bfQ.kld_mean_avg.toFixed(4)}).</li>}
+    <li>On llama.cpp, check which types your tensors can take: Inkling's down-projection experts are 1152 wide and cannot
+      use K-quants, so recipes silently fall back to larger types.</li>
+  </ul>
 
   <h2>Limitations</h2>
   <ul>
@@ -200,6 +231,11 @@ const repo = "https://github.com/shubhambaid/loop-tax";
     <li>The reference is the NVFP4 GGUF, not BF16: 24 GB of memory cannot hold BF16 on the GPU.</li>
     <li>KL on {Object.keys(site.evalset).length} text domains at context 2048; no downstream task evaluation.</li>
     <li>The toy simulation uses random weights and plain residual iteration; the real loop is gated and restarts each pass.</li>
+    <li>The passes experiment uses TML-d24-varloop-research, a sibling research checkpoint, not Inkling 2 Mini itself. Its
+      reference has every expert at NVFP4, re-quantized from our Q8_0 conversion{rc ? `, which is itself KL ${rc.wikitext.kld_mean.toFixed(4)} (wikitext) from the Q8_0` : ""}.
+      The checkpoint was trained with 1-5 passes and post-trained with 3; 6 passes is an extrapolation.</li>
+    <li>Pass 1 runs the loop without the cross-pass message, so the step from 1 to 2 passes changes the computation, not
+      only the reuse count.</li>
   </ul>
 
   <h2>Reproduce it</h2>

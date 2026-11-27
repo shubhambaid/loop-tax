@@ -31,6 +31,10 @@ if (existsSync(p3)) {
 // headline fit and per-block weight error (normalisation for the scan)
 const alphaFile = join(results, "phase4-passes", "alpha_fit.json");
 const alpha = existsSync(alphaFile) ? readJSON(alphaFile) : [];
+const holdoutFile = join(results, "phase4-holdout", "alpha_fit.json");
+const alphaHoldout = existsSync(holdoutFile) ? readJSON(holdoutFile) : [];
+const refcheckFile = join(results, "varloop-refcheck", "nvfp4r.json");
+const refcheck = existsSync(refcheckFile) ? readJSON(refcheckFile).domains : null;
 const werrDir = join(results, "phase2-scan-weight-error");
 const werr = existsSync(werrDir) ? Object.fromEntries(readdirSync(werrDir).filter((f) => f.endsWith(".json")).map((f) => {
   const r = readJSON(join(werrDir, f)); const t = r.weight_error.block_total;
@@ -72,7 +76,7 @@ const community = readdirSync(join(results, "layout")).filter((f) => f.startsWit
 let gitCommit = "unknown";
 try { gitCommit = execSync("git rev-parse --short HEAD", { cwd: repo }).toString().trim(); } catch {}
 
-const out = { generatedFrom: gitCommit, experiments, alpha, recipes, toy, models, evalset, env, layout: layoutSummary, community };
+const out = { generatedFrom: gitCommit, experiments, alpha, alphaHoldout, refcheck, recipes, toy, models, evalset, env, layout: layoutSummary, community };
 mkdirSync(join(here, "..", "src", "data"), { recursive: true });
 writeFileSync(join(here, "..", "src", "data", "site.json"), JSON.stringify(out));
 
