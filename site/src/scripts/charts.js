@@ -106,12 +106,12 @@ const renderers = {
     const rows = (site.experiments["bf16check"] || []).filter((r) => r.role === "variant" && r.kld_mean_avg != null)
       .map((r) => ({ ...r, kind: r.variant === "ggml-org-nvfp4" ? "NVFP4 GGUF (original experts)" : "other quants" }));
     if (!rows.length) return null;
-    return Plot.plot({ ...base(el), marginRight: 60, marginLeft: 150, height: 40 + 34 * rows.length,
+    return Plot.plot({ ...base(el), marginRight: rows.some((r) => r.device && r.device !== "GPU") ? 190 : 60, marginLeft: 150, height: 40 + 34 * rows.length,
       x: { label: "mean KL vs BF16 (3 domains)", grid: true },
       y: { label: null, domain: rows.slice().sort((a, b) => a.kld_mean_avg - b.kld_mean_avg).map((r) => r.variant) },
       color: { domain: ["NVFP4 GGUF (original experts)", "other quants"], range: [css("--loop"), css("--edge")], legend: true },
       marks: [...(fl ? [Plot.ruleX([fl], { stroke: css("--text-2"), strokeDasharray: "4,3" })] : []), Plot.barX(rows, { y: "variant", x: "kld_mean_avg", fill: "kind", rx: 2, channels: { "size (GB)": "file_gb" }, tip: true }),
-              Plot.text(rows, { y: "variant", x: "kld_mean_avg", text: (d) => `${d.file_gb.toFixed(1)} GB`, dx: 6, textAnchor: "start", fill: css("--text-2"), fontSize: 11 })] });
+              Plot.text(rows, { y: "variant", x: "kld_mean_avg", text: (d) => `${d.file_gb.toFixed(1)} GB${d.device && d.device !== "GPU" ? ` · ${d.device}` : ""}`, dx: 6, textAnchor: "start", fill: css("--text-2"), fontSize: 11 })] });
   },
   grid(el) {
     const names = { reference: "NVFP4 (reference)", "uniform-iq4_xs": "IQ4_XS experts", "uniform-q3_k": "Q3_K experts", "uniform-q2_k": "Q2_K experts" };

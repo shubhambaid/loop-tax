@@ -27,6 +27,17 @@ for (const f of ["phase3_sub16.yaml", "phase3_frontier.yaml"]) {
 experiments["phase3"] = [...(experiments["phase3-sub16"] ?? []), ...(experiments["phase3-frontier"] ?? [])];
 for (const r of experiments["phase3"]) r.recipe_family = p3family[r.variant];
 
+// where each BF16-check variant ran, from its config (run.py: "--device none" is CPU only, ngl null is llama.cpp's
+// --fit split, otherwise everything is offloaded to the GPU)
+{
+  const c = YAML.parse(readFileSync(join(repo, "configs", "bf16check.yaml"), "utf8"));
+  const device = (llama = {}) => (llama.extra ?? []).join(" ").includes("--device none") ? "CPU"
+    : llama.ngl === null ? "CPU+GPU split via --fit" : "GPU";
+  const dev = { [c.reference.id]: device(c.reference.llama) };
+  for (const v of c.variants) dev[v.id] = device({ ...c.llama, ...v.llama });
+  for (const r of experiments["bf16check"] ?? []) r.device = dev[r.variant];
+}
+
 // per-variant JSON details that the CSV flattens away (recipes, tensor types per block for phase 3)
 const recipes = {};
 const p3 = join(results, "phase3-recipes");

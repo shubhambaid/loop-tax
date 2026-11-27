@@ -28,6 +28,10 @@ const hLoop = H.filter((r) => r.category === "loop" && r.alpha_2to5 != null);
 const hCoda = H.find((r) => r.category === "coda" && r.alpha_2to5 != null);
 const confirmed = hLoop.length > 0 && hCoda != null;
 const ci = (r: any) => `[${f2(r.alpha_2to5_ci95[0])}, ${f2(r.alpha_2to5_ci95[1])}]`;
+// held-out growth of KL from 2 to 5 passes, against coherent stacking (alpha = 2, the "errors add up" case)
+const grow = (r: any) => r.kl_mean_by_passes["5"] / r.kl_mean_by_passes["2"];
+const worstLoop = hLoop.slice().sort((a, b) => grow(b) - grow(a))[0];
+const stacked = (5 / 2) ** 2;
 
 // sensitivity by family
 const p2 = variants("phase2-scan");
@@ -65,6 +69,10 @@ const iq4xs = base.find((r) => r.variant === "iq4_xs"), iq4nl = base.find((r) =>
 // >= 16 GB frontier, which turned out to sit at the measurement floor against BF16 (see section 6).
 const phase3Final = true;
 const p3 = phase3Final ? variants("phase3") : [];
+// >= 16 GB: the one frontier recipe that stays clearly above the floor, and the rest that sit at it
+const restQ6 = p3.find((r) => r.variant === "s6-bf16-rest-q6k");
+const atFloor = restQ6 ? p3.filter((r) => r.recipe_family === "frontier" && r.file_gb > restQ6.file_gb) : [];
+const atFloorGb = [Math.min(...atFloor.map((r) => r.file_gb)), Math.max(...atFloor.map((r) => r.file_gb))].map((x) => x.toFixed(1));
 
 // architecture diagram geometry
 const blocks = Array.from({ length: L.block_count }, (_, i) => i);
@@ -110,10 +118,12 @@ const commit = site.models?.llama_cpp?.commit ?? site.env.llama_cpp_commit;
   <section id="tldr" class="tldr">
     <h2>TL;DR</h2>
     <ol>
-      <li><strong>Reuse does not compound quantization error.</strong> A quantized loop block does about the same damage at
-        2 passes as at 5, like control blocks that run once.
-        {confirmed && <> Confirmed on held-out text: loop blocks {hLoop.map((r, i) => <>{i ? " and " : ""}{r.block} at N<sup>{f2(r.alpha_2to5)}</sup></>)},
-        control block {hCoda.block} at N<sup>{f2(hCoda.alpha_2to5)}</sup>.</>}</li>
+      {confirmed && <li><strong>Reuse does not compound quantization error.</strong> The damage from a quantized loop block
+        grows at most about {grow(worstLoop).toFixed(1)}x from 2 to 5 passes (block {worstLoop.block}, held-out), against
+        about {Math.round(stacked)}x if errors stacked;
+        the coda control {grow(hCoda) <= 1 ? "does not grow" : `grows ${grow(hCoda).toFixed(2)}x`}. Held-out fits: loop
+        blocks {hLoop.map((r, i) => <>{i ? " and " : ""}{r.block} at N<span class="caret">^</span><sup>{f2(r.alpha_2to5)}</sup></>)},
+        control block {hCoda.block} at N<span class="caret">^</span><sup>{f2(hCoda.alpha_2to5)}</sup>.</li>}
       <li><strong>Loop blocks are more sensitive, but because of where they sit, not because they repeat.</strong> The
         sensitive part is attention in a few middle layers, not the experts.</li>
       {bfN && bfQ4 && floor && <li><strong>For a model trained in FP4, keep the native NVFP4 file.</strong>{" "}
@@ -169,7 +179,7 @@ const commit = site.models?.llama_cpp?.commit ?? site.env.llama_cpp_commit;
   <h2 id="test"><span class="num">3</span>The controlled test</h2>
   <p>
     On the variable-loop research checkpoint we quantized one block and ran 1 to 5 passes, comparing each run with the
-    unquantized model at the same pass count. We fit KL = c · N<sup>α</sup>: α near 2 means errors add coherently, near
+    unquantized model at the same pass count. We fit KL = c · N<span class="caret">^</span><sup>α</sup>: α near 2 means errors add coherently, near
     1 independently, near 0 not at all.
     {loop25 && coda25 && <> Loop blocks came out at {f2(loop25[0])} to {f2(loop25[1])} (passes 2 to 5), coda controls at
     {" "}{f2(coda25[0])} to {f2(coda25[1])}.</>} Pass 1 differs from the rest because it has no incoming message, so the
@@ -260,8 +270,8 @@ const commit = site.models?.llama_cpp?.commit ?? site.env.llama_cpp_commit;
     <div class="stat"><div class="v">{f4(bfQ4.kld_mean_avg)}</div><div class="l">Q4_K_M · {bfQ4.file_gb.toFixed(1)} GB</div></div>
   </div>}
   <Chart name="bf16" wide title="Distance from the BF16 weights"
-    caption="Mean KL vs BF16 (computed on the CPU) over three domains. Dashed line: the same NVFP4 file run on CPU vs GPU, the measurement floor."
-    rows={bf} columns={[["variant", "variant"], ["file_gb", "size (GB)", 2], ["kld_mean_avg", "mean KL vs BF16", 5], ["wikitext_same_top_p_pct", "top-1 agree (%)", 1]]} />
+    caption={`Mean KL vs BF16 over three domains. BF16 reference logits computed on CPU; variants run on GPU unless marked${bf.some((r) => r.device && r.device !== "GPU") ? ` (${bf.filter((r) => r.device && r.device !== "GPU").map((r) => `${r.variant}: ${r.device}`).join("; ")})` : ""}. Dashed line: the same NVFP4 file run on CPU vs GPU, the measurement floor.`}
+    rows={bf} columns={[["variant", "variant"], ["device", "ran on"], ["file_gb", "size (GB)", 2], ["kld_mean_avg", "mean KL vs BF16", 5], ["wikitext_same_top_p_pct", "top-1 agree (%)", 1]]} />
 
   <h2><span class="num">7</span>Bits vs passes</h2>
   <p>
@@ -296,9 +306,11 @@ const commit = site.models?.llama_cpp?.commit ?? site.env.llama_cpp_commit;
       <li><strong>Below 15 GB, the same type everywhere beats mixing:</strong> uniform IQ3_XXS is better than every recipe that
         mixes Q2_K and NVFP4, at a smaller size. Recipes guided by single-block scans did worst: single-block sensitivities do
         not add up when many blocks are quantized together.</li>
-      {ud && floor && <li><strong>At 16 GB and up there is nothing left to win:</strong> unsloth's UD-Q4_K_M, the NVFP4 file and
-        all our recipes sit within the measurement floor of the release ({f4(floor)}), so none can be shown to be better than
-        another. We are not publishing a "better quant".</li>}
+      {ud && floor && atFloor.length > 0 && restQ6 && <li><strong>At 16 GB and up there is nothing left to win:</strong>
+        unsloth's UD-Q4_K_M, the NVFP4 file and our recipes between {atFloorGb[0]} and {atFloorGb[1]} GB sit within the
+        measurement floor of the release ({f4(floor)}), so none of them can be shown to be better than another. The recipes
+        under 16 GB and {restQ6.variant} ({restQ6.file_gb.toFixed(2)} GB, KL {f4(restQ6["ref-bf16_kld_mean_avg"])}) are
+        clearly above the floor, so their ranking stands. We are not publishing a "better quant".</li>}
     </ul>
     <Chart name="phase3" wide title="Quality vs size for the Phase 3 recipes"
       caption="Mean KL vs BF16. Dashed line: measurement floor (same file, CPU vs GPU). Grey squares: other GGUFs measured against the same BF16 logits. Screening run, 16 chunks per point."

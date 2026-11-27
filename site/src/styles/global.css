@@ -88,3 +88,6 @@ th { color: var(--text-2); font-weight: 600; }
 footer { margin-top: 4rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--text-2); }
 /* Observable Plot tooltips follow the theme */
 [aria-label="tip"] { fill: var(--surface); stroke: var(--border); color: var(--text); }
+
+/* "^" before an exponent: hidden on screen (the <sup> shows it), kept in copied and plain text as N^0.06 */
+.caret { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
