@@ -279,3 +279,28 @@ one any Phase 3 recipe has to beat.
 **Phase 3 queued** after the held-out run (`configs/phase3_recipes.yaml`, 19 recipes): uniform gate/up types, loop-hi
 and its mirror edge-hi at matched sizes, and an experts-guided greedy recipe ranked by the experts-only scan (it
 upgrades prelude and early-loop blocks and 16-17 first, coda last).
+
+## 2026-11-27: Held-out confirmation of the headline
+
+`configs/phase4_holdout.yaml`: blocks 9, 17 (loop), 3 (prelude), 20 (coda) at Q2_K, N = 1, 3, 5, on the disjoint
+held-out slice (wikitext 16 chunks from character 300000, code 8 chunks from five other CPython files; 24 chunks,
+twice the screening). Fit KL = c N^alpha on N = 1, 3, 5 (`results/phase4-holdout/alpha_fit.json`, 5000 paired
+bootstrap resamples over chunks). Screening alpha refit on the same three N for comparison.
+
+| block | category | screening alpha (N = 1, 3, 5) | held-out alpha [95% CI] | held-out KL N = 1 / 3 / 5 |
+|---|---|---|---|---|
+| 9 | loop | 0.22 | 0.23 [0.19, 0.28] | 0.00761 / 0.01038 / 0.01090 |
+| 17 | loop | 0.30 | 0.30 [0.27, 0.34] | 0.00759 / 0.01092 / 0.01228 |
+| 3 | prelude | 0.03 | 0.10 [0.04, 0.16] | 0.00591 / 0.00714 / 0.00678 |
+| 20 | coda | 0.04 | -0.04 [-0.07, -0.01] | 0.00509 / 0.00475 / 0.00478 |
+
+The held-out run reproduces the screening exponents for the loop blocks almost exactly and keeps the coda control
+flat. **Finding:** quantization error in a reused block does grow with the number of passes, but weakly and
+sublinearly (alpha about 0.2-0.3 for the blocks that grow at all; 6 and 12 do not), far from the alpha = 1 of
+independent addition or the alpha = 2 of coherent compounding that the toy simulation suggested. Most of the extra
+sensitivity of middle blocks is already present at N = 1, when the block runs once. For this model the "loop tax" is
+a small effect on top of a position effect, not a compounding one.
+
+Housekeeping: the holdout session was meant to delete the BF16 GGUF once the BF16 check was complete, but macOS
+`wc -l` pads its output with spaces and the integer test failed, so the file stayed; deleted by hand at 06:23 after
+checking the 8 result files (108 GB free afterwards).

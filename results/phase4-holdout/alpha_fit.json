@@ -1,0 +1,162 @@
+[
+ {
+  "variant": "block03-q2_k",
+  "block": 3,
+  "category": "prelude",
+  "qtype": "Q2_K",
+  "domains": [
+   "code",
+   "wikitext"
+  ],
+  "chunks": 24,
+  "fit_passes": [
+   1,
+   3,
+   5
+  ],
+  "alpha": 0.09931445530472277,
+  "alpha_ci95": [
+   0.04234707170431051,
+   0.15930129419267036
+  ],
+  "c": 0.00602467196785368,
+  "alpha_2to5": null,
+  "alpha_2to5_ci95": null,
+  "kl_mean_by_passes": {
+   "1": 0.005909079212609563,
+   "3": 0.007142114631003991,
+   "5": 0.0067804177278694205
+  },
+  "kl_ratio_to_1_pass": {
+   "1": 1.0,
+   "3": 1.20866794538195,
+   "5": 1.1474575790760229
+  },
+  "extrapolated_passes": [],
+  "bootstrap": {
+   "resamples": 5000,
+   "unit": "evaluation chunk (paired across N)",
+   "seed": 0
+  }
+ },
+ {
+  "variant": "block09-q2_k",
+  "block": 9,
+  "category": "loop",
+  "qtype": "Q2_K",
+  "domains": [
+   "code",
+   "wikitext"
+  ],
+  "chunks": 24,
+  "fit_passes": [
+   1,
+   3,
+   5
+  ],
+  "alpha": 0.23264163594857762,
+  "alpha_ci95": [
+   0.18978921851885153,
+   0.2767207143985698
+  ],
+  "c": 0.007712018619995419,
+  "alpha_2to5": null,
+  "alpha_2to5_ci95": null,
+  "kl_mean_by_passes": {
+   "1": 0.007612045188845715,
+   "3": 0.010375767249300668,
+   "5": 0.010904115023922287
+  },
+  "kl_ratio_to_1_pass": {
+   "1": 1.0,
+   "3": 1.3630722088335425,
+   "5": 1.4324816463124255
+  },
+  "extrapolated_passes": [],
+  "bootstrap": {
+   "resamples": 5000,
+   "unit": "evaluation chunk (paired across N)",
+   "seed": 0
+  }
+ },
+ {
+  "variant": "block17-q2_k",
+  "block": 17,
+  "category": "loop",
+  "qtype": "Q2_K",
+  "domains": [
+   "code",
+   "wikitext"
+  ],
+  "chunks": 24,
+  "fit_passes": [
+   1,
+   3,
+   5
+  ],
+  "alpha": 0.30416921840488365,
+  "alpha_ci95": [
+   0.26979995656064765,
+   0.34167040924209013
+  ],
+  "c": 0.007644082167547301,
+  "alpha_2to5": null,
+  "alpha_2to5_ci95": null,
+  "kl_mean_by_passes": {
+   "1": 0.007589223471044314,
+   "3": 0.010922102001263848,
+   "5": 0.012280137508869747
+  },
+  "kl_ratio_to_1_pass": {
+   "1": 1.0,
+   "3": 1.439159361024971,
+   "5": 1.6181019778535972
+  },
+  "extrapolated_passes": [],
+  "bootstrap": {
+   "resamples": 5000,
+   "unit": "evaluation chunk (paired across N)",
+   "seed": 0
+  }
+ },
+ {
+  "variant": "block20-q2_k",
+  "block": 20,
+  "category": "coda",
+  "qtype": "Q2_K",
+  "domains": [
+   "code",
+   "wikitext"
+  ],
+  "chunks": 24,
+  "fit_passes": [
+   1,
+   3,
+   5
+  ],
+  "alpha": -0.042498978050078844,
+  "alpha_ci95": [
+   -0.07252882442044684,
+   -0.013951872501291197
+  ],
+  "c": 0.005063508095585439,
+  "alpha_2to5": null,
+  "alpha_2to5_ci95": null,
+  "kl_mean_by_passes": {
+   "1": 0.005090509571150211,
+   "3": 0.004752226226976621,
+   "5": 0.0047831443132938245
+  },
+  "kl_ratio_to_1_pass": {
+   "1": 1.0,
+   "3": 0.933546270870255,
+   "5": 0.9396199430409995
+  },
+  "extrapolated_passes": [],
+  "bootstrap": {
+   "resamples": 5000,
+   "unit": "evaluation chunk (paired across N)",
+   "seed": 0
+  }
+ }
+]
